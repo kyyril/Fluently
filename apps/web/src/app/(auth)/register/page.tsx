@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input } from '@fluently/ui';
 import { useAuth } from '@/hooks';
 import { Loader2, User, Mail, Lock, Sparkles } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function RegisterPage() {
     const { register } = useAuth();
@@ -37,11 +38,12 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 py-20 relative overflow-y-auto">
+            <ThemeToggle className="absolute top-4 right-4" />
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
-                    <div className="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Sparkles className="h-6 w-6 text-primary" />
+                    <div className="mx-auto mb-4 w-16 h-16 flex items-center justify-center">
+                        <img src="/brand.svg" alt="Fluently Logo" className="w-full h-full" />
                     </div>
                     <CardTitle className="text-2xl">Create your account</CardTitle>
                     <p className="text-muted-foreground text-sm mt-2">

@@ -4,11 +4,6 @@ import { persist } from 'zustand/middleware';
 export type Theme = 'light' | 'dark' | 'system';
 
 interface UIState {
-    // Sidebar
-    sidebarOpen: boolean;
-    toggleSidebar: () => void;
-    setSidebarOpen: (open: boolean) => void;
-
     // Modal
     modalOpen: string | null;
     openModal: (id: string) => void;
@@ -17,16 +12,12 @@ interface UIState {
     // Theme
     theme: Theme;
     setTheme: (theme: Theme) => void;
+    toggleTheme: () => void;
 }
 
 export const useUIStore = create<UIState>()(
     persist(
         (set) => ({
-            // Sidebar
-            sidebarOpen: true,
-            toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
-            setSidebarOpen: (open) => set({ sidebarOpen: open }),
-
             // Modal
             modalOpen: null,
             openModal: (id) => set({ modalOpen: id }),
@@ -35,6 +26,9 @@ export const useUIStore = create<UIState>()(
             // Theme
             theme: 'system',
             setTheme: (theme) => set({ theme }),
+            toggleTheme: () => set((s) => ({
+                theme: s.theme === 'dark' ? 'light' : 'dark'
+            })),
         }),
         {
             name: 'fluently-ui',

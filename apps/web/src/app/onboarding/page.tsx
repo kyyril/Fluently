@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@fluently/ui';
 import { useAuth, useUser } from '@/hooks';
 import { Languages, Target, Gauge, Sparkles, Loader2 } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const LANGUAGES = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -44,18 +45,13 @@ export default function OnboardingPage() {
         }
     }, [isLoading, isError, user, router]);
 
-    // No early return for isLoading
-    // if (!user && !isLoading) return null; // This is handled by the redirect effect
-
-    // We need an onboarding specific mutation in useAuth or useUser
-    // I will add it to useAuth for now.
-
     const handleComplete = () => {
         onboarding.mutate({ nativeLanguage, targetLanguage, level: level as any });
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 py-12 relative overflow-y-auto">
+            <ThemeToggle className="absolute top-4 right-4" />
             <div className="w-full max-w-2xl">
                 {/* Progress Dots */}
                 <div className="flex justify-center gap-2 mb-8">
@@ -69,12 +65,12 @@ export default function OnboardingPage() {
 
                 <Card className="border-none shadow-2xl">
                     <CardHeader className="text-center">
-                        <div className="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                            <Sparkles className="h-6 w-6 text-primary" />
+                        <div className="mx-auto mb-4 w-16 h-16 flex items-center justify-center">
+                            <img src="/brand.svg" alt="Fluently Logo" className="w-full h-full" />
                         </div>
                         <CardTitle className="text-3xl font-black">
                             {isLoading ? (
-                                <div className="h-9 w-64 bg-muted animate-shimmer rounded mx-auto" />
+                                <div className="h-9 w-64 animate-shimmer rounded mx-auto" />
                             ) : (
                                 <>
                                     {step === 1 && "What's your native language?"}
@@ -84,7 +80,7 @@ export default function OnboardingPage() {
                             )}
                         </CardTitle>
                         {isLoading ? (
-                            <div className="h-5 w-48 bg-muted animate-pulse rounded mx-auto mt-2" />
+                            <div className="h-5 w-48 bg-muted animate-shimmer rounded mx-auto mt-2" />
                         ) : (
                             <p className="text-muted-foreground">
                                 Help us personalize your learning experience.

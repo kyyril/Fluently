@@ -21,6 +21,25 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
+            <head>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
+              (function() {
+                try {
+                  var ui = JSON.parse(localStorage.getItem('fluently-ui'));
+                  var theme = ui && ui.state && ui.state.theme ? ui.state.theme : 'system';
+                  if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch (e) {}
+              })()
+            `,
+                    }}
+                />
+            </head>
             <body className={`${inter.variable} font-sans`}>
                 <Providers>
                     {children}
