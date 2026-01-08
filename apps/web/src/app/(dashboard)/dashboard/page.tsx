@@ -1,9 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, Button } from '@fluently/ui';
 import {
     useTodayRoutine,
-    useCompleteTask,
     useUser,
     getTaskName,
     getTaskXp,
@@ -16,11 +16,20 @@ import {
     Trophy,
     Target,
 } from 'lucide-react';
+import { TaskDialog } from '@/features/routine/components/TaskDialog';
 
 export default function DashboardPage() {
     const { data: user } = useUser();
     const { data: routine, isLoading } = useTodayRoutine();
-    const { mutate: completeTask, isPending, variables } = useCompleteTask();
+
+    const [activeTask, setActiveTask] = useState<any>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+    const handleOpenTask = (task: any) => {
+        if (task.completed) return;
+        setActiveTask({ ...task, dailyLogId: routine?.id });
+        setIsDialogOpen(true);
+    };
 
     if (isLoading) {
         return (
@@ -118,8 +127,8 @@ export default function DashboardPage() {
                                 <div className="flex items-center gap-4">
                                     <div
                                         className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${task.completed
-                                                ? 'bg-green-500 text-white'
-                                                : 'bg-muted text-muted-foreground'
+                                            ? 'bg-green-500 text-white'
+                                            : 'bg-muted text-muted-foreground'
                                             }`}
                                     >
                                         {task.completed ? <Check className="h-4 w-4" /> : index + 1}
@@ -140,17 +149,15 @@ export default function DashboardPage() {
                                 <Button
                                     variant={task.completed ? 'ghost' : 'primary'}
                                     size="sm"
-                                    disabled={task.completed || (isPending && variables === task.id)}
-                                    onClick={() => completeTask(task.id)}
+                                    disabled={task.completed}
+                                    onClick={() => handleOpenTask(task)}
                                 >
-                                    {isPending && variables === task.id ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : task.completed ? (
+                                    {task.completed ? (
                                         <>
                                             <Check className="h-4 w-4 mr-1" /> Done
                                         </>
                                     ) : (
-                                        'Complete'
+                                        'Start'
                                     )}
                                 </Button>
                             </div>
@@ -166,6 +173,12 @@ export default function DashboardPage() {
                     completing all tasks
                 </p>
             </div>
+            {/* Task Dialog */}
+            <TaskDialog
+                task={activeTask}
+                isOpen={isDialogOpen}
+                onClose={() => setIsDialogOpen(false)}
+            />
         </div>
     );
 }

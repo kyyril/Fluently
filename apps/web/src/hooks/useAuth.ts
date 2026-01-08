@@ -37,7 +37,11 @@ export function useAuth() {
         onSuccess: (data) => {
             setAuthToken(data.token);
             queryClient.setQueryData(['user', 'me'], data.user);
-            router.push('/dashboard');
+            if (!data.user.nativeLanguage || !data.user.targetLanguage) {
+                router.push('/onboarding');
+            } else {
+                router.push('/dashboard');
+            }
         },
     });
 
@@ -56,7 +60,7 @@ export function useAuth() {
         onSuccess: (data) => {
             setAuthToken(data.token);
             queryClient.setQueryData(['user', 'me'], data.user);
-            router.push('/dashboard');
+            router.push('/onboarding');
         },
     });
 
@@ -66,7 +70,25 @@ export function useAuth() {
         router.push('/');
     };
 
-    return { login, register, logout };
+    const onboarding = useMutation({
+        mutationFn: async (data: {
+            nativeLanguage: string;
+            targetLanguage: string;
+            level: string;
+        }) => {
+            const response = await api.post<{ success: boolean; data: User }>(
+                '/auth/onboarding',
+                data
+            );
+            return response.data.data;
+        },
+        onSuccess: (data) => {
+            queryClient.setQueryData(['user', 'me'], data);
+            router.push('/dashboard');
+        },
+    });
+
+    return { login, register, logout, onboarding };
 }
 
 export function useUser() {

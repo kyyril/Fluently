@@ -27,8 +27,8 @@ export async function create(data: {
             email: data.email,
             passwordHash: data.passwordHash,
             displayName: data.displayName,
-            nativeLanguage: data.nativeLanguage || 'en',
-            targetLanguage: data.targetLanguage || 'es',
+            nativeLanguage: data.nativeLanguage || '',
+            targetLanguage: data.targetLanguage || '',
             level: data.level || 'BEGINNER',
         },
     });

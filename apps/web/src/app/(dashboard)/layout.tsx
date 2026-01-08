@@ -31,7 +31,12 @@ export default function DashboardLayout({
         if (!isLoading && isError) {
             router.push('/login');
         }
-    }, [isLoading, isError, router]);
+
+        // Redirect to onboarding if not completed
+        if (!isLoading && user && (!user.targetLanguage || !user.nativeLanguage)) {
+            router.push('/onboarding');
+        }
+    }, [isLoading, isError, user, router]);
 
     if (isLoading) {
         return (
@@ -42,6 +47,11 @@ export default function DashboardLayout({
     }
 
     if (!user) return null;
+
+    // Prevent rendering dashboard content if onboarding is required
+    if (!user.targetLanguage || !user.nativeLanguage) {
+        return null;
+    }
 
     return (
         <div className="min-h-screen bg-background">
