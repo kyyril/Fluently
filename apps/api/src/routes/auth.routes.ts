@@ -1,25 +1,42 @@
 import { Router } from 'express';
-import { sendSuccess } from '../utils/api-response';
+import { z } from 'zod';
+import { authController } from '../controllers';
+import { validate, authenticate } from '../middleware';
 
 const router = Router();
 
-// Placeholder routes - to be implemented
-router.get('/', (req, res) => {
-    sendSuccess(res, {
-        message: 'Auth routes',
-        endpoints: [
-            'POST /auth/register',
-            'POST /auth/login',
-            'POST /auth/refresh',
-            'POST /auth/logout',
-        ],
-    });
+// Validation schemas
+const RegisterSchema = z.object({
+    body: z.object({
+        email: z.string().email('Invalid email'),
+        password: z.string().min(8, 'Password must be at least 8 characters'),
+        displayName: z.string().min(2, 'Name must be at least 2 characters').max(50),
+    }),
 });
 
-// TODO: Implement auth controller and service
-// router.post('/register', validate(RegisterSchema), authController.register);
-// router.post('/login', validate(LoginSchema), authController.login);
-// router.post('/refresh', authController.refresh);
-// router.post('/logout', authenticate, authController.logout);
+const LoginSchema = z.object({
+    body: z.object({
+        email: z.string().email('Invalid email'),
+        password: z.string().min(1, 'Password is required'),
+    }),
+});
+
+const OnboardingSchema = z.object({
+    body: z.object({
+        nativeLanguage: z.string().min(2),
+        targetLanguage: z.string().min(2),
+        level: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']),
+    }),
+});
+
+// Routes
+router.post('/register', validate(RegisterSchema), authController.register);
+router.post('/login', validate(LoginSchema), authController.login);
+router.post(
+    '/onboarding',
+    authenticate,
+    validate(OnboardingSchema),
+    authController.completeOnboarding
+);
 
 export default router;

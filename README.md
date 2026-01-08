@@ -40,3 +40,7 @@ pnpm dev
 | Backend | Express.js, Prisma, PostgreSQL |
 | AI | Google Gemini |
 | Validation | Zod (shared) |
+
+## Test api
+cd apps/api
+powershell -ExecutionPolicy Bypass -File .\test-api.ps1

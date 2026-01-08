@@ -1,23 +1,15 @@
 import { Router } from 'express';
-import { sendSuccess } from '../utils/api-response';
+import { routineController } from '../controllers';
+import { authenticate } from '../middleware';
 
 const router = Router();
 
-// Placeholder routes - to be implemented
-router.get('/', (req, res) => {
-    sendSuccess(res, {
-        message: 'Routine routes',
-        endpoints: [
-            'GET /routine/today',
-            'POST /routine/today',
-            'GET /routine/history',
-        ],
-    });
-});
+// All routine routes require authentication
+router.use(authenticate);
 
-// TODO: Implement routine controller and service
-// router.get('/today', authenticate, routineController.getToday);
-// router.post('/today', authenticate, routineController.createToday);
-// router.get('/history', authenticate, routineController.getHistory);
+// Routes
+router.get('/today', routineController.getToday);
+router.post('/today', routineController.getToday); // Creates if not exists
+router.get('/history', routineController.getHistory);
 
 export default router;
