@@ -27,6 +27,9 @@ export default function DashboardLayout({
     const { logout } = useAuth();
     const { sidebarOpen, toggleSidebar } = useUIStore();
 
+    // No full-page loader. Main layout renders immediately.
+
+    // Auth redirect (client side only)
     useEffect(() => {
         if (!isLoading && isError) {
             router.push('/login');
@@ -37,21 +40,6 @@ export default function DashboardLayout({
             router.push('/onboarding');
         }
     }, [isLoading, isError, user, router]);
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-pulse text-muted-foreground">Loading...</div>
-            </div>
-        );
-    }
-
-    if (!user) return null;
-
-    // Prevent rendering dashboard content if onboarding is required
-    if (!user.targetLanguage || !user.nativeLanguage) {
-        return null;
-    }
 
     return (
         <div className="min-h-screen bg-background">
@@ -76,23 +64,35 @@ export default function DashboardLayout({
                     {/* Stats */}
                     <div className="hidden sm:flex items-center gap-6">
                         <div className="flex items-center gap-2 text-sm">
-                            <Flame className="h-5 w-5 text-orange-500" />
-                            <span className="font-semibold">{user.currentStreak}</span>
+                            <Flame className={`h-5 w-5 ${isLoading ? 'text-muted' : 'text-orange-500'}`} />
+                            {isLoading ? (
+                                <div className="h-4 w-8 animate-shimmer rounded" />
+                            ) : (
+                                <span className="font-bold">{user?.currentStreak || 0}</span>
+                            )}
                             <span className="text-muted-foreground">day streak</span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm">
-                            <Star className="h-5 w-5 text-yellow-500" />
-                            <span className="font-semibold">{user.totalXp.toLocaleString()}</span>
+                        <div className="flex items-center gap-2 px-3 py-1 bg-muted/50 rounded-full">
+                            <Star className={`h-4 w-4 ${isLoading ? 'text-muted' : 'text-yellow-500'}`} />
+                            {isLoading ? (
+                                <div className="h-4 w-12 animate-shimmer rounded" />
+                            ) : (
+                                <span className="font-bold">{user?.totalXp?.toLocaleString() || 0}</span>
+                            )}
                             <span className="text-muted-foreground">XP</span>
                         </div>
                     </div>
 
-                    {/* User menu */}
-                    <div className="flex items-center gap-2">
-                        <span className="hidden md:block text-sm font-medium">
-                            {user.displayName}
-                        </span>
-                        <Button variant="ghost" size="icon" onClick={logout}>
+                    {/* User Profile */}
+                    <div className="flex items-center gap-3 pl-4 border-l border-border">
+                        {isLoading ? (
+                            <div className="h-4 w-24 animate-shimmer rounded hidden md:block" />
+                        ) : (
+                            <div className="hidden md:block text-right">
+                                <div className="text-sm font-bold">{user?.displayName}</div>
+                                <div className="text-xs text-muted-foreground">{user?.level}</div>
+                            </div>
+                        )}<Button variant="ghost" size="icon" onClick={logout}>
                             <LogOut className="h-4 w-4" />
                         </Button>
                     </div>
@@ -123,12 +123,20 @@ export default function DashboardLayout({
                     {/* Mobile stats */}
                     <div className="sm:hidden p-4 border-t border-border">
                         <div className="flex items-center gap-3 mb-3">
-                            <Flame className="h-5 w-5 text-orange-500" />
-                            <span className="font-semibold">{user.currentStreak} day streak</span>
+                            <Flame className={`h-5 w-5 ${isLoading ? 'text-muted' : 'text-orange-500'}`} />
+                            {isLoading ? (
+                                <div className="h-5 w-24 animate-shimmer rounded" />
+                            ) : (
+                                <span className="font-semibold">{user?.currentStreak} day streak</span>
+                            )}
                         </div>
                         <div className="flex items-center gap-3">
-                            <Star className="h-5 w-5 text-yellow-500" />
-                            <span className="font-semibold">{user.totalXp.toLocaleString()} XP</span>
+                            <Star className={`h-5 w-5 ${isLoading ? 'text-muted' : 'text-yellow-500'}`} />
+                            {isLoading ? (
+                                <div className="h-5 w-20 animate-shimmer rounded" />
+                            ) : (
+                                <span className="font-semibold">{user?.totalXp?.toLocaleString()} XP</span>
+                            )}
                         </div>
                     </div>
                 </aside>

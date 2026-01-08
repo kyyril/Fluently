@@ -44,8 +44,8 @@ export default function OnboardingPage() {
         }
     }, [isLoading, isError, user, router]);
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-    if (!user && !isLoading) return null;
+    // No early return for isLoading
+    // if (!user && !isLoading) return null; // This is handled by the redirect effect
 
     // We need an onboarding specific mutation in useAuth or useUser
     // I will add it to useAuth for now.
@@ -62,8 +62,7 @@ export default function OnboardingPage() {
                     {[1, 2, 3].map((i) => (
                         <div
                             key={i}
-                            className={`h-2 rounded-full transition-all duration-300 ${step === i ? 'w-8 bg-primary' : 'w-2 bg-muted'
-                                }`}
+                            className={`h-2 rounded-full transition-all duration-300 ${step === i ? 'w-8 bg-primary' : 'w-2 bg-muted'}`}
                         />
                     ))}
                 </div>
@@ -74,82 +73,102 @@ export default function OnboardingPage() {
                             <Sparkles className="h-6 w-6 text-primary" />
                         </div>
                         <CardTitle className="text-3xl font-black">
-                            {step === 1 && "What's your native language?"}
-                            {step === 2 && "Which language are you learning?"}
-                            {step === 3 && "What's your current level?"}
+                            {isLoading ? (
+                                <div className="h-9 w-64 bg-muted animate-shimmer rounded mx-auto" />
+                            ) : (
+                                <>
+                                    {step === 1 && "What's your native language?"}
+                                    {step === 2 && "Which language are you learning?"}
+                                    {step === 3 && "What's your current level?"}
+                                </>
+                            )}
                         </CardTitle>
-                        <p className="text-muted-foreground">
-                            Help us personalize your learning experience.
-                        </p>
+                        {isLoading ? (
+                            <div className="h-5 w-48 bg-muted animate-pulse rounded mx-auto mt-2" />
+                        ) : (
+                            <p className="text-muted-foreground">
+                                Help us personalize your learning experience.
+                            </p>
+                        )}
                     </CardHeader>
                     <CardContent className="p-6">
-                        {step === 1 && (
+                        {isLoading ? (
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                {LANGUAGES.map((lang) => (
-                                    <button
-                                        key={lang.code}
-                                        onClick={() => { setNativeLanguage(lang.code); setStep(2); }}
-                                        className={`
-                      p-4 rounded-xl border-2 transition-all text-left flex items-center gap-3
-                      ${nativeLanguage === lang.code ? 'border-primary bg-primary/5' : 'border-transparent bg-muted hover:bg-muted/80'}
-                    `}
-                                    >
-                                        <span className="text-2xl">{lang.flag}</span>
-                                        <span className="font-medium">{lang.name}</span>
-                                    </button>
+                                {Array.from({ length: 9 }).map((_, i) => (
+                                    <div key={i} className="h-16 animate-shimmer rounded-xl" />
                                 ))}
                             </div>
-                        )}
+                        ) : (
+                            <>
+                                {step === 1 && (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        {LANGUAGES.map((lang) => (
+                                            <button
+                                                key={lang.code}
+                                                onClick={() => { setNativeLanguage(lang.code); setStep(2); }}
+                                                className={`
+                                                    p-4 rounded-xl border-2 transition-all text-left flex items-center gap-3
+                                                    ${nativeLanguage === lang.code ? 'border-primary bg-primary/5' : 'border-transparent bg-muted hover:bg-muted/80'}
+                                                `}
+                                            >
+                                                <span className="text-2xl">{lang.flag}</span>
+                                                <span className="font-medium">{lang.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
 
-                        {step === 2 && (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                {LANGUAGES.map((lang) => (
-                                    <button
-                                        key={lang.code}
-                                        onClick={() => { setTargetLanguage(lang.code); setStep(3); }}
-                                        className={`
-                      p-4 rounded-xl border-2 transition-all text-left flex items-center gap-3
-                      ${targetLanguage === lang.code ? 'border-primary bg-primary/5' : 'border-transparent bg-muted hover:bg-muted/80'}
-                    `}
-                                    >
-                                        <span className="text-2xl">{lang.flag}</span>
-                                        <span className="font-medium">{lang.name}</span>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+                                {step === 2 && (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        {LANGUAGES.map((lang) => (
+                                            <button
+                                                key={lang.code}
+                                                onClick={() => { setTargetLanguage(lang.code); setStep(3); }}
+                                                className={`
+                                                    p-4 rounded-xl border-2 transition-all text-left flex items-center gap-3
+                                                    ${targetLanguage === lang.code ? 'border-primary bg-primary/5' : 'border-transparent bg-muted hover:bg-muted/80'}
+                                                `}
+                                            >
+                                                <span className="text-2xl">{lang.flag}</span>
+                                                <span className="font-medium">{lang.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
 
-                        {step === 3 && (
-                            <div className="space-y-3">
-                                {LEVELS.map((l) => (
-                                    <button
-                                        key={l.id}
-                                        onClick={() => setLevel(l.id)}
-                                        className={`
-                      w-full p-6 rounded-xl border-2 transition-all text-left flex items-center gap-6
-                      ${level === l.id ? 'border-primary bg-primary/5 font-bold' : 'border-transparent bg-muted hover:bg-muted/80'}
-                    `}
-                                    >
-                                        <span className="text-4xl">{l.icon}</span>
-                                        <div>
-                                            <div className="text-lg font-bold">{l.name}</div>
-                                            <div className="text-muted-foreground text-sm">{l.desc}</div>
+                                {step === 3 && (
+                                    <div className="space-y-3">
+                                        {LEVELS.map((l) => (
+                                            <button
+                                                key={l.id}
+                                                onClick={() => setLevel(l.id)}
+                                                className={`
+                                                    w-full p-6 rounded-xl border-2 transition-all text-left flex items-center gap-6
+                                                    ${level === l.id ? 'border-primary bg-primary/5 font-bold' : 'border-transparent bg-muted hover:bg-muted/80'}
+                                                `}
+                                            >
+                                                <span className="text-4xl">{l.icon}</span>
+                                                <div>
+                                                    <div className="text-lg font-bold">{l.name}</div>
+                                                    <div className="text-muted-foreground text-sm">{l.desc}</div>
+                                                </div>
+                                            </button>
+                                        ))}
+
+                                        <div className="pt-6 flex gap-3">
+                                            <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>Back</Button>
+                                            <Button
+                                                className="flex-1 h-12"
+                                                onClick={handleComplete}
+                                                disabled={onboarding.isPending}
+                                            >
+                                                {onboarding.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                                Finish Onboarding
+                                            </Button>
                                         </div>
-                                    </button>
-                                ))}
-
-                                <div className="pt-6 flex gap-3">
-                                    <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>Back</Button>
-                                    <Button
-                                        className="flex-1 h-12"
-                                        onClick={handleComplete}
-                                        disabled={onboarding.isPending}
-                                    >
-                                        {onboarding.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                        Finish Onboarding
-                                    </Button>
-                                </div>
-                            </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </CardContent>
                 </Card>

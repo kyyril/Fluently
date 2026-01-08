@@ -104,8 +104,23 @@ export default function LeaderboardPage() {
             <Card>
                 <CardContent className="p-0">
                     {isLoading ? (
-                        <div className="p-8 text-center text-muted-foreground">
-                            Loading leaderboard...
+                        <div className="divide-y divide-border animate-shimmer">
+                            {Array.from({ length: 10 }).map((_, i) => (
+                                <div key={i} className="flex items-center justify-between p-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-8 h-4 bg-muted rounded" />
+                                        <div className="w-10 h-10 bg-muted rounded-full" />
+                                        <div className="space-y-2">
+                                            <div className="h-4 w-24 bg-muted rounded" />
+                                            <div className="h-3 w-16 bg-muted rounded" />
+                                        </div>
+                                    </div>
+                                    <div className="text-right space-y-2">
+                                        <div className="h-4 w-12 bg-muted rounded ml-auto" />
+                                        <div className="h-3 w-8 bg-muted rounded ml-auto" />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : data?.entries.length === 0 ? (
                         <div className="p-8 text-center text-muted-foreground">
