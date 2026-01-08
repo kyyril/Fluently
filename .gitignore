@@ -1,0 +1,36 @@
+# node
+node_modules/
+.pnpm-store/
+
+# build
+dist/
+.next/
+.turbo/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+apps/api/prisma/*.db
+apps/api/prisma/migrations/
+
+# misc
+*.tsbuildinfo
+coverage/

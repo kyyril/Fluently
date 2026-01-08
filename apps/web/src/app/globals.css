@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   CSS VARIABLES - Design Tokens
+   ============================================ */
+
+:root {
+  /* Primary - Vibrant Blue */
+  --color-primary: 220 90% 56%;
+  --color-primary-foreground: 0 0% 100%;
+
+  /* Secondary - Soft Violet */
+  --color-secondary: 260 60% 65%;
+  --color-secondary-foreground: 0 0% 100%;
+
+  /* Background & Foreground */
+  --color-background: 0 0% 100%;
+  --color-foreground: 222 47% 11%;
+
+  /* Surface (Cards, Inputs) */
+  --color-surface: 210 40% 98%;
+  --color-surface-foreground: 222 47% 11%;
+
+  /* Muted */
+  --color-muted: 210 40% 96%;
+  --color-muted-foreground: 215 16% 47%;
+
+  /* Accent */
+  --color-accent: 210 40% 96%;
+  --color-accent-foreground: 222 47% 11%;
+
+  /* Destructive */
+  --color-destructive: 0 84% 60%;
+  --color-destructive-foreground: 0 0% 100%;
+
+  /* Border & Ring */
+  --color-border: 214 32% 91%;
+  --color-ring: 220 90% 56%;
+
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Font */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Dark Mode */
+.dark {
+  --color-primary: 220 90% 66%;
+  --color-primary-foreground: 0 0% 100%;
+
+  --color-secondary: 260 60% 70%;
+  --color-secondary-foreground: 0 0% 100%;
+
+  --color-background: 222 47% 6%;
+  --color-foreground: 210 40% 98%;
+
+  --color-surface: 222 47% 11%;
+  --color-surface-foreground: 210 40% 98%;
+
+  --color-muted: 217 33% 17%;
+  --color-muted-foreground: 215 20% 65%;
+
+  --color-accent: 217 33% 17%;
+  --color-accent-foreground: 210 40% 98%;
+
+  --color-destructive: 0 72% 51%;
+  --color-destructive-foreground: 0 0% 100%;
+
+  --color-border: 217 33% 17%;
+  --color-ring: 220 90% 66%;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: hsl(var(--color-background));
+  color: hsl(var(--color-foreground));
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   UTILITIES
+   ============================================ */
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  .dark .glass {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}

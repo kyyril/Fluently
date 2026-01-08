@@ -1,0 +1,134 @@
+// Prisma Schema for Fluently
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MODEL
+// ============================================
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String
+  avatarUrl    String?
+
+  // Language settings
+  nativeLanguage String
+  targetLanguage String
+  level          Level  @default(BEGINNER)
+
+  // Gamification
+  totalXp       Int @default(0)
+  currentStreak Int @default(0)
+  longestStreak Int @default(0)
+
+  // Relations
+  titles    UserTitle[]
+  dailyLogs DailyLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([totalXp])
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+// ============================================
+// DAILY LOG MODEL
+// ============================================
+
+model DailyLog {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date   DateTime @db.Date
+
+  // Task completions
+  tasks TaskCompletion[]
+
+  // Day recap & AI
+  dayRecap String? @db.Text
+  aiReview String? @db.Text
+
+  // XP for this day
+  totalXp Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+// ============================================
+// TASK COMPLETION MODEL
+// ============================================
+
+model TaskCompletion {
+  id         String   @id @default(cuid())
+  dailyLogId String
+  dailyLog   DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+
+  taskType    TaskType
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  xpEarned    Int       @default(0)
+
+  // Task-specific data (e.g., podcast URL, verbs learned, sentences)
+  metadata Json?
+
+  @@unique([dailyLogId, taskType])
+  @@index([dailyLogId])
+}
+
+enum TaskType {
+  PODCAST_LISTENING
+  TRANSCRIBE_ARTICLE
+  LEARN_VERBS
+  SPEAKING_SESSION
+  CREATE_SENTENCES
+  DAY_RECAP
+}
+
+// ============================================
+// TITLE MODEL (Achievements)
+// ============================================
+
+model Title {
+  id          String @id @default(cuid())
+  name        String @unique
+  description String
+  icon        String // Emoji or icon name
+  requirement String // e.g., "7_day_streak", "100_xp", "top_10_leaderboard"
+
+  users UserTitle[]
+}
+
+model UserTitle {
+  id      String @id @default(cuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  titleId String
+  title   Title  @relation(fields: [titleId], references: [id], onDelete: Cascade)
+
+  earnedAt DateTime @default(now())
+
+  @@unique([userId, titleId])
+  @@index([userId])
+}
