@@ -15,6 +15,7 @@ import {
     Star,
     Trophy,
     Target,
+    Languages,
 } from 'lucide-react';
 import { TaskDialog } from '@/features/routine/components/TaskDialog';
 
@@ -26,7 +27,6 @@ export default function DashboardPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const handleOpenTask = (task: any) => {
-        if (task.completed) return;
         setActiveTask({ ...task, dailyLogId: routine?.id });
         setIsDialogOpen(true);
     };
@@ -169,14 +169,13 @@ export default function DashboardPage() {
                                     </div>
 
                                     <Button
-                                        variant={task.completed ? 'ghost' : 'primary'}
+                                        variant={task.completed ? 'outline' : 'primary'}
                                         size="sm"
-                                        disabled={task.completed}
                                         onClick={() => handleOpenTask(task)}
                                     >
                                         {task.completed ? (
                                             <>
-                                                <Check className="h-4 w-4 mr-1" /> Done
+                                                <Languages className="h-4 w-4 mr-1" /> Review
                                             </>
                                         ) : (
                                             'Start'

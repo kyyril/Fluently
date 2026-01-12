@@ -60,11 +60,10 @@ export default function HomePage() {
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                         {[
-                            { icon: '🎧', title: 'Podcast Listening', desc: 'Start with immersive audio content' },
-                            { icon: '📝', title: 'Article Transcription', desc: 'Improve writing through copying' },
-                            { icon: '📚', title: 'Learn 25 Verbs', desc: 'Build vocabulary systematically' },
-                            { icon: '🗣️', title: 'Speaking Session', desc: '45 minutes of active practice' },
+                            { icon: '🎧', title: 'Podcast Listening', desc: 'Immerse yourself in native content' },
+                            { icon: '📚', title: 'Learn 12 Verbs', desc: 'Build vocabulary systematically' },
                             { icon: '✍️', title: 'Create Sentences', desc: 'Apply new verbs in context' },
+                            { icon: '🗣️', title: 'Speaking Session', desc: '45 minutes of active practice' },
                             { icon: '📔', title: 'Day Recap Journal', desc: 'Reflect and get AI feedback' },
                         ].map((item, i) => (
                             <Card key={i} variant="interactive">

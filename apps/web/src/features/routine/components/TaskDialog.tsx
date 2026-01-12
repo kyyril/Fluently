@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal, ModalFooter, Button, Input } from '@fluently/ui';
 import { useCompleteTask, useDayRecapReview, getTaskName, getTaskXp } from '@/hooks';
 import { Loader2, CheckCircle2, AlertCircle, Headphones, PenLine, Languages, Mic, Send, BookOpen } from 'lucide-react';
@@ -32,6 +32,32 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
 
     const { mutate: reviewRecap, isPending: isReviewing } = useDayRecapReview();
 
+    useEffect(() => {
+        if (isOpen && task) {
+            if (task.completed) {
+                setStep('success');
+                if (task.metadata) {
+                    if (task.taskType === 'DAY_RECAP') {
+                        setAiResult(task.metadata);
+                        setInput(task.metadata.original || '');
+                    } else if (task.taskType === 'PODCAST_LISTENING') {
+                        setPodcastForm({
+                            title: task.metadata.title || '',
+                            description: task.metadata.description || '',
+                            link: task.metadata.link || '',
+                            conclusion: task.metadata.conclusion || ''
+                        });
+                    }
+                }
+            } else {
+                setStep('intro');
+                setInput('');
+                setAiResult(null);
+                setPodcastForm({ title: '', description: '', link: '', conclusion: '' });
+            }
+        }
+    }, [isOpen, task?.id]);
+
     if (!task) return null;
 
     const handleComplete = (metadata?: Record<string, any>) => {
@@ -46,7 +72,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
         reviewRecap({ content: input, dailyLogId: (task as any).dailyLogId }, {
             onSuccess: (data) => {
                 setAiResult(data);
-                handleComplete();
+                handleComplete({ ...data, original: input });
             }
         });
     };
@@ -88,9 +114,9 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
                             <Languages className="h-8 w-8 text-primary" />
                         </div>
-                        <h3 className="text-xl font-bold">Learn 25 Verbs</h3>
+                        <h3 className="text-xl font-bold">Learn 12 Verbs</h3>
                         <p className="text-muted-foreground">
-                            Review 25 common verbs in your target language.
+                            Review 12 common verbs in your target language.
                             Study their meanings and common conjugations.
                         </p>
                         <Button className="w-full" onClick={() => setStep('active')}>Review Verbs</Button>
@@ -211,7 +237,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                 return (
                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
                         <div className="bg-primary/5 p-4 rounded-xl mb-4 border border-primary/10">
-                            <p className="text-sm">We've generated a list of 25 verbs for your level.</p>
+                            <p className="text-sm">We've generated a list of 12 verbs for your level.</p>
                         </div>
                         <div className="grid grid-cols-1 gap-2">
                             {['hablar', 'comer', 'vivir', 'querer', 'poder', 'saber', 'hacer', 'decir', 'ir', 'ver'].map((v, i) => (
@@ -221,7 +247,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                                 </div>
                             ))}
                             <div className="text-center py-4 text-muted-foreground text-sm">
-                                ... and 15 more verbs ...
+                                ... and 2 more verbs ...
                             </div>
                         </div>
                         <Button className="w-full" onClick={() => handleComplete()}>Finish Review</Button>
@@ -266,12 +292,33 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         <Languages className="h-4 w-4 text-primary" /> AI Feedback
                     </p>
                     <div className="text-sm space-y-2">
+                        {aiResult.original && (
+                            <div className="pb-2 mb-2 border-b border-border/50">
+                                <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">Your Entry:</p>
+                                <p className="italic text-muted-foreground">"{aiResult.original}"</p>
+                            </div>
+                        )}
                         <p className="italic">"{aiResult.feedback}"</p>
                         <div className="pt-2 border-t border-border">
                             <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">Corrected Version:</p>
                             <p className="font-medium">{aiResult.corrected}</p>
                         </div>
                     </div>
+                </div>
+            )}
+
+            {task.taskType === 'PODCAST_LISTENING' && podcastForm.title && (
+                <div className="bg-muted p-4 rounded-xl text-left space-y-3 text-sm">
+                    <div className="flex items-center gap-2 font-bold text-primary">
+                        <Headphones className="h-4 w-4" /> {podcastForm.title}
+                    </div>
+                    <p className="text-muted-foreground">{podcastForm.description}</p>
+                    {podcastForm.conclusion && (
+                        <div className="pt-2 border-t border-border">
+                            <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">Conclusion:</p>
+                            <p className="">{podcastForm.conclusion}</p>
+                        </div>
+                    )}
                 </div>
             )}
 

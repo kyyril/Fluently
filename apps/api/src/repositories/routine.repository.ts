@@ -4,8 +4,8 @@ import { TaskType } from '@prisma/client';
 const ALL_TASK_TYPES: TaskType[] = [
     'PODCAST_LISTENING',
     'LEARN_VERBS',
-    'SPEAKING_SESSION',
     'CREATE_SENTENCES',
+    'SPEAKING_SESSION',
     'DAY_RECAP',
 ];
 
