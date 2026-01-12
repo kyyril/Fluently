@@ -33,7 +33,6 @@ interface HistoryEntry {
 
 const TASK_NAMES: Record<string, string> = {
     PODCAST_LISTENING: '🎧 Podcast Listening',
-    LEARN_VERBS: '📚 Learn 12 Verbs',
     SPEAKING_SESSION: '🗣️ Speaking Session (45m)',
     CREATE_SENTENCES: '✍️ Create Sentences',
     DAY_RECAP: '📔 Day Recap Journal',
@@ -41,7 +40,6 @@ const TASK_NAMES: Record<string, string> = {
 
 const TASK_XP: Record<string, number> = {
     PODCAST_LISTENING: 50,
-    LEARN_VERBS: 60,
     SPEAKING_SESSION: 80,
     CREATE_SENTENCES: 30,
     DAY_RECAP: 40,

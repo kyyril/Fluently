@@ -1,16 +1,18 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
-import { UnauthorizedError } from '../utils/errors';
+import { UnauthorizedError, ForbiddenError } from '../utils/errors';
+import { userRepository } from '../repositories';
 
 export interface AuthRequest extends Request {
     userId?: string;
+    role?: string;
 }
 
 /**
  * JWT authentication middleware
  */
-export function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
+export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
     try {
         const authHeader = req.headers.authorization;
 
@@ -21,7 +23,14 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
         const token = authHeader.slice(7);
         const decoded = jwt.verify(token, config.jwtSecret) as { userId: string };
 
+        // Fetch user to get role
+        const user = await userRepository.findById(decoded.userId);
+        if (!user) {
+            throw new UnauthorizedError('User not found');
+        }
+
         req.userId = decoded.userId;
+        req.role = (user as any).role;
         next();
     } catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {
@@ -32,6 +41,16 @@ export function authenticate(req: AuthRequest, res: Response, next: NextFunction
         }
         next(error);
     }
+}
+
+/**
+ * Admin authorization middleware
+ */
+export function authorizeAdmin(req: AuthRequest, res: Response, next: NextFunction) {
+    if (req.role !== 'ADMIN') {
+        return next(new ForbiddenError('Admin access required'));
+    }
+    next();
 }
 
 /**

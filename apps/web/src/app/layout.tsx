@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-    title: 'Fluently - Master Languages Through Daily Habits',
-    description: 'A structured daily routine language learning app with gamification. Build consistent habits and track your progress on the leaderboard.',
-    keywords: ['language learning', 'daily habits', 'gamification', 'leaderboard', 'fluency'],
+    title: 'Fluently - Master English Through Daily Habits',
+    description: 'A structured daily routine English learning app with gamification. Build consistent habits and track your progress on the leaderboard.',
+    keywords: ['english learning', 'daily habits', 'gamification', 'leaderboard', 'fluency', 'belajar bahasa inggris'],
 };
 
 export default function RootLayout({
@@ -40,7 +40,7 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className={`${inter.variable} font-sans`}>
+            <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
                 <Providers>
                     {children}
                 </Providers>

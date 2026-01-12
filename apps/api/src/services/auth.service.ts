@@ -17,6 +17,7 @@ interface UserData {
     targetLanguage: string;
     country: string | null;
     level: string;
+    role: string;
     totalXp: number;
     currentStreak: number;
     longestStreak: number;
@@ -49,7 +50,7 @@ export async function register(data: {
     const token = generateToken(user.id);
 
     return {
-        user: sanitizeUser(user as UserData),
+        user: sanitizeUser(user as unknown as UserData),
         token,
     };
 }
@@ -68,7 +69,7 @@ export async function login(email: string, password: string) {
     const token = generateToken(user.id);
 
     return {
-        user: sanitizeUser(user as UserData),
+        user: sanitizeUser(user as unknown as UserData),
         token,
     };
 }
@@ -87,9 +88,9 @@ export async function completeOnboarding(
         targetLanguage: data.targetLanguage,
         country: data.country,
         level: data.level,
-    });
+    } as any);
 
-    return sanitizeUser(user as UserData);
+    return sanitizeUser(user as unknown as UserData);
 }
 
 function generateToken(userId: string): string {
@@ -107,6 +108,7 @@ function sanitizeUser(user: UserData) {
         targetLanguage: user.targetLanguage,
         country: user.country,
         level: user.level,
+        role: user.role,
         totalXp: user.totalXp,
         currentStreak: user.currentStreak,
         longestStreak: user.longestStreak,

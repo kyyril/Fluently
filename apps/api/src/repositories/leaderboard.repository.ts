@@ -22,13 +22,16 @@ export async function getWeeklyLeaderboard(limit: number = 50) {
                 },
             },
         },
+        where: {
+            role: 'USER'
+        },
         orderBy: {
             totalXp: 'desc',
         },
         take: limit,
-    });
+    } as any);
 
-    return users.map((user, index) => ({
+    return (users as any[]).map((user, index) => ({
         rank: index + 1,
         user: {
             id: user.id,
@@ -37,7 +40,7 @@ export async function getWeeklyLeaderboard(limit: number = 50) {
             targetLanguage: user.targetLanguage,
             level: user.level,
         },
-        xp: user.dailyLogs.reduce((sum, log) => sum + log.totalXp, 0),
+        xp: (user.dailyLogs || []).reduce((sum: number, log: any) => sum + log.totalXp, 0),
     }));
 }
 
@@ -52,11 +55,14 @@ export async function getAllTimeLeaderboard(limit: number = 50) {
             totalXp: true,
             currentStreak: true,
         },
+        where: {
+            role: 'USER'
+        },
         orderBy: {
             totalXp: 'desc',
         },
         take: limit,
-    });
+    } as any);
 
     return users.map((user, index) => ({
         rank: index + 1,
@@ -83,8 +89,9 @@ export async function getUserRank(userId: string): Promise<number | null> {
     const rank = await prisma.user.count({
         where: {
             totalXp: { gt: user.totalXp },
+            role: 'USER'
         },
-    });
+    } as any);
 
     return rank + 1;
 }

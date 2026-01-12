@@ -12,6 +12,8 @@ import {
     LogOut,
     Flame,
     Star,
+    ShieldCheck,
+    BookOpen
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
@@ -31,22 +33,30 @@ export default function DashboardLayout({
             router.push('/login');
         }
 
-        // Redirect to onboarding if not completed
-        if (!isLoading && user && (!user.targetLanguage || !user.nativeLanguage)) {
+        // Redirect to onboarding if level not set (simplified onboarding)
+        if (!isLoading && user && !user.level && user.role !== 'ADMIN') {
             router.push('/onboarding');
         }
+
+        // Redirect admins to admin area
+
     }, [isLoading, isError, user, router]);
 
     const navItems = [
         { href: '/dashboard', label: 'Home', icon: Home },
+        { href: '/dashboard/articles', label: 'Articles', icon: BookOpen },
         { href: '/dashboard/leaderboard', label: 'Leaderboard', icon: Trophy },
         { href: '/dashboard/profile', label: 'Profile', icon: User },
     ];
 
+    if (user?.role === 'ADMIN') {
+        navItems.push({ href: '/admin', label: 'Admin', icon: ShieldCheck });
+    }
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
             {/* Top Header */}
-            <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-lg border-b border-border">
+            <header className="sticky top-0 z-50 bg-surface/80 backdrop-blur-lg">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     {/* Left side */}
                     <div className="flex items-center gap-4">
@@ -77,7 +87,7 @@ export default function DashboardLayout({
                     </div>
 
                     {/* Right side Actions */}
-                    <div className="flex items-center gap-2 pl-4 border-l border-border">
+                    <div className="flex items-center gap-2 pl-4">
                         <ThemeToggle />
                         <Button
                             variant="ghost"
@@ -98,7 +108,7 @@ export default function DashboardLayout({
             </main>
 
             {/* Bottom Navigation Bar */}
-            <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl border-t border-border sm:max-w-md sm:mx-auto sm:bottom-6 sm:rounded-2xl sm:shadow-2xl sm:border">
+            <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl sm:max-w-md sm:mx-auto sm:bottom-6 sm:rounded-2xl sm:shadow-2xl">
                 <div className="flex items-center justify-around h-20 px-4">
                     {navItems.map((item) => {
                         const isActive = pathname === item.href;

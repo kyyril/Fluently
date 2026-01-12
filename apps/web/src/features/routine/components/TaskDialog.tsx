@@ -108,20 +108,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         <Button className="w-full" onClick={() => setStep('active')}>Start Writing</Button>
                     </div>
                 );
-            case 'LEARN_VERBS':
-                return (
-                    <div className="text-center space-y-4 py-4">
-                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                            <Languages className="h-8 w-8 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-bold">Learn 12 Verbs</h3>
-                        <p className="text-muted-foreground">
-                            Review 12 common verbs in your target language.
-                            Study their meanings and common conjugations.
-                        </p>
-                        <Button className="w-full" onClick={() => setStep('active')}>Review Verbs</Button>
-                    </div>
-                );
+
             case 'CREATE_SENTENCES':
                 return (
                     <div className="text-center space-y-4 py-4">
@@ -233,26 +220,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         <Button variant="outline" className="w-full" onClick={() => handleComplete()}>Finish Session</Button>
                     </div>
                 );
-            case 'LEARN_VERBS':
-                return (
-                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
-                        <div className="bg-primary/5 p-4 rounded-xl mb-4 border border-primary/10">
-                            <p className="text-sm">We've generated a list of 12 verbs for your level.</p>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2">
-                            {['hablar', 'comer', 'vivir', 'querer', 'poder', 'saber', 'hacer', 'decir', 'ir', 'ver'].map((v, i) => (
-                                <div key={v} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                    <span className="font-bold text-primary">{i + 1}. {v}</span>
-                                    <span className="text-sm opacity-70">Common Verb</span>
-                                </div>
-                            ))}
-                            <div className="text-center py-4 text-muted-foreground text-sm">
-                                ... and 2 more verbs ...
-                            </div>
-                        </div>
-                        <Button className="w-full" onClick={() => handleComplete()}>Finish Review</Button>
-                    </div>
-                );
+
             case 'CREATE_SENTENCES':
                 return (
                     <div className="space-y-4">

@@ -7,6 +7,9 @@ import { z } from 'zod';
 export const LevelSchema = z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']);
 export type Level = z.infer<typeof LevelSchema>;
 
+export const UserRoleSchema = z.enum(['USER', 'ADMIN']);
+export type UserRole = z.infer<typeof UserRoleSchema>;
+
 export const TaskTypeSchema = z.enum([
     'PODCAST_LISTENING',
     'LEARN_VERBS',
@@ -29,6 +32,7 @@ export const UserSchema = z.object({
     targetLanguage: z.string(),
     country: z.string().nullable().optional(),
     level: LevelSchema,
+    role: UserRoleSchema,
     totalXp: z.number().int().nonnegative(),
     currentStreak: z.number().int().nonnegative(),
     longestStreak: z.number().int().nonnegative(),

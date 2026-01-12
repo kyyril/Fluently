@@ -12,6 +12,7 @@ export {
 } from './components/Card';
 export { Input, inputVariants, type InputProps } from './components/Input';
 export { Modal, ModalFooter, type ModalProps } from './components/Modal';
+export { Textarea, textareaVariants, type TextareaProps } from './components/Textarea';
 
 // Utilities
 export { cn } from './utils/cn';

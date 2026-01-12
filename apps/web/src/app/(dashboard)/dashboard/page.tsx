@@ -88,7 +88,7 @@ export default function DashboardPage() {
 
             {/* Today's Routine */}
             <Card className={isLoading ? 'animate-shimmer' : ''}>
-                <div className="p-6 border-b border-border">
+                <div className="p-6">
                     <div className="flex items-center justify-between">
                         <div className="flex-1">
                             <h2 className="text-xl font-bold">Today's Routine</h2>
@@ -125,7 +125,7 @@ export default function DashboardPage() {
                 </div>
 
                 <CardContent className="p-0">
-                    <div className="divide-y divide-border">
+                    <div className="space-y-1">
                         {isLoading ? (
                             Array.from({ length: 6 }).map((_, i) => (
                                 <div key={i} className="flex items-center justify-between p-5">

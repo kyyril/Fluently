@@ -4,7 +4,6 @@ import * as routineService from './routine.service';
 
 type TaskType =
     | 'PODCAST_LISTENING'
-    | 'LEARN_VERBS'
     | 'SPEAKING_SESSION'
     | 'CREATE_SENTENCES'
     | 'DAY_RECAP';
@@ -12,7 +11,6 @@ type TaskType =
 // XP values for each task type
 const XP_VALUES: Record<TaskType, number> = {
     PODCAST_LISTENING: 50,
-    LEARN_VERBS: 60,
     SPEAKING_SESSION: 80,
     CREATE_SENTENCES: 30,
     DAY_RECAP: 40,

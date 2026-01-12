@@ -13,6 +13,7 @@ interface User {
     targetLanguage: string;
     country?: string | null;
     level: string;
+    role: string;
     totalXp: number;
     currentStreak: number;
     longestStreak: number;
@@ -38,6 +39,12 @@ export function useAuth() {
         onSuccess: (data) => {
             setAuthToken(data.token);
             queryClient.setQueryData(['user', 'me'], data.user);
+
+            if (data.user.role === 'ADMIN') {
+                router.push('/admin');
+                return;
+            }
+
             if (!data.user.nativeLanguage || !data.user.targetLanguage) {
                 router.push('/onboarding');
             } else {
@@ -73,14 +80,19 @@ export function useAuth() {
 
     const onboarding = useMutation({
         mutationFn: async (data: {
-            nativeLanguage: string;
-            targetLanguage: string;
+            nativeLanguage?: string;
+            targetLanguage?: string;
             country?: string;
             level: string;
         }) => {
             const response = await api.post<{ success: boolean; data: User }>(
                 '/auth/onboarding',
-                data
+                {
+                    nativeLanguage: data.nativeLanguage || 'Indonesian',
+                    targetLanguage: data.targetLanguage || 'English',
+                    country: data.country || 'Indonesia',
+                    level: data.level,
+                }
             );
             return response.data.data;
         },

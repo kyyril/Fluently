@@ -30,11 +30,11 @@ export default function LeaderboardPage() {
     const getRankBg = (rank: number) => {
         switch (rank) {
             case 1:
-                return 'bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border-yellow-500/20';
+                return 'bg-gradient-to-r from-yellow-500/10 to-amber-500/10 shadow-sm';
             case 2:
-                return 'bg-gradient-to-r from-gray-300/10 to-gray-400/10 border-gray-400/20';
+                return 'bg-gradient-to-r from-gray-300/10 to-gray-400/10 shadow-sm';
             case 3:
-                return 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20';
+                return 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 shadow-sm';
             default:
                 return '';
         }
@@ -75,7 +75,7 @@ export default function LeaderboardPage() {
 
             {/* Your Rank */}
             {data?.userRank && (
-                <Card className="mb-6 border-primary/30 bg-primary/5">
+                <Card className="mb-6 bg-primary/5">
                     <CardContent className="p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
@@ -104,7 +104,7 @@ export default function LeaderboardPage() {
             <Card>
                 <CardContent className="p-0">
                     {isLoading ? (
-                        <div className="divide-y divide-border animate-shimmer">
+                        <div className="space-y-1 animate-shimmer">
                             {Array.from({ length: 10 }).map((_, i) => (
                                 <div key={i} className="flex items-center justify-between p-4">
                                     <div className="flex items-center gap-4">
@@ -127,7 +127,7 @@ export default function LeaderboardPage() {
                             No entries yet. Start learning to be first!
                         </div>
                     ) : (
-                        <div className="divide-y divide-border">
+                        <div className="space-y-1">
                             {data?.entries.map((entry) => (
                                 <div
                                     key={entry.user.id}

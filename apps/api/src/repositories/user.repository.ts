@@ -1,6 +1,7 @@
 import { prisma } from '../config/database';
 
 type Level = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+type UserRole = 'USER' | 'ADMIN';
 
 export async function findByEmail(email: string) {
     return prisma.user.findUnique({
@@ -21,6 +22,7 @@ export async function create(data: {
     nativeLanguage?: string;
     targetLanguage?: string;
     level?: Level;
+    role?: UserRole;
 }) {
     return prisma.user.create({
         data: {
@@ -30,7 +32,8 @@ export async function create(data: {
             nativeLanguage: data.nativeLanguage || '',
             targetLanguage: data.targetLanguage || '',
             level: data.level || 'BEGINNER',
-        },
+            role: data.role || 'USER',
+        } as any,
     });
 }
 
@@ -43,11 +46,12 @@ export async function updateProfile(
         targetLanguage?: string;
         country?: string;
         level?: Level;
+        role?: UserRole;
     }
 ) {
     return prisma.user.update({
         where: { id: userId },
-        data,
+        data: data as any,
     });
 }
 

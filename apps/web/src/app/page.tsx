@@ -20,13 +20,13 @@ export default function HomePage() {
 
                         {/* Headline */}
                         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-                            Master Languages Through{' '}
+                            Master English Through{' '}
                             <span className="text-primary">Daily Habits</span>
                         </h1>
 
                         {/* Subheadline */}
                         <p className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-                            Build consistent language learning habits with our structured daily routine.
+                            Build consistent English learning habits with our structured daily routine.
                             Track your progress, compete on leaderboards, and achieve fluency.
                         </p>
 
@@ -52,16 +52,15 @@ export default function HomePage() {
             <section className="py-20 bg-surface/50">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl font-bold mb-4">Your Daily Routine</h2>
+                        <h2 className="text-3xl font-bold mb-4">Your Daily English Routine</h2>
                         <p className="text-muted-foreground max-w-2xl mx-auto">
-                            A structured 6-step routine covering all language skills
+                            A structured 4-step routine covering all English skills
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                         {[
-                            { icon: '🎧', title: 'Podcast Listening', desc: 'Immerse yourself in native content' },
-                            { icon: '📚', title: 'Learn 12 Verbs', desc: 'Build vocabulary systematically' },
+                            { icon: '🎧', title: 'Listening', desc: 'Immerse yourself in native content' },
                             { icon: '✍️', title: 'Create Sentences', desc: 'Apply new verbs in context' },
                             { icon: '🗣️', title: 'Speaking Session', desc: '45 minutes of active practice' },
                             { icon: '📔', title: 'Day Recap Journal', desc: 'Reflect and get AI feedback' },
@@ -126,9 +125,9 @@ export default function HomePage() {
             {/* CTA Section */}
             <section className="py-20 bg-primary text-primary-foreground">
                 <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-3xl font-bold mb-4">Ready to Start?</h2>
+                    <h2 className="text-3xl font-bold mb-4">Ready to Master English?</h2>
                     <p className="mb-8 opacity-90">
-                        Join thousands of learners building daily language habits.
+                        Join thousands of learners building daily English habits.
                     </p>
                     <Link href="/register">
                         <Button

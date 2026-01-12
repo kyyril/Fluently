@@ -25,7 +25,8 @@ model User {
   nativeLanguage String
   targetLanguage String
   country        String?
-  level          Level  @default(BEGINNER)
+  level          Level     @default(BEGINNER)
+  role           UserRole  @default(USER)
 
   // Gamification
   totalXp       Int @default(0)
@@ -47,6 +48,11 @@ enum Level {
   BEGINNER
   INTERMEDIATE
   ADVANCED
+}
+
+enum UserRole {
+  USER
+  ADMIN
 }
 
 // ============================================
@@ -100,7 +106,7 @@ model TaskCompletion {
 
 enum TaskType {
   PODCAST_LISTENING
-  LEARN_VERBS
+  LEARN_VERBS // Deprecated
   CREATE_SENTENCES
   SPEAKING_SESSION
   DAY_RECAP
@@ -131,4 +137,49 @@ model UserTitle {
 
   @@unique([userId, titleId])
   @@index([userId])
+}
+
+// ============================================
+// ARTICLE MODEL (Admin Content)
+// ============================================
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  summary     String   @db.Text
+  content     String   @db.Text
+  coverImage  String?
+  readTime    Int      @default(5) // Estimated reading time in minutes
+  category    String   @default("General")
+  tags        String[] @default([])
+  published   Boolean  @default(false)
+
+  // Relations
+  reads ArticleRead[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published])
+  @@index([createdAt])
+  @@index([category])
+}
+
+model ArticleRead {
+  id        String   @id @default(cuid())
+  userId    String
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date // For daily tracking
+
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  xpEarned    Int       @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, articleId, date]) // One read per article per day
+  @@index([userId, date])
+  @@index([articleId])
 }

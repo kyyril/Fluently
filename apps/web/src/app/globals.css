@@ -36,7 +36,7 @@
   --color-destructive-foreground: 0 0% 100%;
 
   /* Border & Ring */
-  --color-border: 214 32% 91%;
+  --color-border: 214 32% 91% / 0.1;
   --color-ring: 220 90% 56%;
 
   /* Radius */
@@ -69,7 +69,7 @@
   --color-destructive: 0 72% 51%;
   --color-destructive-foreground: 0 0% 100%;
 
-  --color-border: 217 33% 17%;
+  --color-border: 217 33% 17% / 0.1;
   --color-ring: 220 90% 66%;
 }
 

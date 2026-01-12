@@ -4,6 +4,8 @@ import usersRoutes from './users.routes';
 import routineRoutes from './routine.routes';
 import tasksRoutes from './tasks.routes';
 import leaderboardRoutes from './leaderboard.routes';
+import adminRoutes from './admin.routes';
+import articleRoutes from './article.routes';
 
 const router = Router();
 
@@ -13,6 +15,8 @@ router.use('/users', usersRoutes);
 router.use('/routine', routineRoutes);
 router.use('/tasks', tasksRoutes);
 router.use('/leaderboard', leaderboardRoutes);
+router.use('/admin', adminRoutes);
+router.use('/articles', articleRoutes);
 
 // API info
 router.get('/', (req, res) => {
@@ -25,6 +29,7 @@ router.get('/', (req, res) => {
             routine: '/api/routine (today, history)',
             tasks: '/api/tasks (complete, review, generate)',
             leaderboard: '/api/leaderboard (weekly, all-time)',
+            admin: '/api/admin (users, content management)',
         },
     });
 });
