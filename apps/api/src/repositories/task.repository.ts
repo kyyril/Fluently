@@ -9,13 +9,14 @@ export async function findById(taskId: string) {
     });
 }
 
-export async function completeTask(taskId: string, xpEarned: number) {
+export async function completeTask(taskId: string, xpEarned: number, metadata?: Record<string, unknown>) {
     return prisma.taskCompletion.update({
         where: { id: taskId },
         data: {
             completed: true,
             completedAt: new Date(),
             xpEarned,
+            ...(metadata && { metadata: metadata as any }),
         },
     });
 }
@@ -26,7 +27,7 @@ export async function updateTaskMetadata(
 ) {
     return prisma.taskCompletion.update({
         where: { id: taskId },
-        data: { metadata },
+        data: { metadata: metadata as any },
     });
 }
 

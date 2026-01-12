@@ -4,7 +4,6 @@ import * as routineService from './routine.service';
 
 type TaskType =
     | 'PODCAST_LISTENING'
-    | 'TRANSCRIBE_ARTICLE'
     | 'LEARN_VERBS'
     | 'SPEAKING_SESSION'
     | 'CREATE_SENTENCES'
@@ -13,14 +12,13 @@ type TaskType =
 // XP values for each task type
 const XP_VALUES: Record<TaskType, number> = {
     PODCAST_LISTENING: 50,
-    TRANSCRIBE_ARTICLE: 40,
     LEARN_VERBS: 60,
     SPEAKING_SESSION: 80,
     CREATE_SENTENCES: 30,
     DAY_RECAP: 40,
 };
 
-export async function completeTask(userId: string, taskId: string) {
+export async function completeTask(userId: string, taskId: string, metadata?: Record<string, unknown>) {
     const task = await taskRepository.findById(taskId);
     if (!task) {
         throw new NotFoundError('Task');
@@ -39,13 +37,14 @@ export async function completeTask(userId: string, taskId: string) {
             completed: true,
             completedAt: task.completedAt?.toISOString(),
             xpEarned: task.xpEarned,
+            metadata: task.metadata,
             message: 'Task already completed',
         };
     }
 
     // Mark complete and award XP
     const xp = XP_VALUES[task.taskType as TaskType];
-    const completed = await taskRepository.completeTask(taskId, xp);
+    const completed = await taskRepository.completeTask(taskId, xp, metadata);
 
     // Update daily log XP
     await routineRepository.addXpToLog(task.dailyLogId, xp);
@@ -62,31 +61,8 @@ export async function completeTask(userId: string, taskId: string) {
         completed: true,
         completedAt: completed.completedAt?.toISOString(),
         xpEarned: xp,
+        metadata: completed.metadata,
         message: `+${xp} XP earned!`,
-    };
-}
-
-export async function updateTaskMetadata(
-    userId: string,
-    taskId: string,
-    metadata: Record<string, unknown>
-) {
-    const task = await taskRepository.findById(taskId);
-    if (!task) {
-        throw new NotFoundError('Task');
-    }
-
-    if (task.dailyLog.userId !== userId) {
-        throw new ForbiddenError('Not your task');
-    }
-
-    const updated = await taskRepository.updateTaskMetadata(taskId, metadata);
-
-    return {
-        id: updated.id,
-        taskType: updated.taskType,
-        completed: updated.completed,
-        metadata: updated.metadata,
     };
 }
 

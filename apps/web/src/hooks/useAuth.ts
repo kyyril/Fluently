@@ -11,6 +11,7 @@ interface User {
     avatarUrl: string | null;
     nativeLanguage: string;
     targetLanguage: string;
+    country?: string | null;
     level: string;
     totalXp: number;
     currentStreak: number;
@@ -74,6 +75,7 @@ export function useAuth() {
         mutationFn: async (data: {
             nativeLanguage: string;
             targetLanguage: string;
+            country?: string;
             level: string;
         }) => {
             const response = await api.post<{ success: boolean; data: User }>(

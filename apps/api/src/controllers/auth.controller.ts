@@ -33,10 +33,11 @@ export async function completeOnboarding(
 ) {
     try {
         const userId = (req as any).userId;
-        const { nativeLanguage, targetLanguage, level } = req.body;
+        const { nativeLanguage, targetLanguage, country, level } = req.body;
         const result = await authService.completeOnboarding(userId, {
             nativeLanguage,
             targetLanguage,
+            country,
             level,
         });
         sendSuccess(res, result);

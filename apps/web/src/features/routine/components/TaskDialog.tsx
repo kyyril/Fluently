@@ -23,13 +23,19 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
     const [step, setStep] = useState<'intro' | 'active' | 'success'>('intro');
     const [input, setInput] = useState('');
     const [aiResult, setAiResult] = useState<any>(null);
+    const [podcastForm, setPodcastForm] = useState({
+        title: '',
+        description: '',
+        link: '',
+        conclusion: ''
+    });
 
     const { mutate: reviewRecap, isPending: isReviewing } = useDayRecapReview();
 
     if (!task) return null;
 
-    const handleComplete = () => {
-        completeTask(task.id, {
+    const handleComplete = (metadata?: Record<string, any>) => {
+        completeTask({ taskId: task.id, metadata }, {
             onSuccess: () => {
                 setStep('success');
             }
@@ -61,20 +67,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         <Button className="w-full" onClick={() => setStep('active')}>Start Task</Button>
                     </div>
                 );
-            case 'TRANSCRIBE_ARTICLE':
-                return (
-                    <div className="text-center space-y-4 py-4">
-                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                            <PenLine className="h-8 w-8 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-bold">Transcription Practice</h3>
-                        <p className="text-muted-foreground">
-                            Find a short article or snippet. Listen or read, then type it out
-                            word-for-word to reinforce spelling and grammar patterns.
-                        </p>
-                        <Button className="w-full" onClick={() => setStep('active')}>Start Task</Button>
-                    </div>
-                );
+
             case 'DAY_RECAP':
                 return (
                     <div className="text-center space-y-4 py-4">
@@ -130,6 +123,54 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
 
     const renderActiveTask = () => {
         switch (task.taskType) {
+            case 'PODCAST_LISTENING':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Video/Podcast Title</label>
+                            <Input
+                                placeholder="e.g. Spanish with Juan - Episode 45"
+                                value={podcastForm.title}
+                                onChange={(e) => setPodcastForm({ ...podcastForm, title: e.target.value })}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Short Description</label>
+                            <textarea
+                                className="w-full min-h-[80px] p-3 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary transition-all resize-none text-sm"
+                                placeholder="What was it about?"
+                                value={podcastForm.description}
+                                onChange={(e) => setPodcastForm({ ...podcastForm, description: e.target.value })}
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-muted-foreground italic">Source Link (Optional)</label>
+                                <Input
+                                    placeholder="YouTube/Spotify Link"
+                                    value={podcastForm.link}
+                                    onChange={(e) => setPodcastForm({ ...podcastForm, link: e.target.value })}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-muted-foreground italic">Conclusion (Optional)</label>
+                                <Input
+                                    placeholder="Your takeaway..."
+                                    value={podcastForm.conclusion}
+                                    onChange={(e) => setPodcastForm({ ...podcastForm, conclusion: e.target.value })}
+                                />
+                            </div>
+                        </div>
+                        <Button
+                            className="w-full mt-2"
+                            onClick={() => handleComplete(podcastForm)}
+                            disabled={!podcastForm.title || !podcastForm.description || isCompleting}
+                        >
+                            {isCompleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                            Complete Task & Get Score
+                        </Button>
+                    </div>
+                );
             case 'DAY_RECAP':
                 return (
                     <div className="space-y-4">
@@ -152,19 +193,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         </Button>
                     </div>
                 );
-            case 'TRANSCRIBE_ARTICLE':
-                return (
-                    <div className="space-y-4">
-                        <p className="text-sm text-muted-foreground mb-4">Type the transcription below:</p>
-                        <textarea
-                            className="w-full min-h-[120px] p-4 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary transition-all"
-                            placeholder="Paste or type content here..."
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                        />
-                        <Button className="w-full" onClick={handleComplete}>Submit Transcription</Button>
-                    </div>
-                );
+
             case 'SPEAKING_SESSION':
                 return (
                     <div className="text-center space-y-6 py-6">
@@ -175,7 +204,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                             <h3 className="text-2xl font-black">Recording...</h3>
                             <p className="text-muted-foreground">Talk about your weekend plans or a recent book you read.</p>
                         </div>
-                        <Button variant="outline" className="w-full" onClick={handleComplete}>Finish Session</Button>
+                        <Button variant="outline" className="w-full" onClick={() => handleComplete()}>Finish Session</Button>
                     </div>
                 );
             case 'LEARN_VERBS':
@@ -195,7 +224,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                                 ... and 15 more verbs ...
                             </div>
                         </div>
-                        <Button className="w-full" onClick={handleComplete}>Finish Review</Button>
+                        <Button className="w-full" onClick={() => handleComplete()}>Finish Review</Button>
                     </div>
                 );
             case 'CREATE_SENTENCES':
@@ -205,7 +234,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         {[1, 2, 3].map(i => (
                             <Input key={i} placeholder={`Sentence ${i}...`} />
                         ))}
-                        <Button className="w-full mt-4" onClick={handleComplete}>Submit Sentences</Button>
+                        <Button className="w-full mt-4" onClick={() => handleComplete()}>Submit Sentences</Button>
                     </div>
                 );
             default:
@@ -214,7 +243,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         <p className="text-lg">Are you finished with this task?</p>
                         <div className="grid grid-cols-2 gap-4">
                             <Button variant="outline" onClick={() => setStep('intro')}>Not yet</Button>
-                            <Button onClick={handleComplete}>Yes, I'm Done</Button>
+                            <Button onClick={() => handleComplete()}>Yes, I'm Done</Button>
                         </div>
                     </div>
                 );
@@ -252,6 +281,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                     setStep('intro');
                     setInput('');
                     setAiResult(null);
+                    setPodcastForm({ title: '', description: '', link: '', conclusion: '' });
                 }, 300);
             }}>
                 Return to Dashboard
@@ -266,7 +296,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
             title={step !== 'success' ? getTaskName(task.taskType) : ''}
             size={task.taskType === 'DAY_RECAP' && step === 'success' ? 'lg' : 'md'}
         >
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div key={step} className="animate-slide-up">
                 {step === 'intro' && renderTaskIntro()}
                 {step === 'active' && renderActiveTask()}
                 {step === 'success' && renderSuccess()}

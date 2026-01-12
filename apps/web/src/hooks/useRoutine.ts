@@ -33,7 +33,6 @@ interface HistoryEntry {
 
 const TASK_NAMES: Record<string, string> = {
     PODCAST_LISTENING: '🎧 Podcast Listening',
-    TRANSCRIBE_ARTICLE: '📝 Transcribe Article',
     LEARN_VERBS: '📚 Learn 25 Verbs',
     SPEAKING_SESSION: '🗣️ Speaking Session (45m)',
     CREATE_SENTENCES: '✍️ Create Sentences',
@@ -42,7 +41,6 @@ const TASK_NAMES: Record<string, string> = {
 
 const TASK_XP: Record<string, number> = {
     PODCAST_LISTENING: 50,
-    TRANSCRIBE_ARTICLE: 40,
     LEARN_VERBS: 60,
     SPEAKING_SESSION: 80,
     CREATE_SENTENCES: 30,
@@ -86,7 +84,7 @@ export function useCompleteTask() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (taskId: string) => {
+        mutationFn: async ({ taskId, metadata }: { taskId: string; metadata?: Record<string, any> }) => {
             const response = await api.post<{
                 success: boolean;
                 data: {
@@ -94,9 +92,10 @@ export function useCompleteTask() {
                     taskType: string;
                     completed: boolean;
                     xpEarned: number;
+                    metadata: any;
                     message: string;
                 };
-            }>(`/tasks/${taskId}/complete`);
+            }>(`/tasks/${taskId}/complete`, { metadata });
             return response.data.data;
         },
         onSuccess: () => {

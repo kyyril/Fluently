@@ -24,6 +24,7 @@ model User {
   // Language settings
   nativeLanguage String
   targetLanguage String
+  country        String?
   level          Level  @default(BEGINNER)
 
   // Gamification
@@ -99,7 +100,6 @@ model TaskCompletion {
 
 enum TaskType {
   PODCAST_LISTENING
-  TRANSCRIBE_ARTICLE
   LEARN_VERBS
   SPEAKING_SESSION
   CREATE_SENTENCES

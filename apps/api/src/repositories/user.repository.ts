@@ -41,6 +41,7 @@ export async function updateProfile(
         avatarUrl?: string;
         nativeLanguage?: string;
         targetLanguage?: string;
+        country?: string;
         level?: Level;
     }
 ) {

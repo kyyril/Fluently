@@ -9,12 +9,6 @@ const router = Router();
 router.use(authenticate);
 
 // Validation schemas
-const UpdateTaskSchema = z.object({
-    body: z.object({
-        metadata: z.record(z.unknown()),
-    }),
-});
-
 const DayRecapReviewSchema = z.object({
     body: z.object({
         content: z.string().min(10, 'Recap must be at least 10 characters'),
@@ -22,16 +16,14 @@ const DayRecapReviewSchema = z.object({
     }),
 });
 
-const GenerateSentencesSchema = z.object({
+const CompleteTaskSchema = z.object({
     body: z.object({
-        verbs: z.array(z.string()).min(1).max(10),
+        metadata: z.record(z.string(), z.unknown()).optional(),
     }),
 });
 
 // Routes
-router.post('/:taskId/complete', tasksController.completeTask);
-router.patch('/:taskId', validate(UpdateTaskSchema), tasksController.updateTask);
+router.post('/:taskId/complete', validate(CompleteTaskSchema), tasksController.completeTask);
 router.post('/day-recap/review', validate(DayRecapReviewSchema), tasksController.reviewDayRecap);
-router.post('/generate-sentences', validate(GenerateSentencesSchema), tasksController.generateSentences);
 
 export default router;

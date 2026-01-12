@@ -9,7 +9,6 @@ export type Level = z.infer<typeof LevelSchema>;
 
 export const TaskTypeSchema = z.enum([
     'PODCAST_LISTENING',
-    'TRANSCRIBE_ARTICLE',
     'LEARN_VERBS',
     'SPEAKING_SESSION',
     'CREATE_SENTENCES',
@@ -28,6 +27,7 @@ export const UserSchema = z.object({
     avatarUrl: z.string().url().nullable().optional(),
     nativeLanguage: z.string(),
     targetLanguage: z.string(),
+    country: z.string().nullable().optional(),
     level: LevelSchema,
     totalXp: z.number().int().nonnegative(),
     currentStreak: z.number().int().nonnegative(),
@@ -84,10 +84,10 @@ export const OnboardingSchema = z.object({
     body: z.object({
         nativeLanguage: z.string().min(2),
         targetLanguage: z.string().min(2),
+        country: z.string().optional(),
         level: LevelSchema,
         dailyGoals: z.object({
             podcastListening: z.boolean().default(true),
-            transcribeArticle: z.boolean().default(true),
             learnVerbs: z.number().int().min(5).max(100).default(25),
             speakingSession: z.boolean().default(true),
             createSentences: z.boolean().default(true),
@@ -108,7 +108,7 @@ export const TaskCompletionSchema = z.object({
     completed: z.boolean(),
     completedAt: z.string().datetime().nullable(),
     xpEarned: z.number().int().nonnegative(),
-    metadata: z.record(z.unknown()).nullable(),
+    metadata: z.record(z.string(), z.unknown()).nullable(),
 });
 export type TaskCompletion = z.infer<typeof TaskCompletionSchema>;
 
@@ -130,7 +130,7 @@ export const CompleteTaskSchema = z.object({
         taskId: z.string(),
     }),
     body: z.object({
-        metadata: z.record(z.unknown()).optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
     }).optional(),
 });
 export type CompleteTaskInput = z.infer<typeof CompleteTaskSchema>;

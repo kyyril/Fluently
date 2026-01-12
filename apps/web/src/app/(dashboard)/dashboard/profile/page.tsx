@@ -13,7 +13,9 @@ import {
     TrendingUp,
     BookOpen,
     LogOut,
+    MapPin,
 } from 'lucide-react';
+import countries from 'world-countries';
 
 export default function ProfilePage() {
     const { data: user, isLoading: userLoading } = useUser();
@@ -87,6 +89,12 @@ export default function ProfilePage() {
                                 <div className="px-3 py-1.5 bg-muted rounded-full text-sm">
                                     Native: {user?.nativeLanguage?.toUpperCase()}
                                 </div>
+                                {user?.country && (
+                                    <div className="px-3 py-1.5 bg-muted rounded-full text-sm">
+                                        <MapPin className="h-4 w-4 inline mr-1" />
+                                        {countries.find(c => c.name.common === user.country)?.flag} {user.country}
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>

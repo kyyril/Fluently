@@ -15,6 +15,7 @@ interface UserData {
     avatarUrl: string | null;
     nativeLanguage: string;
     targetLanguage: string;
+    country: string | null;
     level: string;
     totalXp: number;
     currentStreak: number;
@@ -77,12 +78,14 @@ export async function completeOnboarding(
     data: {
         nativeLanguage: string;
         targetLanguage: string;
+        country?: string;
         level: Level;
     }
 ) {
     const user = await userRepository.updateProfile(userId, {
         nativeLanguage: data.nativeLanguage,
         targetLanguage: data.targetLanguage,
+        country: data.country,
         level: data.level,
     });
 
@@ -102,6 +105,7 @@ function sanitizeUser(user: UserData) {
         avatarUrl: user.avatarUrl,
         nativeLanguage: user.nativeLanguage,
         targetLanguage: user.targetLanguage,
+        country: user.country,
         level: user.level,
         totalXp: user.totalXp,
         currentStreak: user.currentStreak,
