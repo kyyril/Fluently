@@ -27,7 +27,7 @@ export default function ProfilePage() {
 
     const { data: user, isLoading: userLoading } = useUser(userId);
     const { data: stats, isLoading: statsLoading } = useUserStats(userId);
-    const { data: history } = useRoutineHistory(7, userId);
+    const { data: history, isLoading: historyLoading } = useRoutineHistory(7, userId);
     const { logout } = useAuth();
     const { data: currentUser } = useUser();
 
@@ -41,17 +41,6 @@ export default function ProfilePage() {
     };
 
     const currentLevel = levelConfig[user?.level || 'BEGINNER'];
-
-    if (userLoading) {
-        return (
-            <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 animate-fade-in">
-                <div className="h-40 bg-muted rounded-3xl animate-pulse" />
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-muted rounded-2xl animate-pulse" />)}
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 animate-fade-in">
@@ -73,11 +62,14 @@ export default function ProfilePage() {
                 </div>
 
                 <CardContent className="relative px-6 pb-6">
-                    {/* Avatar */}
+                    {/* Avatar & Info Container */}
                     <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 -mt-16 sm:-mt-20">
+                        {/* Avatar */}
                         <div className="relative">
                             <div className="w-28 h-28 sm:w-36 sm:h-36 bg-background rounded-3xl flex items-center justify-center overflow-hidden ring-4 ring-background">
-                                {user?.avatarUrl ? (
+                                {userLoading ? (
+                                    <div className="w-full h-full bg-muted animate-pulse" />
+                                ) : user?.avatarUrl ? (
                                     <img
                                         src={user.avatarUrl}
                                         alt={user.displayName}
@@ -88,29 +80,50 @@ export default function ProfilePage() {
                                 )}
                             </div>
                             {/* Level Badge */}
-                            <div className={`absolute -bottom-2 -right-2 w-10 h-10 ${currentLevel.bg} rounded-xl flex items-center justify-center text-2xl`}>
-                                {currentLevel.emoji}
-                            </div>
+                            {!userLoading && (
+                                <div className={`absolute -bottom-2 -right-2 w-10 h-10 ${currentLevel.bg} rounded-xl flex items-center justify-center text-2xl`}>
+                                    {currentLevel.emoji}
+                                </div>
+                            )}
                         </div>
 
+                        {/* Text Info */}
                         <div className="flex-1 text-center sm:text-left space-y-3">
-                            <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{user?.displayName}</h1>
-                            {isMe && <p className="text-muted-foreground">{user?.email}</p>}
+                            {userLoading ? (
+                                <>
+                                    <div className="h-10 w-48 bg-muted animate-pulse rounded-lg mx-auto sm:mx-0" />
+                                    <div className="h-4 w-32 bg-muted animate-pulse rounded-md mx-auto sm:mx-0" />
+                                </>
+                            ) : (
+                                <>
+                                    <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{user?.displayName}</h1>
+                                    {isMe && <p className="text-muted-foreground">{user?.email}</p>}
+                                </>
+                            )}
 
                             {/* Tags */}
                             <div className="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
-                                <span className={`px-3 py-1 ${currentLevel.bg} ${currentLevel.color} rounded-full text-xs font-bold`}>
-                                    {user?.level}
-                                </span>
-                                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold flex items-center gap-1">
-                                    <BookOpen className="h-3 w-3" />
-                                    Learning English
-                                </span>
+                                {userLoading ? (
+                                    <>
+                                        <div className="h-6 w-20 bg-muted animate-pulse rounded-full" />
+                                        <div className="h-6 w-32 bg-muted animate-pulse rounded-full" />
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className={`px-3 py-1 ${currentLevel.bg} ${currentLevel.color} rounded-full text-xs font-bold`}>
+                                            {user?.level}
+                                        </span>
+                                        <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold flex items-center gap-1">
+                                            <BookOpen className="h-3 w-3" />
+                                            Learning English
+                                        </span>
+                                    </>
+                                )}
                             </div>
                         </div>
 
                         {/* Actions - Only shown for "me" */}
-                        {isMe && (
+                        {isMe && !userLoading && (
                             <div className="flex gap-2 shrink-0">
                                 <Link href="/dashboard/profile/edit">
                                     <Button variant="primary" size="sm">
@@ -177,11 +190,23 @@ export default function ProfilePage() {
                             </div>
                             <div>
                                 <h3 className="font-bold">Achievements</h3>
-                                <p className="text-xs text-muted-foreground">{stats?.titles?.length || 0} earned</p>
+                                <p className="text-xs text-muted-foreground">
+                                    {statsLoading ? (
+                                        <span className="inline-block h-3 w-12 bg-muted animate-pulse rounded" />
+                                    ) : (
+                                        `${stats?.titles?.length || 0} earned`
+                                    )}
+                                </p>
                             </div>
                         </div>
 
-                        {stats?.titles && stats.titles.length > 0 ? (
+                        {statsLoading ? (
+                            <div className="grid grid-cols-2 gap-3">
+                                {[1, 2, 3, 4].map(i => (
+                                    <div key={i} className="h-12 bg-muted/30 animate-pulse rounded-xl" />
+                                ))}
+                            </div>
+                        ) : stats?.titles && stats.titles.length > 0 ? (
                             <div className="grid grid-cols-2 gap-3">
                                 {stats.titles.map((title: { name: string; icon: string }) => (
                                     <div
@@ -221,14 +246,22 @@ export default function ProfilePage() {
                                     <Calendar className="h-5 w-5 text-muted-foreground" />
                                     <span className="text-sm">Total Days</span>
                                 </div>
-                                <span className="text-2xl font-black">{stats?.totalDays || 0}</span>
+                                {statsLoading ? (
+                                    <div className="h-8 w-12 bg-muted animate-pulse rounded" />
+                                ) : (
+                                    <span className="text-2xl font-black">{stats?.totalDays || 0}</span>
+                                )}
                             </div>
                             <div className="flex justify-between items-center p-4 bg-muted/30 rounded-xl">
                                 <div className="flex items-center gap-3">
                                     <CheckCircle2 className="h-5 w-5 text-green-500" />
                                     <span className="text-sm">Days Completed</span>
                                 </div>
-                                <span className="text-2xl font-black text-green-500">{stats?.completedDays || 0}</span>
+                                {statsLoading ? (
+                                    <div className="h-8 w-12 bg-muted animate-pulse rounded" />
+                                ) : (
+                                    <span className="text-2xl font-black text-green-500">{stats?.completedDays || 0}</span>
+                                )}
                             </div>
                         </div>
                     </CardContent>
@@ -248,7 +281,13 @@ export default function ProfilePage() {
                         </div>
                     </div>
 
-                    {history && history.length > 0 ? (
+                    {historyLoading ? (
+                        <div className="space-y-3">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="h-20 bg-muted/30 animate-pulse rounded-xl" />
+                            ))}
+                        </div>
+                    ) : history && history.length > 0 ? (
                         <div className="space-y-3">
                             {history.map((day) => {
                                 const percentage = Math.round((day.tasksCompleted / (day.totalTasks || 1)) * 100);
@@ -325,7 +364,7 @@ function StatCard({
                 </div>
                 <div className="mt-4">
                     {isLoading ? (
-                        <div className="h-8 w-20 animate-shimmer rounded" />
+                        <div className="h-8 w-20 bg-muted animate-pulse rounded" />
                     ) : (
                         <div className="text-3xl font-black tracking-tight">
                             {typeof value === 'number' ? value.toLocaleString() : value}

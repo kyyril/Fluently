@@ -65,20 +65,30 @@ export default function LeaderboardPage() {
                 </div>
 
                 {/* Your Rank Card - Integrated */}
-                {data?.userRank && (
-                    <div className="bg-primary/5 rounded-2xl p-4 flex items-center gap-4 min-w-[200px]">
-                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                            <span className="text-lg font-black text-primary">#{data.userRank}</span>
-                        </div>
-                        <div>
-                            <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Your Rank</div>
-                            <div className="text-lg font-black flex items-center gap-1">
-                                <Star className="h-4 w-4 text-yellow-500" />
-                                {user?.totalXp.toLocaleString()} XP
+                <div className={`rounded-2xl p-4 flex items-center gap-4 min-w-[200px] transition-colors ${isLoading ? 'bg-muted/20' : 'bg-primary/5'}`}>
+                    {isLoading ? (
+                        <>
+                            <div className="w-10 h-10 rounded-xl bg-muted animate-pulse" />
+                            <div className="space-y-2">
+                                <div className="h-3 w-12 bg-muted animate-pulse rounded" />
+                                <div className="h-5 w-24 bg-muted animate-pulse rounded" />
                             </div>
-                        </div>
-                    </div>
-                )}
+                        </>
+                    ) : (
+                        <>
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <span className="text-lg font-black text-primary">#{data?.userRank || '--'}</span>
+                            </div>
+                            <div>
+                                <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Your Rank</div>
+                                <div className="text-lg font-black flex items-center gap-1">
+                                    <Star className="h-4 w-4 text-yellow-500" />
+                                    {user?.totalXp.toLocaleString()} XP
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Tab Switcher - Cleaner */}
@@ -109,70 +119,81 @@ export default function LeaderboardPage() {
                 </button>
             </div>
 
-            {/* Top 3 Podium - Improved layout and spacing */}
-            {!isLoading && data?.entries && data.entries.length >= 3 && (
+            {/* Top 3 Podium - Only show if enough entries or loading */}
+            {(isLoading || (data?.entries && data.entries.length >= 3)) && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-                    {[1, 0, 2].map((index) => {
-                        const entry = data.entries[index];
-                        if (!entry) return null;
-                        const isFirst = index === 0;
-                        return (
-                            <Link
-                                key={entry.user.id}
-                                href={`/dashboard/profile/${entry.user.id}`}
-                                className={`
-                                    flex flex-col items-center p-6 rounded-3xl transition-all group
-                                    ${isFirst ? 'bg-yellow-500/10 order-first sm:order-none sm:scale-110 sm:z-10' : 'bg-surface/40 order-last sm:order-none'}
-                                    hover:bg-opacity-100 hover:scale-[1.03] duration-300
-                                `}
-                            >
-                                <div className="relative mb-4">
-                                    <div className={`
-                                        w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden
-                                        ${isFirst ? 'ring-4 ring-yellow-500/30' : 'ring-2 ring-muted'}
-                                    `}>
-                                        {entry.user.avatarUrl ? (
-                                            <img
-                                                src={entry.user.avatarUrl}
-                                                alt={entry.user.displayName}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <User className="h-10 w-10 text-muted-foreground/30" />
-                                        )}
+                    {isLoading ? (
+                        [1, 0, 2].map((i) => (
+                            <div
+                                key={i}
+                                className={`flex flex-col items-center p-6 rounded-3xl bg-muted/10 animate-pulse ${i === 0 ? 'h-[240px] sm:scale-110 sm:z-10 bg-muted/20' : 'h-[200px]'}`}
+                            />
+                        ))
+                    ) : (
+                        [1, 0, 2].map((index) => {
+                            const entry = data?.entries[index];
+                            if (!entry) return null;
+                            const isFirst = index === 0;
+                            return (
+                                <Link
+                                    key={entry.user.id}
+                                    href={`/dashboard/profile/${entry.user.id}`}
+                                    className={`
+                                        flex flex-col items-center p-6 rounded-3xl transition-all group border
+                                        ${isFirst ? 'bg-yellow-500/10 border-yellow-500/20 order-first sm:order-none sm:scale-110 sm:z-10' : 'bg-surface/40 border-transparent order-last sm:order-none'}
+                                        hover:bg-opacity-100 hover:scale-[1.03] duration-300
+                                    `}
+                                >
+                                    <div className="relative mb-4">
+                                        <div className={`
+                                            w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden
+                                            ${isFirst ? 'ring-4 ring-yellow-500/30' : 'ring-2 ring-muted'}
+                                        `}>
+                                            {entry.user.avatarUrl ? (
+                                                <img
+                                                    src={entry.user.avatarUrl}
+                                                    alt={entry.user.displayName}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            ) : (
+                                                <User className="h-10 w-10 text-muted-foreground/30" />
+                                            )}
+                                        </div>
+                                        <div className={`
+                                            absolute -bottom-2 -right-2 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg
+                                            ${isFirst ? 'bg-yellow-500 text-black' : index === 1 ? 'bg-slate-400 text-white' : 'bg-amber-600 text-white'}
+                                        `}>
+                                            <span className="font-black text-base">{entry.rank}</span>
+                                        </div>
                                     </div>
-                                    <div className={`
-                                        absolute -bottom-2 -right-2 w-10 h-10 rounded-xl flex items-center justify-center shadow-lg
-                                        ${isFirst ? 'bg-yellow-500 text-black' : index === 1 ? 'bg-slate-400 text-white' : 'bg-amber-600 text-white'}
-                                    `}>
-                                        <span className="font-black text-base">{entry.rank}</span>
+                                    <div className="text-center space-y-1">
+                                        <div className="font-black text-lg truncate max-w-[140px] group-hover:text-primary transition-colors">
+                                            {entry.user.displayName}
+                                        </div>
+                                        <div className="text-xs font-bold text-muted-foreground flex items-center justify-center gap-1">
+                                            {levelEmoji[entry.user.level]} {entry.user.level}
+                                        </div>
+                                        <div className="pt-2">
+                                            <span className="text-xl font-black text-primary tracking-tight">
+                                                {entry.xp.toLocaleString()}
+                                            </span>
+                                            <span className="text-[10px] font-black text-muted-foreground ml-1 uppercase">XP</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="text-center space-y-1">
-                                    <div className="font-black text-lg truncate max-w-[140px] group-hover:text-primary transition-colors">
-                                        {entry.user.displayName}
-                                    </div>
-                                    <div className="text-xs font-bold text-muted-foreground flex items-center justify-center gap-1">
-                                        {levelEmoji[entry.user.level]} {entry.user.level}
-                                    </div>
-                                    <div className="pt-2">
-                                        <span className="text-xl font-black text-primary tracking-tight">
-                                            {entry.xp.toLocaleString()}
-                                        </span>
-                                        <span className="text-[10px] font-black text-muted-foreground ml-1 uppercase">XP</span>
-                                    </div>
-                                </div>
-                            </Link>
-                        );
-                    })}
+                                </Link>
+                            );
+                        })
+                    )}
                 </div>
             )}
 
-            {/* List Header */}
-            <div className="flex items-center justify-between px-2 pt-4">
-                <h2 className="font-black uppercase tracking-wider text-[10px] text-muted-foreground">Detailed Standings</h2>
-                <span className="text-[10px] font-bold text-muted-foreground opacity-50">View all learners</span>
-            </div>
+            {/* List Header - Only show if we have many entries */}
+            {(!isLoading && data?.entries && data.entries.length > 3) && (
+                <div className="flex items-center justify-between px-2 pt-4">
+                    <h2 className="font-black uppercase tracking-wider text-[10px] text-muted-foreground">Detailed Standings</h2>
+                    <span className="text-[10px] font-bold text-muted-foreground opacity-50">View all learners</span>
+                </div>
+            )}
 
             {/* Main Leaderboard List */}
             <div className="grid gap-2">
