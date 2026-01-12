@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../config/database';
 import { sendSuccess, sendError } from '../utils/api-response';
+import { articlesService } from '../services';
 
 const MAX_DAILY_READS = 3;
 const XP_PER_ARTICLE = 20;
@@ -33,6 +34,9 @@ export async function createArticle(req: Request, res: Response, next: NextFunct
             },
         });
 
+        // Invalidate cache
+        await articlesService.invalidateArticleCache(category);
+
         sendSuccess(res, article, 201);
     } catch (error) {
         next(error);
@@ -46,6 +50,9 @@ export async function updateArticle(req: Request, res: Response, next: NextFunct
     try {
         const { articleId } = req.params;
         const { title, summary, content, coverImage, readTime, published, category, tags } = req.body;
+
+        // Get old article to check if category changed (for cache invalidation)
+        const oldArticle = await (prisma as any).article.findUnique({ where: { id: articleId } });
 
         const article = await (prisma as any).article.update({
             where: { id: articleId },
@@ -61,6 +68,12 @@ export async function updateArticle(req: Request, res: Response, next: NextFunct
             },
         });
 
+        // Invalidate cache for both old and new categories and the slug
+        if (oldArticle) {
+            await articlesService.invalidateArticleCache(oldArticle.category, oldArticle.slug);
+        }
+        await articlesService.invalidateArticleCache(category, article.slug);
+
         sendSuccess(res, article);
     } catch (error) {
         next(error);
@@ -74,9 +87,11 @@ export async function deleteArticle(req: Request, res: Response, next: NextFunct
     try {
         const { articleId } = req.params;
 
-        await (prisma as any).article.delete({
+        const article = await (prisma as any).article.delete({
             where: { id: articleId },
         });
+
+        await articlesService.invalidateArticleCache(article.category, article.slug);
 
         sendSuccess(res, { message: 'Article deleted' });
     } catch (error) {
@@ -114,35 +129,8 @@ export async function getArticles(req: Request, res: Response, next: NextFunctio
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const where: any = { published: true };
-
-        if (search) {
-            where.OR = [
-                { title: { contains: search as string, mode: 'insensitive' } },
-                { summary: { contains: search as string, mode: 'insensitive' } },
-                { tags: { has: search as string } }
-            ];
-        }
-
-        if (category && category !== 'All') {
-            where.category = category as string;
-        }
-
-        const articles = await (prisma as any).article.findMany({
-            where,
-            orderBy: { createdAt: 'desc' },
-            select: {
-                id: true,
-                title: true,
-                slug: true,
-                summary: true,
-                coverImage: true,
-                readTime: true,
-                category: true,
-                tags: true,
-                createdAt: true,
-            }
-        });
+        // Usage of Service
+        const articles = await articlesService.getArticles(search as string, category as string);
 
         // Get user's reads for today
         const todayReads = await (prisma as any).articleRead.findMany({
@@ -180,20 +168,17 @@ export async function getArticles(req: Request, res: Response, next: NextFunctio
 // ============================================
 // USER: Get Single Article
 // ============================================
+// ============================================
+// USER: Get Single Article
+// ============================================
 export async function getArticle(req: Request, res: Response, next: NextFunction) {
     try {
         const { slug } = req.params;
+        const isAdmin = (req as any).role === 'ADMIN';
 
-        const article = await (prisma as any).article.findUnique({
-            where: { slug },
-        });
+        const article = await articlesService.getArticleBySlug(slug, isAdmin);
 
         if (!article) {
-            return sendError(res, 'Article not found', 404);
-        }
-
-        const isAdmin = (req as any).role === 'ADMIN';
-        if (!article.published && !isAdmin) {
             return sendError(res, 'Article not found', 404);
         }
 

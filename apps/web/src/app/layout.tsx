@@ -6,6 +6,7 @@ import { Providers } from '@/components/Providers';
 const inter = Inter({
     subsets: ['latin'],
     variable: '--font-sans',
+    display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -39,6 +40,8 @@ export default function RootLayout({
             `,
                     }}
                 />
+                <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'} />
+                <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'} crossOrigin="anonymous" />
             </head>
             <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
                 <Providers>

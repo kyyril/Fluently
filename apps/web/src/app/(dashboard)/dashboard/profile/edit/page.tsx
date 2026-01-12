@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '@fluently/ui';
 import { useUser, useUpdateProfile } from '@/hooks';
 import { ArrowLeft, Loader2, Save, User, Camera, ChevronRight, Globe } from 'lucide-react';
+import Image from 'next/image';
 
 const LEVELS = [
     { id: 'BEGINNER', name: 'Beginner', desc: 'Just starting to learn', icon: '🌱' },
@@ -63,14 +64,16 @@ export default function EditProfilePage() {
                     <CardContent className="p-6">
                         <div className="flex flex-col sm:flex-row items-center gap-8">
                             <div className="relative">
-                                <div className="w-32 h-32 bg-background rounded-3xl flex items-center justify-center overflow-hidden ring-4 ring-muted/20">
+                                <div className="w-32 h-32 bg-background rounded-3xl flex items-center justify-center overflow-hidden ring-4 ring-muted/20 relative">
                                     {userLoading ? (
                                         <div className="w-full h-full bg-muted animate-pulse" />
                                     ) : avatarUrl ? (
-                                        <img
+                                        <Image
                                             src={avatarUrl}
                                             alt="Avatar preview"
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            sizes="128px"
+                                            className="object-cover"
                                             onError={(e) => {
                                                 (e.target as HTMLImageElement).style.display = 'none';
                                             }}

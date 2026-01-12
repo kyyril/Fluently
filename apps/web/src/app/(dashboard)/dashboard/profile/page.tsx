@@ -19,6 +19,7 @@ import {
     ArrowLeft,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ProfilePage() {
     const params = useParams();
@@ -70,10 +71,12 @@ export default function ProfilePage() {
                                 {userLoading ? (
                                     <div className="w-full h-full bg-muted animate-pulse" />
                                 ) : user?.avatarUrl ? (
-                                    <img
+                                    <Image
                                         src={user.avatarUrl}
                                         alt={user.displayName}
-                                        className="w-full h-full object-cover"
+                                        fill
+                                        sizes="(max-width: 768px) 112px, 144px"
+                                        className="object-cover"
                                     />
                                 ) : (
                                     <User className="h-14 w-14 text-muted-foreground/50" />

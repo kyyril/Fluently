@@ -16,6 +16,7 @@ import {
     BookOpen
 } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import Image from 'next/image';
 
 export default function DashboardLayout({
     children,
@@ -61,7 +62,15 @@ export default function DashboardLayout({
                     {/* Left side */}
                     <div className="flex items-center gap-4">
                         <Link href="/dashboard" className="font-bold text-xl text-primary flex items-center gap-2">
-                            <img src="/brand.svg" alt="Fluently" className="w-8 h-8 rounded-lg shadow-sm" />
+                            <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-sm">
+                                <Image
+                                    src="/brand.svg"
+                                    alt="Fluently"
+                                    fill
+                                    priority
+                                    className="object-contain"
+                                />
+                            </div>
                             <span>Fluently</span>
                         </Link>
                     </div>

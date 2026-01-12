@@ -1,7 +1,18 @@
 import { leaderboardRepository } from '../repositories';
+import { redis } from '../config';
+
+const CACHE_TTL = 300; // 5 minutes in seconds
 
 export async function getWeeklyLeaderboard(userId?: string) {
-    const entries = await leaderboardRepository.getWeeklyLeaderboard();
+    let entries;
+    const cached = await redis.get('leaderboard:weekly');
+
+    if (cached) {
+        entries = JSON.parse(cached);
+    } else {
+        entries = await leaderboardRepository.getWeeklyLeaderboard();
+        await redis.set('leaderboard:weekly', JSON.stringify(entries), 'EX', CACHE_TTL);
+    }
 
     let userRank: number | null = null;
     if (userId) {
@@ -16,7 +27,15 @@ export async function getWeeklyLeaderboard(userId?: string) {
 }
 
 export async function getAllTimeLeaderboard(userId?: string) {
-    const entries = await leaderboardRepository.getAllTimeLeaderboard();
+    let entries;
+    const cached = await redis.get('leaderboard:all-time');
+
+    if (cached) {
+        entries = JSON.parse(cached);
+    } else {
+        entries = await leaderboardRepository.getAllTimeLeaderboard();
+        await redis.set('leaderboard:all-time', JSON.stringify(entries), 'EX', CACHE_TTL);
+    }
 
     let userRank: number | null = null;
     if (userId) {

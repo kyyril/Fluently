@@ -5,6 +5,7 @@ import { Card, CardContent, Button } from '@fluently/ui';
 import { useWeeklyLeaderboard, useAllTimeLeaderboard, useUser } from '@/hooks';
 import { Trophy, TrendingUp, Crown, Medal, Award, User, Flame, Star, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LeaderboardPage() {
     const [tab, setTab] = useState<'weekly' | 'all-time'>('weekly');
@@ -146,14 +147,16 @@ export default function LeaderboardPage() {
                                 >
                                     <div className="relative mb-4">
                                         <div className={`
-                                            w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden
+                                            w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden relative
                                             ${isFirst ? 'ring-4 ring-yellow-500/30' : 'ring-2 ring-muted'}
                                         `}>
                                             {entry.user.avatarUrl ? (
-                                                <img
+                                                <Image
                                                     src={entry.user.avatarUrl}
                                                     alt={entry.user.displayName}
-                                                    className="w-full h-full object-cover"
+                                                    fill
+                                                    sizes="80px"
+                                                    className="object-cover"
                                                 />
                                             ) : (
                                                 <User className="h-10 w-10 text-muted-foreground/30" />
@@ -223,12 +226,14 @@ export default function LeaderboardPage() {
                                 </div>
 
                                 {/* Avatar */}
-                                <div className="w-12 h-12 bg-muted/50 rounded-xl flex items-center justify-center overflow-hidden border border-white/5">
+                                <div className="w-12 h-12 bg-muted/50 rounded-xl flex items-center justify-center overflow-hidden border border-white/5 relative">
                                     {entry.user.avatarUrl ? (
-                                        <img
+                                        <Image
                                             src={entry.user.avatarUrl}
                                             alt={entry.user.displayName}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            sizes="48px"
+                                            className="object-cover"
                                         />
                                     ) : (
                                         <User className="h-6 w-6 text-muted-foreground/40" />

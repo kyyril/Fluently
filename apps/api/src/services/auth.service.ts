@@ -56,7 +56,7 @@ export async function register(data: {
 }
 
 export async function login(email: string, password: string) {
-    const user = await userRepository.findByEmail(email);
+    const user = await userRepository.findAuthByEmail(email);
     if (!user) {
         throw new UnauthorizedError('Invalid email or password');
     }

@@ -1,4 +1,5 @@
 import { taskRepository, routineRepository, userRepository } from '../repositories';
+import { redis } from '../config';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
 import * as routineService from './routine.service';
 
@@ -52,6 +53,12 @@ export async function completeTask(userId: string, taskId: string, metadata?: Re
 
     // Update streak
     await routineService.updateStreak(userId);
+
+    // Invalidate user cache (stats & public profile)
+    await redis.del(`user:public:${userId}`);
+    await redis.del(`user:stats:${userId}`);
+    // Optional: Invalidate weekly leaderboard if we want near real-time updates
+    // await redis.del('leaderboard:weekly');
 
     return {
         id: completed.id,

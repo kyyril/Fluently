@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import { config } from './config';
 import routes from './routes';
 import { errorHandler } from './middleware';
@@ -13,6 +14,9 @@ const app = express();
 
 // Security headers
 app.use(helmet());
+
+// Gzip compression
+app.use(compression());
 
 // CORS
 app.use(cors({

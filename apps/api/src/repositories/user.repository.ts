@@ -12,6 +12,45 @@ export async function findByEmail(email: string) {
 export async function findById(id: string) {
     return prisma.user.findUnique({
         where: { id },
+        select: {
+            id: true,
+            email: true,
+            displayName: true,
+            avatarUrl: true,
+            nativeLanguage: true,
+            targetLanguage: true,
+            level: true,
+            role: true,
+            totalXp: true,
+            currentStreak: true,
+            longestStreak: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+    });
+}
+
+// Special function for authentication that needs passwordHash
+export async function findAuthByEmail(email: string) {
+    return prisma.user.findUnique({
+        where: { email },
+    });
+}
+
+// Public profile fetch with minimal fields
+export async function findPublicById(id: string) {
+    return prisma.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            displayName: true,
+            avatarUrl: true,
+            nativeLanguage: true,
+            targetLanguage: true,
+            level: true,
+            totalXp: true,
+            currentStreak: true,
+        },
     });
 }
 

@@ -19,6 +19,9 @@ export const config = {
 
     // Google Gemini
     geminiApiKey: process.env.GEMINI_API_KEY,
+
+    // Redis
+    redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
 } as const;
 
 // Validate required env vars in production

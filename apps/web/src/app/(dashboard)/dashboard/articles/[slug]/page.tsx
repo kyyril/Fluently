@@ -11,6 +11,7 @@ import { DictionaryModal } from '@/components/DictionaryModal';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import remarkGfm from 'remark-gfm';
+import Image from 'next/image';
 
 export default function ArticleViewPage() {
     const router = useRouter();
@@ -199,10 +200,13 @@ export default function ArticleViewPage() {
                 {/* Cover Image */}
                 {article.coverImage && (
                     <div className="rounded-2xl overflow-hidden aspect-[21/9] shadow-2xl relative">
-                        <img
+                        <Image
                             src={article.coverImage}
                             alt={article.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            priority
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1200px"
+                            className="object-cover"
                         />
                     </div>
                 )}
@@ -214,7 +218,9 @@ export default function ArticleViewPage() {
                     prose-p:leading-loose prose-p:text-muted-foreground
                     prose-a:text-primary prose-a:font-bold prose-a:no-underline hover:prose-a:underline
                     prose-strong:font-black prose-strong:text-foreground
-                    prose-img:rounded-xl prose-img:shadow-lg
+                    prose-strong:font-black prose-strong:text-foreground
+                    prose-img:rounded-xl prose-img:shadow-lg prose-img:w-full prose-img:h-auto
+                    prose-li:text-muted-foreground
                     prose-li:text-muted-foreground
                     prose-hr:border-border
                 ">

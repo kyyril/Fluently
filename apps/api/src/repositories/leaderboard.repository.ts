@@ -3,45 +3,56 @@ import { prisma } from '../config/database';
 export async function getWeeklyLeaderboard(limit: number = 50) {
     const startOfWeek = new Date();
     startOfWeek.setHours(0, 0, 0, 0);
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() || 7)); // Ensure Monday is start of week
 
-    // Get users with their XP earned this week
+    // 1. Get top users by XP gained this week using groupBy
+    const weeklyAggregates = await prisma.dailyLog.groupBy({
+        by: ['userId'],
+        where: {
+            date: { gte: startOfWeek },
+            totalXp: { gt: 0 }
+        },
+        _sum: {
+            totalXp: true
+        },
+        orderBy: {
+            _sum: {
+                totalXp: 'desc'
+            }
+        },
+        take: limit
+    });
+
+    if (weeklyAggregates.length === 0) return [];
+
+    // 2. Fetch user details for these users
+    const userIds = weeklyAggregates.map(a => a.userId);
     const users = await prisma.user.findMany({
+        where: {
+            id: { in: userIds },
+            role: 'USER'
+        },
         select: {
             id: true,
             displayName: true,
             avatarUrl: true,
             targetLanguage: true,
             level: true,
-            dailyLogs: {
-                where: {
-                    date: { gte: startOfWeek },
-                },
-                select: {
-                    totalXp: true,
-                },
-            },
         },
-        where: {
-            role: 'USER'
-        },
-        orderBy: {
-            totalXp: 'desc',
-        },
-        take: limit,
-    } as any);
+    });
 
-    return (users as any[]).map((user, index) => ({
-        rank: index + 1,
-        user: {
-            id: user.id,
-            displayName: user.displayName,
-            avatarUrl: user.avatarUrl,
-            targetLanguage: user.targetLanguage,
-            level: user.level,
-        },
-        xp: (user.dailyLogs || []).reduce((sum: number, log: any) => sum + log.totalXp, 0),
-    }));
+    // 3. Map back to entries
+    return weeklyAggregates
+        .map((agg, index) => {
+            const user = users.find(u => u.id === agg.userId);
+            if (!user) return null;
+            return {
+                rank: index + 1,
+                user,
+                xp: agg._sum.totalXp || 0,
+            };
+        })
+        .filter(Boolean);
 }
 
 export async function getAllTimeLeaderboard(limit: number = 50) {
