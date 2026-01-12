@@ -10,196 +10,193 @@ import {
 } from '@/hooks';
 import {
     Check,
-    Loader2,
     Flame,
     Star,
     Trophy,
     Target,
     Languages,
+    Headset,
+    Mic2,
+    PenLine,
+    BookText,
+    TrendingUp,
+    ChevronRight,
 } from 'lucide-react';
 import { TaskDialog } from '@/features/routine/components/TaskDialog';
+
+const TASK_ICONS: Record<string, React.ReactNode> = {
+    PODCAST_LISTENING: <Headset className="h-5 w-5" />,
+    SPEAKING_SESSION: <Mic2 className="h-5 w-5" />,
+    CREATE_SENTENCES: <PenLine className="h-5 w-5" />,
+    DAY_RECAP: <BookText className="h-5 w-5" />,
+};
+
+const TASK_COLORS: Record<string, string> = {
+    PODCAST_LISTENING: 'text-blue-500 bg-blue-500/10',
+    SPEAKING_SESSION: 'text-purple-500 bg-purple-500/10',
+    CREATE_SENTENCES: 'text-orange-500 bg-orange-500/10',
+    DAY_RECAP: 'text-green-500 bg-green-500/10',
+};
 
 export default function DashboardPage() {
     const { data: user } = useUser();
     const { data: routine, isLoading } = useTodayRoutine();
 
     const [activeTask, setActiveTask] = useState<any>(null);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isDialogOpen] = useState(false);
+    // Since we need to keep the dialog open state stable, let's use a proper state
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleOpenTask = (task: any) => {
         setActiveTask({ ...task, dailyLogId: routine?.id });
-        setIsDialogOpen(true);
+        setDialogOpen(true);
     };
 
     const completedCount = routine?.tasks.filter((t) => t.completed).length || 0;
-    const totalTasks = routine?.tasks.length || 6;
+    const totalTasks = routine?.tasks.length || 0;
     const progress = routine?.progress || 0;
 
     return (
-        <div className="container py-8 px-4 max-w-4xl mx-auto">
-            {/* Welcome & Stats */}
-            <div className="mb-8">
-                {isLoading ? (
-                    <div className="space-y-4">
-                        <div className="h-10 w-64 animate-shimmer rounded-xl" />
-                        <div className="h-6 w-48 animate-shimmer rounded-lg" />
+        <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 animate-fade-in">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 text-primary text-[10px] font-black uppercase tracking-widest">
+                        <TrendingUp className="h-3 w-3" />
+                        Daily Progress
                     </div>
-                ) : (
-                    <>
-                        <h1 className="text-3xl font-bold mb-2 text-balance">
-                            Welcome back, {user?.displayName?.split(' ')[0] || 'Learner'}! 👋
-                        </h1>
-                        <p className="text-muted-foreground">
-                            {progress === 100
-                                ? "Amazing! You've completed all tasks today! 🎉"
-                                : `You're ${progress}% through today's routine. Keep going!`}
-                        </p>
-                    </>
-                )}
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <StatCard
-                    icon={<Flame className={`h-6 w-6 ${isLoading ? 'text-muted' : 'text-orange-500'}`} />}
-                    value={user?.currentStreak || 0}
-                    label="Day Streak"
-                    isLoading={isLoading}
-                />
-                <StatCard
-                    icon={<Star className={`h-6 w-6 ${isLoading ? 'text-muted' : 'text-yellow-500'}`} />}
-                    value={user?.totalXp || 0}
-                    label="Total XP"
-                    isLoading={isLoading}
-                />
-                <StatCard
-                    icon={<Trophy className={`h-6 w-6 ${isLoading ? 'text-muted' : 'text-primary'}`} />}
-                    value={user?.longestStreak || 0}
-                    label="Best Streak"
-                    isLoading={isLoading}
-                />
-                <StatCard
-                    icon={<Target className={`h-6 w-6 ${isLoading ? 'text-muted' : 'text-green-500'}`} />}
-                    value={isLoading ? '--' : `${completedCount}/${totalTasks}`}
-                    label="Tasks Today"
-                    isLoading={isLoading}
-                />
-            </div>
-
-            {/* Today's Routine */}
-            <Card className={isLoading ? 'animate-shimmer' : ''}>
-                <div className="p-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                            <h2 className="text-xl font-bold">Today's Routine</h2>
-                            {isLoading ? (
-                                <div className="h-4 w-32 bg-muted rounded mt-2" />
-                            ) : (
-                                <p className="text-muted-foreground text-sm mt-1">
-                                    {routine?.date
-                                        ? new Date(routine.date).toLocaleDateString('en-US', {
-                                            weekday: 'long',
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric',
-                                        })
-                                        : 'Today'}
-                                </p>
-                            )}
-                        </div>
-                        <div className="text-right">
-                            <div className={`text-2xl font-bold ${isLoading ? 'text-muted' : 'text-primary'}`}>
-                                {isLoading ? '--%' : `${progress}%`}
-                            </div>
-                            <div className="text-sm text-muted-foreground">Complete</div>
-                        </div>
-                    </div>
-
-                    {/* Progress bar */}
-                    <div className="mt-4 h-3 bg-muted rounded-full overflow-hidden">
-                        <div
-                            className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500"
-                            style={{ width: `${progress}%` }}
-                        />
-                    </div>
+                    <h1 className="text-3xl sm:text-4xl font-black tracking-tight">
+                        Hello, <span className="text-primary">{user?.displayName?.split(' ')[0] || 'Learner'}</span>
+                    </h1>
+                    <p className="text-muted-foreground text-sm">
+                        {progress === 100
+                            ? "You've crushed all your goals for today! 🚀"
+                            : `You've completed ${completedCount} out of ${totalTasks} tasks today.`}
+                    </p>
                 </div>
 
-                <CardContent className="p-0">
-                    <div className="space-y-1">
-                        {isLoading ? (
-                            Array.from({ length: 6 }).map((_, i) => (
-                                <div key={i} className="flex items-center justify-between p-5">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full animate-shimmer" />
-                                        <div className="space-y-2">
-                                            <div className="h-4 w-40 animate-shimmer rounded" />
-                                            <div className="h-3 w-20 animate-shimmer rounded" />
-                                        </div>
-                                    </div>
-                                    <div className="w-20 h-9 animate-shimmer rounded-xl" />
-                                </div>
-                            ))
-                        ) : (
-                            routine?.tasks.map((task, index) => (
-                                <div
-                                    key={task.id}
-                                    className={`flex items-center justify-between p-4 transition-colors ${task.completed ? 'bg-green-500/5' : 'hover:bg-muted/50'
-                                        }`}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div
-                                            className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${task.completed
-                                                ? 'bg-green-500 text-white'
-                                                : 'bg-muted text-muted-foreground'
-                                                }`}
-                                        >
-                                            {task.completed ? <Check className="h-4 w-4" /> : index + 1}
-                                        </div>
-                                        <div>
-                                            <h3
-                                                className={`font-medium ${task.completed ? 'text-muted-foreground line-through' : ''
-                                                    }`}
-                                            >
-                                                {getTaskName(task.taskType)}
-                                            </h3>
-                                            <p className="text-sm text-muted-foreground">
-                                                +{getTaskXp(task.taskType)} XP
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <Button
-                                        variant={task.completed ? 'outline' : 'primary'}
-                                        size="sm"
-                                        onClick={() => handleOpenTask(task)}
-                                    >
-                                        {task.completed ? (
-                                            <>
-                                                <Languages className="h-4 w-4 mr-1" /> Review
-                                            </>
-                                        ) : (
-                                            'Start'
-                                        )}
-                                    </Button>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Total XP for today */}
-            <div className="mt-6 text-center text-muted-foreground">
-                <p>
-                    Earn up to <span className="font-bold text-primary">300 XP</span> by
-                    completing all tasks
-                </p>
+                <div className="hidden md:block text-right">
+                    <div className="text-4xl font-black text-primary">{progress}%</div>
+                    <div className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Overall Completion</div>
+                </div>
             </div>
+
+            {/* Quick Stats - Flat Design */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <StatCard
+                    icon={<Flame className="h-5 w-5" />}
+                    value={user?.currentStreak || 0}
+                    label="Day Streak"
+                    color="text-orange-500"
+                    bgColor="bg-orange-500/10"
+                    isLoading={isLoading}
+                />
+                <StatCard
+                    icon={<Star className="h-5 w-5" />}
+                    value={user?.totalXp || 0}
+                    label="Points"
+                    color="text-yellow-500"
+                    bgColor="bg-yellow-500/10"
+                    isLoading={isLoading}
+                />
+                <StatCard
+                    icon={<Trophy className="h-5 w-5" />}
+                    value={user?.longestStreak || 0}
+                    label="Best"
+                    color="text-primary"
+                    bgColor="bg-primary/10"
+                    isLoading={isLoading}
+                />
+                <StatCard
+                    icon={<Target className="h-5 w-5" />}
+                    value={isLoading ? '--' : `${completedCount}/${totalTasks}`}
+                    label="Tasks"
+                    color="text-green-500"
+                    bgColor="bg-green-500/10"
+                    isLoading={isLoading}
+                />
+            </div>
+
+            {/* Main Routine Card */}
+            <div className="space-y-4">
+                <div className="flex items-center justify-between px-2">
+                    <h2 className="font-black uppercase tracking-wider text-xs text-muted-foreground flex items-center gap-2">
+                        <CalendarIcon className="h-3 w-3" />
+                        Today's Tasks
+                    </h2>
+                    {!isLoading && (
+                        <span className="text-[10px] font-bold text-muted-foreground opacity-60">
+                            {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                    )}
+                </div>
+
+                <div className="grid gap-3">
+                    {isLoading ? (
+                        Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="h-20 bg-muted/20 rounded-2xl animate-pulse" />
+                        ))
+                    ) : (
+                        routine?.tasks.map((task) => (
+                            <div
+                                key={task.id}
+                                onClick={() => handleOpenTask(task)}
+                                className={`
+                                    group flex items-center justify-between p-4 rounded-2xl transition-all cursor-pointer
+                                    ${task.completed
+                                        ? 'bg-muted/10 opacity-60'
+                                        : 'bg-surface/50 border border-transparent hover:border-primary/20 hover:bg-surface'}
+                                `}
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className={`
+                                        w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110
+                                        ${task.completed ? 'bg-muted text-muted-foreground' : TASK_COLORS[task.taskType]}
+                                    `}>
+                                        {task.completed ? <Check className="h-5 w-5" /> : TASK_ICONS[task.taskType]}
+                                    </div>
+                                    <div>
+                                        <h3 className={`font-bold ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                                            {getTaskName(task.taskType)}
+                                        </h3>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-black text-primary">+{getTaskXp(task.taskType)} XP</span>
+                                            <span className="text-[10px] text-muted-foreground">•</span>
+                                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">Daily Goal</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-3">
+                                    {task.completed ? (
+                                        <span className="text-[10px] font-black text-green-500 bg-green-500/10 px-2 py-1 rounded-md uppercase tracking-widest">
+                                            Done
+                                        </span>
+                                    ) : (
+                                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+
+            {/* Bottom Info */}
+            <div className="pt-4 text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/5 rounded-full">
+                    <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                    <p className="text-xs font-bold text-muted-foreground">
+                        Earn up to <span className="text-primary font-black">200 XP</span> by completing everything
+                    </p>
+                </div>
+            </div>
+
             {/* Task Dialog */}
             <TaskDialog
                 task={activeTask}
-                isOpen={isDialogOpen}
-                onClose={() => setIsDialogOpen(false)}
+                isOpen={dialogOpen}
+                onClose={() => setDialogOpen(false)}
             />
         </div>
     );
@@ -209,28 +206,51 @@ function StatCard({
     icon,
     value,
     label,
+    color,
+    bgColor,
     isLoading,
 }: {
     icon: React.ReactNode;
     value: number | string;
     label: string;
+    color: string;
+    bgColor: string;
     isLoading?: boolean;
 }) {
     return (
-        <Card className="p-4">
-            <div className="flex items-center gap-3">
+        <div className="p-5 bg-surface/50 rounded-2xl flex flex-col gap-3 group">
+            <div className={`w-10 h-10 ${bgColor} ${color} rounded-xl flex items-center justify-center transition-transform group-hover:rotate-6`}>
                 {icon}
-                <div>
-                    {isLoading ? (
-                        <div className="h-7 w-16 animate-shimmer rounded mb-1" />
-                    ) : (
-                        <div className="text-xl font-bold">
-                            {typeof value === 'number' ? value.toLocaleString() : value}
-                        </div>
-                    )}
-                    <div className="text-xs text-muted-foreground">{label}</div>
-                </div>
             </div>
-        </Card>
+            <div>
+                {isLoading ? (
+                    <div className="h-7 w-16 animate-pulse bg-muted rounded mb-1" />
+                ) : (
+                    <div className="text-2xl font-black tracking-tight">
+                        {typeof value === 'number' ? value.toLocaleString() : value}
+                    </div>
+                )}
+                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{label}</div>
+            </div>
+        </div>
+    );
+}
+
+function CalendarIcon({ className }: { className?: string }) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+        >
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
     );
 }

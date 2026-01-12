@@ -21,5 +21,7 @@ router.get('/me', authenticate, usersController.getMe);
 router.patch('/me', authenticate, validate(UpdateProfileSchema), usersController.updateMe);
 router.get('/me/stats', authenticate, usersController.getMyStats);
 router.get('/:id', usersController.getPublicProfile);
+router.get('/:id/stats', usersController.getUserStats);
+router.get('/:id/history', usersController.getUserHistory);
 
 export default router;

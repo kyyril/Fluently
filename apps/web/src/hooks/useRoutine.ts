@@ -32,10 +32,10 @@ interface HistoryEntry {
 }
 
 const TASK_NAMES: Record<string, string> = {
-    PODCAST_LISTENING: '🎧 Podcast Listening',
-    SPEAKING_SESSION: '🗣️ Speaking Session (45m)',
-    CREATE_SENTENCES: '✍️ Create Sentences',
-    DAY_RECAP: '📔 Day Recap Journal',
+    PODCAST_LISTENING: 'Podcast Listening',
+    SPEAKING_SESSION: 'Speaking Session (45m)',
+    CREATE_SENTENCES: 'Create Sentences',
+    DAY_RECAP: 'Day Recap Journal',
 };
 
 const TASK_XP: Record<string, number> = {
@@ -66,15 +66,18 @@ export function useTodayRoutine() {
     });
 }
 
-export function useRoutineHistory(limit = 30) {
+export function useRoutineHistory(limit = 30, userId?: string) {
     return useQuery({
-        queryKey: ['routine', 'history', limit],
+        queryKey: ['routine', 'history', limit, userId || 'me'],
         queryFn: async () => {
-            const response = await api.get<{ success: boolean; data: HistoryEntry[] }>(
-                `/routine/history?limit=${limit}`
-            );
+            const endpoint = userId
+                ? `/users/${userId}/history?limit=${limit}`
+                : `/routine/history?limit=${limit}`;
+            const response = await api.get<{ success: boolean; data: HistoryEntry[] }>(endpoint);
             return response.data.data;
         },
+        staleTime: 1000 * 30, // 30 seconds
+        refetchOnWindowFocus: true,
     });
 }
 
@@ -98,6 +101,7 @@ export function useCompleteTask() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['routine', 'today'] });
+            queryClient.invalidateQueries({ queryKey: ['routine', 'history'] });
             queryClient.invalidateQueries({ queryKey: ['user'] });
         },
     });

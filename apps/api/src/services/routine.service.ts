@@ -11,17 +11,22 @@ export async function getTodayRoutine(userId: string) {
         dailyLog = await routineRepository.createDailyLog(userId, today);
     }
 
+    // Filter out deprecated task types
+    const activeTasks = dailyLog.tasks.filter(
+        (task: { taskType: string }) => task.taskType !== 'LEARN_VERBS'
+    );
+
     // Calculate progress
-    const completedTasks = dailyLog.tasks.filter(
+    const completedTasks = activeTasks.filter(
         (t: { completed: boolean }) => t.completed
     ).length;
-    const totalTasks = dailyLog.tasks.length;
+    const totalTasks = activeTasks.length;
     const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
     return {
         id: dailyLog.id,
         date: dailyLog.date.toISOString().split('T')[0],
-        tasks: dailyLog.tasks.map(
+        tasks: activeTasks.map(
             (task: {
                 id: string;
                 taskType: string;
@@ -51,22 +56,28 @@ export async function getHistory(
     offset: number = 0
 ) {
     const logs = await routineRepository.getDailyLogHistory(userId, limit, offset);
+    const DEPRECATED_TASKS = ['LEARN_VERBS'];
 
     return logs.map(
         (log: {
             id: string;
             date: Date;
             totalXp: number;
-            tasks: { completed: boolean }[];
+            tasks: { completed: boolean; taskType: string }[];
             dayRecap: string | null;
-        }) => ({
-            id: log.id,
-            date: log.date.toISOString().split('T')[0],
-            totalXp: log.totalXp,
-            tasksCompleted: log.tasks.filter((t) => t.completed).length,
-            totalTasks: log.tasks.length,
-            dayRecap: log.dayRecap,
-        })
+        }) => {
+            const activeTasks = log.tasks.filter(
+                (t) => !DEPRECATED_TASKS.includes(t.taskType)
+            );
+            return {
+                id: log.id,
+                date: log.date.toISOString().split('T')[0],
+                totalXp: log.totalXp,
+                tasksCompleted: activeTasks.filter((t) => t.completed).length,
+                totalTasks: activeTasks.length,
+                dayRecap: log.dayRecap,
+            };
+        }
     );
 }
 

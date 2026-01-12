@@ -98,10 +98,17 @@ export async function getStats(userId: string) {
 
     if (!user) return null;
 
+    // Filter out deprecated task types when calculating stats
+    const DEPRECATED_TASKS = ['LEARN_VERBS'];
+
     const totalDays = user.dailyLogs.length;
     const completedDays = user.dailyLogs.filter(
-        (log: { tasks: { completed: boolean }[] }) =>
-            log.tasks.every((t: { completed: boolean }) => t.completed)
+        (log: { tasks: { completed: boolean; taskType: string }[] }) => {
+            const activeTasks = log.tasks.filter(
+                (t: { taskType: string }) => !DEPRECATED_TASKS.includes(t.taskType)
+            );
+            return activeTasks.length > 0 && activeTasks.every((t: { completed: boolean }) => t.completed);
+        }
     ).length;
 
     return {

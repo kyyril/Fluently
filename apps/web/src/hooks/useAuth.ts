@@ -105,23 +105,23 @@ export function useAuth() {
     return { login, register, logout, onboarding };
 }
 
-export function useUser() {
+export function useUser(userId?: string) {
     return useQuery({
-        queryKey: ['user', 'me'],
+        queryKey: ['user', userId || 'me'],
         queryFn: async () => {
-            const response = await api.get<{ success: boolean; data: User }>(
-                '/users/me'
-            );
+            const endpoint = userId ? `/users/${userId}` : '/users/me';
+            const response = await api.get<{ success: boolean; data: User }>(endpoint);
             return response.data.data;
         },
         retry: false,
     });
 }
 
-export function useUserStats() {
+export function useUserStats(userId?: string) {
     return useQuery({
-        queryKey: ['user', 'stats'],
+        queryKey: ['user', 'stats', userId || 'me'],
         queryFn: async () => {
+            const endpoint = userId ? `/users/${userId}/stats` : '/users/me/stats';
             const response = await api.get<{
                 success: boolean;
                 data: {
@@ -133,8 +133,31 @@ export function useUserStats() {
                     completionRate: number;
                     titles: { name: string; icon: string }[];
                 };
-            }>('/users/me/stats');
+            }>(endpoint);
             return response.data.data;
+        },
+    });
+}
+
+export function useUpdateProfile() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (data: {
+            displayName?: string;
+            avatarUrl?: string;
+            nativeLanguage?: string;
+            targetLanguage?: string;
+            level?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+        }) => {
+            const response = await api.patch<{ success: boolean; data: User }>(
+                '/users/me',
+                data
+            );
+            return response.data.data;
+        },
+        onSuccess: (data) => {
+            queryClient.setQueryData(['user', 'me'], data);
         },
     });
 }

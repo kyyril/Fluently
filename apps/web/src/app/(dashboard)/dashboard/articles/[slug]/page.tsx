@@ -213,7 +213,6 @@ export default function ArticleViewPage() {
                     prose-headings:font-black prose-headings:tracking-tight prose-headings:text-foreground
                     prose-p:leading-loose prose-p:text-muted-foreground
                     prose-a:text-primary prose-a:font-bold prose-a:no-underline hover:prose-a:underline
-                    prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-surface/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic
                     prose-strong:font-black prose-strong:text-foreground
                     prose-img:rounded-xl prose-img:shadow-lg
                     prose-li:text-muted-foreground
@@ -227,9 +226,11 @@ export default function ArticleViewPage() {
                             ol: ({ children }) => <ol className="list-decimal pl-8 mb-6 space-y-2 text-lg">{children}</ol>,
                             li: ({ children }) => <li className="pl-2"><InteractiveText>{children}</InteractiveText></li>,
                             blockquote: ({ children }) => (
-                                <blockquote className="relative my-8 pl-8 border-l-4 border-primary bg-muted/30 py-4 pr-4 rounded-r-xl">
-                                    <Quote className="absolute top-2 left-2 h-4 w-4 text-primary/40 -translate-x-[1.2rem] -translate-y-[0.5rem]" />
-                                    <InteractiveText>{children}</InteractiveText>
+                                <blockquote className="relative my-10 pl-10 pr-6 py-6 border-l-4 border-primary bg-primary/5 rounded-r-2xl overflow-hidden group">
+                                    <Quote className="absolute -top-2 -left-2 h-16 w-16 text-primary/5 -rotate-12 transition-transform group-hover:rotate-0 duration-500" />
+                                    <div className="relative z-10 italic text-xl text-foreground font-medium leading-relaxed">
+                                        <InteractiveText>{children}</InteractiveText>
+                                    </div>
                                 </blockquote>
                             ),
                             h1: ({ children }) => <h1 className="text-3xl sm:text-4xl mt-12 mb-6"><InteractiveText>{children}</InteractiveText></h1>,

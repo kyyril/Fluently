@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { usersService } from '../services';
+import { usersService, routineService } from '../services';
 import { sendSuccess } from '../utils/api-response';
 import { AuthRequest } from '../middleware/auth.middleware';
 
@@ -58,6 +58,38 @@ export async function getMyStats(
         const userId = (req as AuthRequest).userId!;
         const stats = await usersService.getStats(userId);
         sendSuccess(res, stats);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function getUserStats(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    try {
+        const { id } = req.params;
+        const stats = await usersService.getStats(id);
+        sendSuccess(res, stats);
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function getUserHistory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    try {
+        const { id } = req.params;
+        const { limit } = req.query;
+        const history = await routineService.getHistory(
+            id,
+            limit ? parseInt(limit as string) : 30
+        );
+        sendSuccess(res, history);
     } catch (error) {
         next(error);
     }

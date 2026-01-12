@@ -1,4 +1,4 @@
-export { useAuth, useUser, useUserStats } from './useAuth';
+export { useAuth, useUser, useUserStats, useUpdateProfile } from './useAuth';
 export {
     useTodayRoutine,
     useRoutineHistory,

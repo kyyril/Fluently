@@ -1,6 +1,7 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, Button } from '@fluently/ui';
+import { useParams } from 'next/navigation';
+import { Card, CardContent, Button } from '@fluently/ui';
 import { useUser, useUserStats, useRoutineHistory, useAuth } from '@/hooks';
 import {
     User,
@@ -10,244 +11,330 @@ import {
     Target,
     Calendar,
     Award,
-    TrendingUp,
     BookOpen,
     LogOut,
-    MapPin,
+    Edit,
+    Zap,
+    CheckCircle2,
+    ArrowLeft,
 } from 'lucide-react';
-import countries from 'world-countries';
+import Link from 'next/link';
 
 export default function ProfilePage() {
-    const { data: user, isLoading: userLoading } = useUser();
-    const { data: stats, isLoading: statsLoading } = useUserStats();
-    const { data: history } = useRoutineHistory(7);
-    const { logout } = useAuth();
+    const params = useParams();
+    const userId = params.id as string;
+    const isPublic = !!userId;
 
-    const levelEmoji: Record<string, string> = {
-        BEGINNER: '🌱',
-        INTERMEDIATE: '🌿',
-        ADVANCED: '🌳',
+    const { data: user, isLoading: userLoading } = useUser(userId);
+    const { data: stats, isLoading: statsLoading } = useUserStats(userId);
+    const { data: history } = useRoutineHistory(7, userId);
+    const { logout } = useAuth();
+    const { data: currentUser } = useUser();
+
+    // Determine if this is the current user's profile
+    const isMe = !isPublic || userId === currentUser?.id;
+
+    const levelConfig: Record<string, { emoji: string; color: string; bg: string }> = {
+        BEGINNER: { emoji: '🌱', color: 'text-green-500', bg: 'bg-green-500/10' },
+        INTERMEDIATE: { emoji: '🌿', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+        ADVANCED: { emoji: '🌳', color: 'text-purple-500', bg: 'bg-purple-500/10' },
     };
 
+    const currentLevel = levelConfig[user?.level || 'BEGINNER'];
+
+    if (userLoading) {
+        return (
+            <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 animate-fade-in">
+                <div className="h-40 bg-muted rounded-3xl animate-pulse" />
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-muted rounded-2xl animate-pulse" />)}
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="container py-8 px-4 max-w-3xl mx-auto">
-            {/* Profile Header */}
-            <Card className="overflow-hidden">
-                <div className="h-24 bg-gradient-to-r from-primary to-secondary" />
-                <CardContent className="relative pt-0">
-                    <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 -mt-12">
-                        {/* Avatar */}
-                        <div className="w-24 h-24 bg-surface border-4 border-background rounded-full flex items-center justify-center relative overflow-hidden">
-                            {userLoading ? (
-                                <div className="absolute inset-0 animate-shimmer" />
-                            ) : user?.avatarUrl ? (
-                                <img
-                                    src={user.avatarUrl}
-                                    alt={user.displayName}
-                                    className="w-full h-full rounded-full object-cover"
-                                />
-                            ) : (
-                                <User className="h-12 w-12 text-muted-foreground" />
-                            )}
+        <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 animate-fade-in">
+            {/* Back to Leaderboard if Public */}
+            {isPublic && (
+                <Link href="/dashboard/leaderboard">
+                    <Button variant="ghost" size="sm" className="mb-2">
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Leaderboard
+                    </Button>
+                </Link>
+            )}
+
+            {/* Hero Profile Card */}
+            <Card padding="none" className="overflow-hidden bg-surface/50 backdrop-blur-sm border-none">
+                {/* Gradient Banner */}
+                <div className="h-32 sm:h-40 bg-gradient-to-br from-primary via-primary/80 to-secondary relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
+                </div>
+
+                <CardContent className="relative px-6 pb-6">
+                    {/* Avatar */}
+                    <div className="flex flex-col sm:flex-row items-center sm:items-end gap-6 -mt-16 sm:-mt-20">
+                        <div className="relative">
+                            <div className="w-28 h-28 sm:w-36 sm:h-36 bg-background rounded-3xl flex items-center justify-center overflow-hidden ring-4 ring-background">
+                                {user?.avatarUrl ? (
+                                    <img
+                                        src={user.avatarUrl}
+                                        alt={user.displayName}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <User className="h-14 w-14 text-muted-foreground/50" />
+                                )}
+                            </div>
+                            {/* Level Badge */}
+                            <div className={`absolute -bottom-2 -right-2 w-10 h-10 ${currentLevel.bg} rounded-xl flex items-center justify-center text-2xl`}>
+                                {currentLevel.emoji}
+                            </div>
                         </div>
 
-                        {userLoading ? (
-                            <div className="text-center sm:text-left flex-1 min-w-0 space-y-3 py-2">
-                                <div className="h-8 w-56 animate-shimmer rounded-lg" />
-                                <div className="h-5 w-72 animate-shimmer rounded-md" />
-                            </div>
-                        ) : (
-                            <div className="text-center sm:text-left flex-1 min-w-0">
-                                <h1 className="text-2xl font-bold truncate">{user?.displayName}</h1>
-                                <p className="text-muted-foreground truncate">{user?.email}</p>
-                            </div>
-                        )}
+                        <div className="flex-1 text-center sm:text-left space-y-3">
+                            <h1 className="text-3xl sm:text-4xl font-black tracking-tight">{user?.displayName}</h1>
+                            {isMe && <p className="text-muted-foreground">{user?.email}</p>}
 
-                        <Button variant="outline" onClick={logout} className="shrink-0 mb-1">
-                            <LogOut className="h-4 w-4 mr-2" />
-                            Sign Out
-                        </Button>
-                    </div>
+                            {/* Tags */}
+                            <div className="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
+                                <span className={`px-3 py-1 ${currentLevel.bg} ${currentLevel.color} rounded-full text-xs font-bold`}>
+                                    {user?.level}
+                                </span>
+                                <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold flex items-center gap-1">
+                                    <BookOpen className="h-3 w-3" />
+                                    Learning English
+                                </span>
+                            </div>
+                        </div>
 
-                    {/* Language & Level */}
-                    <div className="flex flex-wrap gap-3 mt-6">
-                        {userLoading ? (
-                            <>
-                                <div className="h-8 w-24 animate-shimmer rounded-full" />
-                                <div className="h-8 w-32 animate-shimmer rounded-full" />
-                                <div className="h-8 w-24 animate-shimmer rounded-full" />
-                            </>
-                        ) : (
-                            <>
-                                <div className="px-3 py-1.5 bg-primary/10 rounded-full text-sm">
-                                    <BookOpen className="h-4 w-4 inline mr-1" />
-                                    Learning {user?.targetLanguage?.toUpperCase()}
-                                </div>
-                                <div className="px-3 py-1.5 bg-muted rounded-full text-sm">
-                                    {levelEmoji[user?.level || 'BEGINNER']} {user?.level}
-                                </div>
-                                <div className="px-3 py-1.5 bg-muted rounded-full text-sm">
-                                    Native: {user?.nativeLanguage?.toUpperCase()}
-                                </div>
-                                {user?.country && (
-                                    <div className="px-3 py-1.5 bg-muted rounded-full text-sm">
-                                        <MapPin className="h-4 w-4 inline mr-1" />
-                                        {countries.find(c => c.name.common === user.country)?.flag} {user.country}
-                                    </div>
-                                )}
-                            </>
+                        {/* Actions - Only shown for "me" */}
+                        {isMe && (
+                            <div className="flex gap-2 shrink-0">
+                                <Link href="/dashboard/profile/edit">
+                                    <Button variant="primary" size="sm">
+                                        <Edit className="h-4 w-4 mr-2" />
+                                        Edit
+                                    </Button>
+                                </Link>
+                                <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-destructive">
+                                    <LogOut className="h-4 w-4" />
+                                </Button>
+                            </div>
                         )}
                     </div>
                 </CardContent>
             </Card>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                <ProfileStatCard
-                    icon={<Star className="h-6 w-6 text-yellow-500" />}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard
+                    icon={<Star className="h-5 w-5" />}
                     value={stats?.totalXp || 0}
                     label="Total XP"
+                    color="text-yellow-500"
+                    bgColor="bg-yellow-500/10"
                     isLoading={statsLoading}
                 />
-                <ProfileStatCard
-                    icon={<Flame className="h-6 w-6 text-orange-500" />}
+                <StatCard
+                    icon={<Flame className="h-5 w-5" />}
                     value={stats?.currentStreak || 0}
-                    label="Current Streak"
+                    label="Day Streak"
+                    color="text-orange-500"
+                    bgColor="bg-orange-500/10"
+                    suffix=" days"
                     isLoading={statsLoading}
                 />
-                <ProfileStatCard
-                    icon={<Trophy className="h-6 w-6 text-primary" />}
+                <StatCard
+                    icon={<Trophy className="h-5 w-5" />}
                     value={stats?.longestStreak || 0}
                     label="Best Streak"
+                    color="text-primary"
+                    bgColor="bg-primary/10"
+                    suffix=" days"
                     isLoading={statsLoading}
                 />
-                <ProfileStatCard
-                    icon={<Target className="h-6 w-6 text-green-500" />}
-                    value={statsLoading ? '--' : `${Math.round(stats?.completionRate || 0)}%`}
+                <StatCard
+                    icon={<Target className="h-5 w-5" />}
+                    value={Math.round(stats?.completionRate || 0)}
                     label="Completion"
+                    color="text-green-500"
+                    bgColor="bg-green-500/10"
+                    suffix="%"
                     isLoading={statsLoading}
                 />
             </div>
 
-            {/* Achievements */}
-            {stats?.titles && stats.titles.length > 0 && (
-                <Card className="mt-6">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Award className="h-5 w-5" />
-                            Achievements
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex flex-wrap gap-3">
-                            {stats.titles.map((title: { name: string; icon: string }) => (
-                                <div
-                                    key={title.name}
-                                    className="flex items-center gap-2 px-4 py-2 bg-muted rounded-full"
-                                >
-                                    <span className="text-xl">{title.icon}</span>
-                                    <span className="font-medium">{title.name}</span>
+            {/* Two Column Layout */}
+            <div className="grid lg:grid-cols-2 gap-6">
+                {/* Achievements */}
+                <Card className="bg-surface/50 backdrop-blur-sm border-none">
+                    <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                                <Award className="h-5 w-5 text-amber-500" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold">Achievements</h3>
+                                <p className="text-xs text-muted-foreground">{stats?.titles?.length || 0} earned</p>
+                            </div>
+                        </div>
+
+                        {stats?.titles && stats.titles.length > 0 ? (
+                            <div className="grid grid-cols-2 gap-3">
+                                {stats.titles.map((title: { name: string; icon: string }) => (
+                                    <div
+                                        key={title.name}
+                                        className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors"
+                                    >
+                                        <span className="text-2xl">{title.icon}</span>
+                                        <span className="text-sm font-medium truncate">{title.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 text-muted-foreground">
+                                <Award className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                                <p className="text-sm">Complete tasks to earn achievements!</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Learning Progress */}
+                <Card className="bg-surface/50 backdrop-blur-sm border-none">
+                    <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <Zap className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold">Learning Progress</h3>
+                                <p className="text-xs text-muted-foreground">User journey so far</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center p-4 bg-muted/30 rounded-xl">
+                                <div className="flex items-center gap-3">
+                                    <Calendar className="h-5 w-5 text-muted-foreground" />
+                                    <span className="text-sm">Total Days</span>
                                 </div>
-                            ))}
+                                <span className="text-2xl font-black">{stats?.totalDays || 0}</span>
+                            </div>
+                            <div className="flex justify-between items-center p-4 bg-muted/30 rounded-xl">
+                                <div className="flex items-center gap-3">
+                                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                    <span className="text-sm">Days Completed</span>
+                                </div>
+                                <span className="text-2xl font-black text-green-500">{stats?.completedDays || 0}</span>
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
-            )}
+            </div>
 
             {/* Recent Activity */}
-            <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
-                        Recent Activity
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {history && history.length > 0 ? (
-                        <div className="space-y-3">
-                            {history.map((day) => (
-                                <div
-                                    key={day.id}
-                                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                                >
-                                    <div>
-                                        <div className="font-medium">
-                                            {new Date(day.date).toLocaleDateString('en-US', {
-                                                weekday: 'short',
-                                                month: 'short',
-                                                day: 'numeric',
-                                            })}
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                            {day.tasksCompleted}/{day.totalTasks} tasks completed
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="font-bold text-primary">+{day.totalXp} XP</div>
-                                        <div className="text-xs text-muted-foreground">
-                                            {Math.round((day.tasksCompleted / (day.totalTasks || 1)) * 100)}%
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground text-center py-8">
-                            No activity yet. Start learning today!
-                        </p>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* Account Info */}
-            <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5" />
-                        Account Stats
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <div className="text-sm text-muted-foreground">Total Days</div>
-                            <div className="text-xl font-bold">{stats?.totalDays || 0}</div>
+            <Card className="bg-surface/50 backdrop-blur-sm border-none">
+                <CardContent className="p-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                            <Calendar className="h-5 w-5 text-blue-500" />
                         </div>
                         <div>
-                            <div className="text-sm text-muted-foreground">Days Completed</div>
-                            <div className="text-xl font-bold">{stats?.completedDays || 0}</div>
+                            <h3 className="font-bold">Recent Activity</h3>
+                            <p className="text-xs text-muted-foreground">Last 7 days</p>
                         </div>
                     </div>
+
+                    {history && history.length > 0 ? (
+                        <div className="space-y-3">
+                            {history.map((day) => {
+                                const percentage = Math.round((day.tasksCompleted / (day.totalTasks || 1)) * 100);
+                                return (
+                                    <div
+                                        key={day.id}
+                                        className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors"
+                                    >
+                                        <div className="flex-1">
+                                            <div className="font-medium">
+                                                {new Date(day.date).toLocaleDateString('en-US', {
+                                                    weekday: 'short',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                })}
+                                            </div>
+                                            <div className="text-xs text-muted-foreground mt-1">
+                                                {day.tasksCompleted}/{day.totalTasks} tasks
+                                            </div>
+                                        </div>
+
+                                        {/* Mini progress bar */}
+                                        <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-primary transition-all duration-500"
+                                                style={{ width: `${percentage}%` }}
+                                            />
+                                        </div>
+
+                                        <div className="text-right min-w-[60px]">
+                                            <div className="font-black text-primary">+{day.totalXp}</div>
+                                            <div className="text-[10px] text-muted-foreground">XP</div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        <div className="text-center py-12 text-muted-foreground">
+                            <Calendar className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                            <p className="text-sm">No activity yet.</p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
     );
 }
 
-function ProfileStatCard({
+function StatCard({
     icon,
     value,
     label,
+    color,
+    bgColor,
+    suffix = '',
     isLoading,
 }: {
     icon: React.ReactNode;
     value: number | string;
     label: string;
+    color: string;
+    bgColor: string;
+    suffix?: string;
     isLoading?: boolean;
 }) {
     return (
-        <Card className="p-4">
-            <div className="flex flex-col items-center text-center gap-2">
-                {icon}
-                {isLoading ? (
-                    <div className="h-9 w-20 animate-shimmer rounded my-0.5" />
-                ) : (
-                    <div className="text-2xl font-bold">
-                        {typeof value === 'number' ? value.toLocaleString() : value}
+        <Card padding="none" className="bg-surface/50 backdrop-blur-sm border-none overflow-hidden group">
+            <CardContent className="p-5">
+                <div className="flex items-start justify-between">
+                    <div className={`w-10 h-10 ${bgColor} rounded-xl flex items-center justify-center ${color}`}>
+                        {icon}
                     </div>
-                )}
-                <div className="text-xs text-muted-foreground">{label}</div>
-            </div>
+                </div>
+                <div className="mt-4">
+                    {isLoading ? (
+                        <div className="h-8 w-20 animate-shimmer rounded" />
+                    ) : (
+                        <div className="text-3xl font-black tracking-tight">
+                            {typeof value === 'number' ? value.toLocaleString() : value}
+                            <span className="text-lg font-bold text-muted-foreground">{suffix}</span>
+                        </div>
+                    )}
+                    <div className="text-xs text-muted-foreground mt-1 font-medium">{label}</div>
+                </div>
+            </CardContent>
         </Card>
     );
 }
