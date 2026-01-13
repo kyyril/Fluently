@@ -76,6 +76,8 @@ export async function login(email: string, password: string) {
 
 export async function completeOnboarding(
     userId: string,
+    email: string,
+    displayName: string,
     data: {
         nativeLanguage: string;
         targetLanguage: string;
@@ -83,7 +85,10 @@ export async function completeOnboarding(
         level: Level;
     }
 ) {
-    const user = await userRepository.updateProfile(userId, {
+    const user = await userRepository.upsert({
+        id: userId,
+        email,
+        displayName: displayName || email.split('@')[0],
         nativeLanguage: data.nativeLanguage,
         targetLanguage: data.targetLanguage,
         country: data.country,

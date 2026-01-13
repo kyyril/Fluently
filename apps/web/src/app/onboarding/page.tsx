@@ -21,7 +21,7 @@ export default function OnboardingPage() {
 
     useEffect(() => {
         if (!isLoading && (isError || (!user && typeof window !== 'undefined' && !localStorage.getItem('fluently-token')))) {
-            router.push('/login');
+            router.push('/auth/sign-in');
         }
 
         // If admin, go to admin dashboard

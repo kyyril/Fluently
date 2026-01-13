@@ -33,13 +33,24 @@ export async function completeOnboarding(
 ) {
     try {
         const userId = (req as any).userId;
+        const userEmail = (req as any).userEmail;
         const { nativeLanguage, targetLanguage, country, level } = req.body;
-        const result = await authService.completeOnboarding(userId, {
-            nativeLanguage,
-            targetLanguage,
-            country,
-            level,
-        });
+
+        if (!userEmail) {
+            throw new Error('User email not found in token');
+        }
+
+        const result = await authService.completeOnboarding(
+            userId,
+            userEmail,
+            '',
+            {
+                nativeLanguage,
+                targetLanguage,
+                country,
+                level,
+            }
+        );
         sendSuccess(res, result);
     } catch (error) {
         next(error);

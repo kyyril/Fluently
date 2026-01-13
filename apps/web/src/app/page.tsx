@@ -1,8 +1,32 @@
+'use client';
+
 import Link from 'next/link';
 import { Button, Card, CardContent } from '@fluently/ui';
-import { BookOpen, Trophy, Sparkles, ArrowRight } from 'lucide-react';
+import { BookOpen, Trophy, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
+import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function HomePage() {
+    const { data: session, isPending } = authClient.useSession();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isPending && session?.user?.emailVerified) {
+            router.push('/dashboard');
+        }
+    }, [session, isPending, router]);
+
+    if (isPending) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (session) return null;
+
     return (
         <main className="min-h-screen">
             {/* Hero Section */}
@@ -32,13 +56,13 @@ export default function HomePage() {
 
                         {/* CTA */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link href="/register">
+                            <Link href="/auth/sign-up">
                                 <Button size="lg" className="w-full sm:w-auto">
                                     Start Learning Free
                                     <ArrowRight className="h-4 w-4 ml-2" />
                                 </Button>
                             </Link>
-                            <Link href="/login">
+                            <Link href="/auth/sign-in">
                                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
                                     Sign In
                                 </Button>
@@ -129,7 +153,7 @@ export default function HomePage() {
                     <p className="mb-8 opacity-90">
                         Join thousands of learners building daily English habits.
                     </p>
-                    <Link href="/register">
+                    <Link href="/auth/sign-up">
                         <Button
                             size="lg"
                             className="bg-white text-primary hover:bg-white/90"

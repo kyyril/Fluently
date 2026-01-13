@@ -37,6 +37,17 @@ export async function findAuthByEmail(email: string) {
     });
 }
 
+export async function findUserByEmail(email: string) {
+    return prisma.user.findUnique({
+        where: { email },
+        select: {
+            id: true,
+            email: true,
+            role: true,
+        },
+    });
+}
+
 // Public profile fetch with minimal fields
 export async function findPublicById(id: string) {
     return prisma.user.findUnique({
@@ -92,6 +103,52 @@ export async function updateProfile(
         where: { id: userId },
         data: data as any,
     });
+}
+
+export async function upsert(data: {
+    id: string;
+    email: string;
+    displayName: string;
+    nativeLanguage?: string;
+    targetLanguage?: string;
+    country?: string;
+    level?: Level;
+    role?: UserRole;
+}) {
+    return prisma.user.upsert({
+        where: { id: data.id },
+        update: {
+            email: data.email,
+            displayName: data.displayName,
+            nativeLanguage: data.nativeLanguage,
+            targetLanguage: data.targetLanguage,
+            country: data.country,
+            level: data.level,
+            role: data.role,
+        },
+        create: {
+            id: data.id,
+            email: data.email,
+            passwordHash: '', // No password hash for external auth
+            displayName: data.displayName,
+            nativeLanguage: data.nativeLanguage || '',
+            targetLanguage: data.targetLanguage || '',
+            country: data.country,
+            level: data.level || 'BEGINNER',
+            role: data.role || 'USER',
+        } as any,
+    });
+}
+
+export async function linkNeonAccount(oldId: string, newId: string) {
+    // We use a transaction to ensure atomicity
+    // In many DBs, we can't just update the ID if it's a PK via Prisma update.
+    // Using raw SQL is the most reliable way to "swap" the ID for seeded accounts.
+    return prisma.$executeRawUnsafe(
+        'UPDATE "User" SET id = $1 WHERE id = $2',
+        newId,
+        oldId
+    );
 }
 
 export async function addXp(userId: string, xp: number) {

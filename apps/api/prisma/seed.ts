@@ -86,22 +86,22 @@ async function main() {
     } as any);
     console.log(`✅ Created demo user: demo@fluently.app / demo1234`);
 
-    // Create admin user
-    const adminPassword = await bcrypt.hash('admin1234', 12);
+    // Create primary admin from environment
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@fluently.app';
     const adminUser = await prisma.user.upsert({
-        where: { email: 'admin@fluently.app' },
+        where: { email: adminEmail },
         update: {},
         create: {
-            email: 'admin@fluently.app',
-            passwordHash: adminPassword,
-            displayName: 'Admin User',
+            email: adminEmail,
+            passwordHash: '', // No password for OAuth users
+            displayName: 'System Admin',
             nativeLanguage: 'en',
             targetLanguage: 'en',
             role: 'ADMIN',
             level: 'ADVANCED',
         },
     } as any);
-    console.log(`✅ Created admin user: admin@fluently.app / admin1234`);
+    console.log(`✅ Created system admin: ${adminEmail}`);
 
     // Award demo user the Seedling title
     const seedlingTitle = await prisma.title.findUnique({

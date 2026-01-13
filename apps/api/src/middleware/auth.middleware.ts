@@ -1,45 +1,75 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { config } from '../config';
+import * as jose from 'jose';
 import { UnauthorizedError, ForbiddenError } from '../utils/errors';
 import { userRepository } from '../repositories';
 
+// Configure JWKS from Neon Auth
+const JWKS = jose.createRemoteJWKSet(new URL(process.env.NEON_AUTH_JWKS_URL!));
+
 export interface AuthRequest extends Request {
     userId?: string;
+    userEmail?: string;
     role?: string;
 }
 
 /**
- * JWT authentication middleware
+ * JWT authentication middleware using jose (supports EdDSA)
  */
 export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader?.startsWith('Bearer ')) {
+        return next(new UnauthorizedError('Missing authorization header'));
+    }
+
+    const token = authHeader.slice(7);
+
     try {
-        const authHeader = req.headers.authorization;
+        // jose.jwtVerify handles EdDSA and JWKS automatically
+        const { payload } = await jose.jwtVerify(token, JWKS);
 
-        if (!authHeader?.startsWith('Bearer ')) {
-            throw new UnauthorizedError('Missing or invalid authorization header');
+        const neonUserId = payload.sub;
+        if (!neonUserId) {
+            throw new Error('Token subject missing');
         }
 
-        const token = authHeader.slice(7);
-        const decoded = jwt.verify(token, config.jwtSecret) as { userId: string };
+        // Try to find or auto-provision user
+        let user: any = await userRepository.findById(neonUserId);
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const isTargetAdmin = payload.email && adminEmail && payload.email === adminEmail;
 
-        // Fetch user to get role
-        const user = await userRepository.findById(decoded.userId);
-        if (!user) {
-            throw new UnauthorizedError('User not found');
+        if (!user && payload.email) {
+            // Fallback: Check if user was seeded by email
+            const seededUser = await userRepository.findUserByEmail(payload.email as string);
+
+            if (seededUser) {
+                console.log('[API Auth] Linking seeded user to Neon ID:', payload.email);
+                await userRepository.linkNeonAccount(seededUser.id, neonUserId);
+                // Refresh user object after ID update
+                user = await userRepository.findById(neonUserId);
+            } else {
+                console.log('[API Auth] Creating new account for:', payload.email);
+                user = await userRepository.upsert({
+                    id: neonUserId,
+                    email: payload.email as string,
+                    displayName: (payload.name as string) || (payload.email as string).split('@')[0],
+                    role: isTargetAdmin ? 'ADMIN' : 'USER'
+                });
+            }
+        } else if (user && isTargetAdmin && user.role !== 'ADMIN') {
+            // Promote to admin if email matches and not already admin
+            console.log('[API Auth] Promoting user to admin:', payload.email);
+            user = await userRepository.updateProfile(user.id, { role: 'ADMIN' });
         }
 
-        req.userId = decoded.userId;
-        req.role = (user as any).role;
+        req.userId = neonUserId;
+        req.userEmail = payload.email as string;
+        req.role = user ? (user as any).role : (isTargetAdmin ? 'ADMIN' : 'USER');
+
         next();
-    } catch (error) {
-        if (error instanceof jwt.JsonWebTokenError) {
-            return next(new UnauthorizedError('Invalid token'));
-        }
-        if (error instanceof jwt.TokenExpiredError) {
-            return next(new UnauthorizedError('Token expired'));
-        }
-        next(error);
+    } catch (error: any) {
+        console.error('[API Auth] Verification failed:', error.message);
+        return next(new UnauthorizedError(`Invalid token: ${error.message}`));
     }
 }
 
@@ -54,21 +84,22 @@ export function authorizeAdmin(req: AuthRequest, res: Response, next: NextFuncti
 }
 
 /**
- * Optional authentication - sets userId if token present but doesn't fail
+ * Optional authentication
  */
-export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
-    try {
-        const authHeader = req.headers.authorization;
+export async function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
+    const authHeader = req.headers.authorization;
 
-        if (authHeader?.startsWith('Bearer ')) {
-            const token = authHeader.slice(7);
-            const decoded = jwt.verify(token, config.jwtSecret) as { userId: string };
-            req.userId = decoded.userId;
+    if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.slice(7);
+        try {
+            const { payload } = await jose.jwtVerify(token, JWKS);
+            req.userId = payload.sub;
+
+            const user = await userRepository.findById(payload.sub!);
+            if (user) req.role = (user as any).role;
+        } catch (err) {
+            // Silently fail for optional auth
         }
-
-        next();
-    } catch {
-        // Ignore token errors for optional auth
-        next();
     }
+    next();
 }

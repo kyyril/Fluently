@@ -1,8 +1,9 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, setAuthToken, clearAuthToken } from '@/lib/api-client';
+import { api } from '@/lib/api-client';
 import { useRouter } from 'next/navigation';
+import { authClient } from '@/lib/auth-client';
 
 interface User {
     id: string;
@@ -19,63 +20,16 @@ interface User {
     longestStreak: number;
 }
 
-interface AuthResponse {
-    user: User;
-    token: string;
-}
-
 export function useAuth() {
     const queryClient = useQueryClient();
     const router = useRouter();
+    const { data: session, isPending, error } = authClient.useSession();
 
-    const login = useMutation({
-        mutationFn: async (data: { email: string; password: string }) => {
-            const response = await api.post<{ success: boolean; data: AuthResponse }>(
-                '/auth/login',
-                data
-            );
-            return response.data.data;
-        },
-        onSuccess: (data) => {
-            setAuthToken(data.token);
-            queryClient.setQueryData(['user', 'me'], data.user);
-
-            if (data.user.role === 'ADMIN') {
-                router.push('/admin');
-                return;
-            }
-
-            if (!data.user.nativeLanguage || !data.user.targetLanguage) {
-                router.push('/onboarding');
-            } else {
-                router.push('/dashboard');
-            }
-        },
-    });
-
-    const register = useMutation({
-        mutationFn: async (data: {
-            email: string;
-            password: string;
-            displayName: string;
-        }) => {
-            const response = await api.post<{ success: boolean; data: AuthResponse }>(
-                '/auth/register',
-                data
-            );
-            return response.data.data;
-        },
-        onSuccess: (data) => {
-            setAuthToken(data.token);
-            queryClient.setQueryData(['user', 'me'], data.user);
-            router.push('/onboarding');
-        },
-    });
-
-    const logout = () => {
-        clearAuthToken();
+    const logout = async () => {
+        await authClient.signOut();
         queryClient.clear();
-        router.push('/');
+        // Use window.location.href for a clean reset to prevent redirect loops
+        window.location.href = '/';
     };
 
     const onboarding = useMutation({
@@ -102,7 +56,13 @@ export function useAuth() {
         },
     });
 
-    return { login, register, logout, onboarding };
+    return {
+        session,
+        isAuthenticated: !!session?.user,
+        isLoading: isPending,
+        logout,
+        onboarding
+    };
 }
 
 export function useUser(userId?: string) {

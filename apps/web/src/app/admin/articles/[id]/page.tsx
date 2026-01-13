@@ -52,7 +52,7 @@ export default function EditArticlePage() {
                     title,
                     summary,
                     content,
-                    coverImage: coverImage || null,
+                    coverImage: coverImage || undefined,
                     readTime,
                     published,
                     category,

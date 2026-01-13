@@ -31,7 +31,7 @@ export default function DashboardLayout({
     // Auth redirect (client side only)
     useEffect(() => {
         if (!isLoading && isError) {
-            router.push('/login');
+            router.push('/auth/sign-in');
         }
 
         // Redirect to onboarding if level not set (simplified onboarding)
@@ -40,8 +40,10 @@ export default function DashboardLayout({
         }
 
         // Redirect admins to admin area
-
-    }, [isLoading, isError, user, router]);
+        if (!isLoading && user?.role === 'ADMIN' && !pathname.startsWith('/admin')) {
+            router.push('/admin');
+        }
+    }, [isLoading, isError, user, router, pathname]);
 
     const navItems = [
         { href: '/dashboard', label: 'Home', icon: Home },

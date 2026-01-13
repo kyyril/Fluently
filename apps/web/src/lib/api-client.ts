@@ -20,12 +20,13 @@ export const api = axios.create({
 // REQUEST INTERCEPTOR (Auth)
 // ============================================
 
-api.interceptors.request.use((config) => {
-    // Get token from localStorage (client-side only)
+import { authClient } from './auth-client';
+
+api.interceptors.request.use(async (config) => {
     if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('fluently-token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        const { data } = await authClient.getSession();
+        if (data?.session?.token) {
+            config.headers.Authorization = `Bearer ${data.session.token}`;
         }
     }
     return config;
@@ -42,7 +43,8 @@ api.interceptors.response.use(
         if (error.response?.status === 401) {
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('fluently-token');
-                window.location.href = '/login';
+                // Redirection is handled by the application layouts (AdminLayout/DashboardLayout)
+                // or specific route guards to prevent multiple hard refreshes/loops.
             }
         }
         return Promise.reject(error);
