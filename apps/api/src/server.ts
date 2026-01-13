@@ -7,10 +7,14 @@ import routes from './routes';
 import { errorHandler } from './middleware';
 
 const app = express();
+import { requestLogger } from './middleware';
 
 // ============================================
 // MIDDLEWARE
 // ============================================
+
+// Performance & Status Logging
+app.use(requestLogger);
 
 // Security headers
 app.use(helmet());

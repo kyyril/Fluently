@@ -21,25 +21,8 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="en" className="dark" style={{ colorScheme: 'dark' }} suppressHydrationWarning>
             <head>
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: `
-              (function() {
-                try {
-                  var ui = JSON.parse(localStorage.getItem('fluently-ui'));
-                  var theme = ui && ui.state && ui.state.theme ? ui.state.theme : 'system';
-                  if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                  } else {
-                    document.documentElement.classList.remove('dark');
-                  }
-                } catch (e) {}
-              })()
-            `,
-                    }}
-                />
                 <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'} />
                 <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'} crossOrigin="anonymous" />
             </head>

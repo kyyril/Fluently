@@ -46,7 +46,7 @@ export default function EditProfilePage() {
     };
 
     return (
-        <div className="container py-8 px-4 max-w-2xl mx-auto space-y-8 animate-fade-in">
+        <div className="container py-8 px-4 max-w-2xl mx-auto space-y-8 ">
             {/* Header */}
             <div className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-xl">
@@ -66,7 +66,7 @@ export default function EditProfilePage() {
                             <div className="relative">
                                 <div className="w-32 h-32 bg-background rounded-3xl flex items-center justify-center overflow-hidden ring-4 ring-muted/20 relative">
                                     {userLoading ? (
-                                        <div className="w-full h-full bg-muted animate-pulse" />
+                                        <div className="w-full h-full bg-muted " />
                                     ) : avatarUrl ? (
                                         <Image
                                             src={avatarUrl}
@@ -90,7 +90,7 @@ export default function EditProfilePage() {
                                 <div className="space-y-1.5">
                                     <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Profile Picture URL</label>
                                     {userLoading ? (
-                                        <div className="h-10 w-full bg-muted animate-pulse rounded-xl" />
+                                        <div className="h-10 w-full bg-muted  rounded-xl" />
                                     ) : (
                                         <Input
                                             placeholder="https://images.unsplash.com/..."
@@ -122,7 +122,7 @@ export default function EditProfilePage() {
                         <div className="space-y-2">
                             <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Full Display Name</label>
                             {userLoading ? (
-                                <div className="h-12 w-full bg-muted animate-pulse rounded-xl" />
+                                <div className="h-12 w-full bg-muted  rounded-xl" />
                             ) : (
                                 <Input
                                     placeholder="e.g. John Doe"
@@ -139,7 +139,7 @@ export default function EditProfilePage() {
                         <div className="space-y-2">
                             <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Registered Email</label>
                             {userLoading ? (
-                                <div className="h-10 w-full bg-muted animate-pulse rounded-xl" />
+                                <div className="h-10 w-full bg-muted  rounded-xl" />
                             ) : (
                                 <Input
                                     value={user?.email || ''}
@@ -159,7 +159,7 @@ export default function EditProfilePage() {
                     <label className="text-xs font-black uppercase tracking-widest text-muted-foreground pl-2">Current Learning Level</label>
                     <div className="grid gap-3">
                         {userLoading ? (
-                            [1, 2, 3].map(i => <div key={i} className="h-20 bg-muted/20 animate-pulse rounded-2xl" />)
+                            [1, 2, 3].map(i => <div key={i} className="h-20 bg-muted/20  rounded-2xl" />)
                         ) : (
                             LEVELS.map((l) => (
                                 <button
@@ -167,14 +167,14 @@ export default function EditProfilePage() {
                                     type="button"
                                     onClick={() => setLevel(l.id)}
                                     className={`
-                                        w-full p-4 rounded-2xl transition-all text-left flex items-center justify-between group border
+                                        w-full p-4 rounded-2xl  text-left flex items-center justify-between group border
                                         ${level === l.id
                                             ? 'bg-primary/5 border-primary/20'
                                             : 'bg-surface/30 border-transparent hover:bg-surface/50'}
                                     `}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-transform duration-300 ${level === l.id ? 'scale-110' : 'group-hover:scale-105 opacity-50'}`}>
+                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl   ${level === l.id ? 'scale-110' : 'group-hover:scale-105 opacity-50'}`}>
                                             {l.icon}
                                         </div>
                                         <div>
@@ -212,7 +212,7 @@ export default function EditProfilePage() {
                     >
                         {updateProfile.isPending ? (
                             <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <Loader2 className="mr-2 h-4 w-4 " />
                                 Applying...
                             </>
                         ) : (

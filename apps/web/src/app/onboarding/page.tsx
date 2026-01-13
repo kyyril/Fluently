@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@fluently/ui';
 import { useAuth, useUser } from '@/hooks';
 import { Loader2, BookOpen } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
+
 
 const LEVELS = [
     { id: 'BEGINNER', name: 'Beginner', desc: 'Just starting to learn English', icon: '🌱' },
@@ -48,7 +48,7 @@ export default function OnboardingPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 py-12 relative overflow-y-auto">
-            <ThemeToggle className="absolute top-4 right-4" />
+
             <div className="w-full max-w-xl">
                 <Card className="border-none shadow-2xl">
                     <CardHeader className="text-center pb-2">
@@ -57,13 +57,13 @@ export default function OnboardingPage() {
                         </div>
                         <CardTitle className="text-3xl font-black">
                             {isLoading ? (
-                                <div className="h-9 w-64 animate-shimmer rounded mx-auto" />
+                                <div className="h-9 w-64  rounded mx-auto" />
                             ) : (
                                 "What's your English level?"
                             )}
                         </CardTitle>
                         {isLoading ? (
-                            <div className="h-5 w-48 bg-muted animate-shimmer rounded mx-auto mt-2" />
+                            <div className="h-5 w-48 bg-muted  rounded mx-auto mt-2" />
                         ) : (
                             <p className="text-muted-foreground mt-2">
                                 Help us personalize your learning experience.
@@ -74,7 +74,7 @@ export default function OnboardingPage() {
                         {isLoading ? (
                             <div className="space-y-3">
                                 {[1, 2, 3].map((i) => (
-                                    <div key={i} className="h-24 animate-shimmer rounded-xl" />
+                                    <div key={i} className="h-24  rounded-xl" />
                                 ))}
                             </div>
                         ) : (
@@ -84,13 +84,13 @@ export default function OnboardingPage() {
                                         key={l.id}
                                         onClick={() => setLevel(l.id)}
                                         className={`
-                                            w-full p-6 rounded-2xl transition-all text-left flex items-center gap-6 group
+                                            w-full p-6 rounded-2xl  text-left flex items-center gap-6 group
                                             ${level === l.id
                                                 ? 'bg-primary/10 shadow-xl shadow-primary/10 scale-[1.02]'
                                                 : 'bg-muted/30 hover:bg-muted/50'}
                                         `}
                                     >
-                                        <span className={`text-4xl transition-transform duration-300 ${level === l.id ? 'scale-125' : 'group-hover:scale-110'}`}>
+                                        <span className={`text-4xl   ${level === l.id ? 'scale-125' : 'group-hover:scale-110'}`}>
                                             {l.icon}
                                         </span>
                                         <div>
@@ -110,7 +110,7 @@ export default function OnboardingPage() {
                                     >
                                         {onboarding.isPending ? (
                                             <>
-                                                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                                <Loader2 className="h-5 w-5  mr-2" />
                                                 Setting up...
                                             </>
                                         ) : (

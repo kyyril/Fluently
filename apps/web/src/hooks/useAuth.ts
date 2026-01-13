@@ -13,7 +13,7 @@ interface User {
     nativeLanguage: string;
     targetLanguage: string;
     country?: string | null;
-    level: string;
+    level: string | null;
     role: string;
     totalXp: number;
     currentStreak: number;
@@ -74,6 +74,8 @@ export function useUser(userId?: string) {
             return response.data.data;
         },
         retry: false,
+        staleTime: 5 * 60 * 1000,  // 5 minutes - user data rarely changes
+        gcTime: 10 * 60 * 1000,    // 10 minutes cache
     });
 }
 

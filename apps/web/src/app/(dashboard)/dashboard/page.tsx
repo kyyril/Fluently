@@ -57,7 +57,7 @@ export default function DashboardPage() {
     const progress = routine?.progress || 0;
 
     return (
-        <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 animate-fade-in">
+        <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 ">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div className="space-y-1">
@@ -134,7 +134,7 @@ export default function DashboardPage() {
                 <div className="grid gap-3">
                     {isLoading ? (
                         Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="h-20 bg-muted/20 rounded-2xl animate-pulse" />
+                            <div key={i} className="h-20 bg-muted/20 rounded-2xl " />
                         ))
                     ) : (
                         routine?.tasks.map((task) => (
@@ -142,7 +142,7 @@ export default function DashboardPage() {
                                 key={task.id}
                                 onClick={() => handleOpenTask(task)}
                                 className={`
-                                    group flex items-center justify-between p-4 rounded-2xl transition-all cursor-pointer
+                                    group flex items-center justify-between p-4 rounded-2xl  cursor-pointer
                                     ${task.completed
                                         ? 'bg-muted/10 opacity-60'
                                         : 'bg-surface/50 border border-transparent hover:border-primary/20 hover:bg-surface'}
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                             >
                                 <div className="flex items-center gap-4">
                                     <div className={`
-                                        w-12 h-12 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110
+                                        w-12 h-12 rounded-xl flex items-center justify-center  group-hover:scale-110
                                         ${task.completed ? 'bg-muted text-muted-foreground' : TASK_COLORS[task.taskType]}
                                     `}>
                                         {task.completed ? <Check className="h-5 w-5" /> : TASK_ICONS[task.taskType]}
@@ -173,7 +173,7 @@ export default function DashboardPage() {
                                             Done
                                         </span>
                                     ) : (
-                                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                        <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 " />
                                     )}
                                 </div>
                             </div>
@@ -219,12 +219,12 @@ function StatCard({
 }) {
     return (
         <div className="p-5 bg-surface/50 rounded-2xl flex flex-col gap-3 group">
-            <div className={`w-10 h-10 ${bgColor} ${color} rounded-xl flex items-center justify-center transition-transform group-hover:rotate-6`}>
+            <div className={`w-10 h-10 ${bgColor} ${color} rounded-xl flex items-center justify-center  group-hover:rotate-6`}>
                 {icon}
             </div>
             <div>
                 {isLoading ? (
-                    <div className="h-7 w-16 animate-pulse bg-muted rounded mb-1" />
+                    <div className="h-7 w-16  bg-muted rounded mb-1" />
                 ) : (
                     <div className="text-2xl font-black tracking-tight">
                         {typeof value === 'number' ? value.toLocaleString() : value}

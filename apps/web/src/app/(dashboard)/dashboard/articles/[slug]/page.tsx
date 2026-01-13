@@ -160,7 +160,7 @@ export default function ArticleViewPage() {
                 onClose={() => setIsDictionaryOpen(false)}
             />
 
-            <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 animate-fade-in">
+            <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 ">
                 {/* Navigation & Meta */}
                 <div className="space-y-6">
                     <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2 -ml-4">

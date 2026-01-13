@@ -25,7 +25,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
     return (
         <Link href={`/dashboard/articles/${article.slug}`} className="block h-full group">
             <Card padding="none" className={`
-                h-full flex flex-col transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 
+                h-full flex flex-col 
                 overflow-hidden bg-surface/50 backdrop-blur-sm border-none shadow-xl
                 ${article.isReadToday ? 'ring-2 ring-primary/20 bg-primary/5' : ''}
             `}>
@@ -33,14 +33,14 @@ export function ArticleCard({ article }: ArticleCardProps) {
                 <div className="aspect-[16/10] w-full bg-muted relative overflow-hidden">
                     {/* Badge for Read Status */}
                     {article.isReadToday && (
-                        <div className="absolute top-4 right-4 z-20 bg-green-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg animate-in zoom-in duration-300">
+                        <div className="absolute top-4 right-4 z-20 bg-green-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1 shadow-lg">
                             <CheckCircle2 className="h-3 w-3" />
                             READ TODAY
                         </div>
                     )}
 
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 z-10" />
 
                     {/* Fallback pattern */}
                     <div className="absolute inset-0 bg-primary/5 flex items-center justify-center opacity-30">
@@ -53,7 +53,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
                             alt={article.title}
                             fill
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            className="object-cover"
                         />
                     )}
                 </div>
@@ -73,7 +73,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
                     </div>
 
                     <div className="space-y-2 flex-1">
-                        <h3 className="font-bold text-xl leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                        <h3 className="font-bold text-xl leading-tight line-clamp-2">
                             {article.title}
                         </h3>
 
@@ -92,7 +92,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
                         )}
                     </div>
 
-                    <div className="pt-2 flex items-center text-xs font-bold text-primary transition-all group-hover:translate-x-1">
+                    <div className="pt-2 flex items-center text-xs font-bold text-primary">
                         Read more
                         <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                     </div>

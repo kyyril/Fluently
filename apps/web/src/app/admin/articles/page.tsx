@@ -54,7 +54,7 @@ export default function AdminArticlesPage() {
 
     if (isLoading) {
         return (
-            <div className="p-8 space-y-6 animate-pulse">
+            <div className="p-8 space-y-6 ">
                 <div className="flex justify-between">
                     <div className="h-10 w-48 bg-muted rounded-lg" />
                     <div className="h-10 w-32 bg-muted rounded-lg" />
@@ -65,7 +65,7 @@ export default function AdminArticlesPage() {
     }
 
     return (
-        <div className="p-8 space-y-8 animate-fade-in">
+        <div className="p-8 space-y-8 ">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Content Management</h1>
@@ -99,17 +99,17 @@ export default function AdminArticlesPage() {
                                 {filteredArticles?.map((article) => (
                                     <tr
                                         key={article.id}
-                                        className="group hover:bg-primary/5 transition-all duration-200 cursor-pointer"
+                                        className="group hover:bg-primary/5   cursor-pointer"
                                         onClick={() => handleRowClick(article.slug)}
                                         title="Click to preview article"
                                     >
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 ">
                                                     <FileText className="h-5 w-5" />
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold text-sm leading-tight line-clamp-1 max-w-[200px] group-hover:text-primary transition-colors">{article.title}</span>
+                                                    <span className="font-bold text-sm leading-tight line-clamp-1 max-w-[200px] group-hover:text-primary ">{article.title}</span>
                                                     <span className="text-xs text-muted-foreground mt-0.5 line-clamp-1 max-w-[200px]">
                                                         {article.summary}
                                                     </span>
@@ -119,7 +119,7 @@ export default function AdminArticlesPage() {
                                         <td className="px-6 py-5 text-center">
                                             <button
                                                 onClick={(e) => handleTogglePublish(article, e)}
-                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-colors ${article.published
+                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border  ${article.published
                                                     ? 'bg-green-500/10 text-green-600 border-green-500/20 hover:bg-green-500/20'
                                                     : 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20 hover:bg-yellow-500/20'
                                                     }`}
@@ -143,21 +143,21 @@ export default function AdminArticlesPage() {
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleRowClick(article.slug); }}
-                                                    className="p-2 rounded-lg hover:bg-blue-500/10 text-blue-600 transition-colors"
+                                                    className="p-2 rounded-lg hover:bg-blue-500/10 text-blue-600 "
                                                     title="Preview"
                                                 >
                                                     <AppWindow className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     onClick={(e) => handleEdit(article.id, e)}
-                                                    className="p-2 rounded-lg hover:bg-primary/10 text-primary transition-colors"
+                                                    className="p-2 rounded-lg hover:bg-primary/10 text-primary "
                                                     title="Edit"
                                                 >
                                                     <Edit className="h-4 w-4" />
                                                 </button>
                                                 <button
                                                     onClick={(e) => handleDelete(article.id, e)}
-                                                    className="p-2 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
+                                                    className="p-2 rounded-lg hover:bg-destructive/10 text-destructive "
                                                     title="Delete"
                                                 >
                                                     <Trash2 className="h-4 w-4" />

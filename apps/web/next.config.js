@@ -2,7 +2,6 @@
 const nextConfig = {
     reactStrictMode: true,
     transpilePackages: ['@fluently/ui', '@fluently/types', '@neondatabase/auth'],
-    optimizePackageImports: ['@fluently/ui'],
     async redirects() {
         return [
             {

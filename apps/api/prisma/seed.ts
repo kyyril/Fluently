@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../src/config/database';
 import bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient();
 
 async function main() {
     console.log('🌱 Seeding database...');
@@ -135,6 +134,44 @@ async function main() {
             },
         });
     }
+
+    // Create a DailyLog for the demo user for today so it shows up in the weekly leaderboard
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await prisma.dailyLog.upsert({
+        where: {
+            userId_date: {
+                userId: demoUser.id,
+                date: today,
+            },
+        },
+        update: {
+            totalXp: 150,
+        },
+        create: {
+            userId: demoUser.id,
+            date: today,
+            totalXp: 150,
+            tasks: {
+                create: [
+                    {
+                        taskType: 'PODCAST_LISTENING',
+                        completed: true,
+                        completedAt: new Date(),
+                        xpEarned: 50,
+                    },
+                    {
+                        taskType: 'CREATE_SENTENCES',
+                        completed: true,
+                        completedAt: new Date(),
+                        xpEarned: 100,
+                    },
+                ],
+            },
+        },
+    });
+    console.log(`✅ Created daily log for demo user for today`);
 
     console.log('✅ Seed completed!');
 }

@@ -150,7 +150,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Short Description</label>
                             <textarea
-                                className="w-full min-h-[80px] p-3 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary transition-all resize-none text-sm"
+                                className="w-full min-h-[80px] p-3 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary  resize-none text-sm"
                                 placeholder="What was it about?"
                                 value={podcastForm.description}
                                 onChange={(e) => setPodcastForm({ ...podcastForm, description: e.target.value })}
@@ -179,7 +179,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                             onClick={() => handleComplete(podcastForm)}
                             disabled={!podcastForm.title || !podcastForm.description || isCompleting}
                         >
-                            {isCompleting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                            {isCompleting ? <Loader2 className="h-4 w-4 mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
                             Complete Task & Get Score
                         </Button>
                     </div>
@@ -190,7 +190,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         <div className="space-y-2">
                             <label className="text-sm font-medium">Your Daily Recap</label>
                             <textarea
-                                className="w-full min-h-[150px] p-4 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary transition-all resize-none"
+                                className="w-full min-h-[150px] p-4 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary  resize-none"
                                 placeholder="Hoy aprendí sobre..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
@@ -201,7 +201,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                             onClick={handleRecapSubmit}
                             disabled={isReviewing || input.length < 10}
                         >
-                            {isReviewing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                            {isReviewing ? <Loader2 className="h-4 w-4 mr-2" /> : <Send className="h-4 w-4 mr-2" />}
                             Submit for AI Review
                         </Button>
                     </div>
@@ -210,7 +210,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
             case 'SPEAKING_SESSION':
                 return (
                     <div className="text-center space-y-6 py-6">
-                        <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center animate-pulse">
+                        <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center ">
                             <Mic className="h-12 w-12 text-primary" />
                         </div>
                         <div className="space-y-2">
@@ -311,7 +311,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
             title={step !== 'success' ? getTaskName(task.taskType) : ''}
             size={task.taskType === 'DAY_RECAP' && step === 'success' ? 'lg' : 'md'}
         >
-            <div key={step} className="animate-slide-up">
+            <div key={step}>
                 {step === 'intro' && renderTaskIntro()}
                 {step === 'active' && renderActiveTask()}
                 {step === 'success' && renderSuccess()}

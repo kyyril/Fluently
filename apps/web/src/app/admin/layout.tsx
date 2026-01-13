@@ -15,7 +15,7 @@ import {
     Bell,
     BookOpen
 } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
+
 import { useState } from 'react';
 
 export default function AdminLayout({
@@ -43,7 +43,7 @@ export default function AdminLayout({
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                <div className=" rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
     }
@@ -61,7 +61,7 @@ export default function AdminLayout({
         <div className="min-h-screen bg-background text-foreground flex">
             {/* Sidebar */}
             <aside className={`
-                fixed inset-y-0 left-0 z-50 w-64 bg-surface border-r border-border transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
+                fixed inset-y-0 left-0 z-50 w-64 bg-surface border-r border-border   -out lg:relative lg:translate-x-0
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             `}>
                 <div className="h-full flex flex-col">
@@ -86,7 +86,7 @@ export default function AdminLayout({
                                     key={item.href}
                                     href={item.href}
                                     className={`
-                                        flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group
+                                        flex items-center gap-3 px-4 py-3 rounded-lg   group
                                         ${isActive ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'hover:bg-primary/5 text-muted-foreground hover:text-foreground'}
                                     `}
                                 >
@@ -99,7 +99,7 @@ export default function AdminLayout({
 
                     {/* Sidebar Footer */}
                     <div className="p-4 border-t border-border space-y-4">
-                        <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2 text-sm text-muted-foreground hover:text-primary transition-colors">
+                        <Link href="/dashboard" className="flex items-center gap-3 px-4 py-2 text-sm text-muted-foreground hover:text-primary ">
                             <ArrowLeft className="h-4 w-4" />
                             Back to App
                         </Link>
@@ -125,7 +125,7 @@ export default function AdminLayout({
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <ThemeToggle />
+
                         <Button variant="ghost" size="icon" className="relative">
                             <Bell className="h-5 w-5" />
                             <span className="absolute top-2 right-2 w-2 h-2 bg-destructive rounded-full"></span>

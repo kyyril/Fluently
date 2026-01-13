@@ -57,8 +57,8 @@ export async function completeTask(userId: string, taskId: string, metadata?: Re
     // Invalidate user cache (stats & public profile)
     await redis.del(`user:public:${userId}`);
     await redis.del(`user:stats:${userId}`);
-    // Optional: Invalidate weekly leaderboard if we want near real-time updates
-    // await redis.del('leaderboard:weekly');
+    await redis.del('leaderboard:weekly');
+    await redis.del('leaderboard:all-time');
 
     return {
         id: completed.id,

@@ -45,7 +45,7 @@ export default function AdminUserDetailPage() {
     }
 
     return (
-        <div className="p-8 space-y-8 animate-fade-in">
+        <div className="p-8 space-y-8 ">
             {/* Nav Header */}
             <div className="flex items-center gap-4">
                 <button

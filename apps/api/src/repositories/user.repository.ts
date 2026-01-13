@@ -81,7 +81,7 @@ export async function create(data: {
             displayName: data.displayName,
             nativeLanguage: data.nativeLanguage || '',
             targetLanguage: data.targetLanguage || '',
-            level: data.level || 'BEGINNER',
+            level: data.level,
             role: data.role || 'USER',
         } as any,
     });
@@ -134,7 +134,7 @@ export async function upsert(data: {
             nativeLanguage: data.nativeLanguage || '',
             targetLanguage: data.targetLanguage || '',
             country: data.country,
-            level: data.level || 'BEGINNER',
+            level: data.level,
             role: data.role || 'USER',
         } as any,
     });

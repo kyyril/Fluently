@@ -25,7 +25,7 @@ model User {
   nativeLanguage String
   targetLanguage String
   country        String?
-  level          Level     @default(BEGINNER)
+  level          Level?
   role           UserRole  @default(USER)
 
   // Gamification

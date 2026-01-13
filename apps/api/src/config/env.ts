@@ -1,35 +1,39 @@
 import dotenv from 'dotenv';
+import { z } from 'zod';
 
 dotenv.config();
 
-export const config = {
-    // Server
-    port: parseInt(process.env.PORT || '4000', 10),
-    nodeEnv: process.env.NODE_ENV || 'development',
+const envSchema = z.object({
+    PORT: z.string().default('4000').transform(Number),
+    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    CORS_ORIGIN: z.string().default('http://localhost:3000'),
+    JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
+    JWT_EXPIRES_IN: z.string().default('7d'),
+    DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
+    GEMINI_API_KEY: z.string().min(1, 'GEMINI_API_KEY is required'),
+    REDIS_URL: z.string().default('redis://localhost:6379'),
+    NEON_AUTH_JWKS_URL: z.string().min(1, 'NEON_AUTH_JWKS_URL is required'),
+    ADMIN_EMAIL: z.string().email().optional(),
+});
 
-    // CORS
-    corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+const parsedEnv = envSchema.safeParse(process.env);
 
-    // JWT
-    jwtSecret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production',
-    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
-
-    // Database
-    databaseUrl: process.env.DATABASE_URL,
-
-    // Google Gemini
-    geminiApiKey: process.env.GEMINI_API_KEY,
-
-    // Redis
-    redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
-} as const;
-
-// Validate required env vars in production
-if (config.nodeEnv === 'production') {
-    const required = ['DATABASE_URL', 'JWT_SECRET', 'GEMINI_API_KEY'];
-    for (const key of required) {
-        if (!process.env[key]) {
-            throw new Error(`Missing required environment variable: ${key}`);
-        }
-    }
+if (!parsedEnv.success) {
+    console.error('❌ Invalid environment variables:', parsedEnv.error.flatten().fieldErrors);
+    throw new Error('Invalid environment variables');
 }
+
+export const env = parsedEnv.data;
+
+export const config = {
+    port: env.PORT,
+    nodeEnv: env.NODE_ENV,
+    corsOrigin: env.CORS_ORIGIN,
+    jwtSecret: env.JWT_SECRET,
+    jwtExpiresIn: env.JWT_EXPIRES_IN,
+    databaseUrl: env.DATABASE_URL,
+    geminiApiKey: env.GEMINI_API_KEY,
+    redisUrl: env.REDIS_URL,
+    neonAuthJwksUrl: env.NEON_AUTH_JWKS_URL,
+    adminEmail: env.ADMIN_EMAIL,
+} as const;

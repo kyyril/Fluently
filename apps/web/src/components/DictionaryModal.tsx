@@ -86,12 +86,12 @@ export function DictionaryModal({ word, isOpen, onClose }: DictionaryModalProps)
         >
             <div className="min-h-[300px] flex flex-col pt-2">
                 {isLoading ? (
-                    <div className="flex-1 flex flex-col items-center justify-center py-12 space-y-4 animate-fade-in">
+                    <div className="flex-1 flex flex-col items-center justify-center py-12 space-y-4 -in">
                         <div className="relative">
                             <div className="h-16 w-16 rounded-2xl bg-primary/5 flex items-center justify-center">
                                 <Search className="h-8 w-8 text-primary/40" />
                             </div>
-                            <div className="absolute inset-0 h-16 w-16 border-2 border-primary border-t-transparent rounded-2xl animate-spin" />
+                            <div className="absolute inset-0 h-16 w-16 border-2 border-primary border-t-transparent rounded-2xl " />
                         </div>
                         <div className="text-center">
                             <p className="font-black text-lg">Searching...</p>
@@ -99,7 +99,7 @@ export function DictionaryModal({ word, isOpen, onClose }: DictionaryModalProps)
                         </div>
                     </div>
                 ) : error ? (
-                    <div className="flex-1 flex flex-col items-center justify-center py-12 px-6 text-center animate-fade-in">
+                    <div className="flex-1 flex flex-col items-center justify-center py-12 px-6 text-center -in">
                         <div className="h-20 w-20 rounded-3xl bg-destructive/5 flex items-center justify-center mb-6">
                             <BookX className="h-10 w-10 text-destructive/40" />
                         </div>
@@ -117,7 +117,7 @@ export function DictionaryModal({ word, isOpen, onClose }: DictionaryModalProps)
                         </Button>
                     </div>
                 ) : data && data.length > 0 ? (
-                    <div className="space-y-8 animate-fade-in pb-4">
+                    <div className="space-y-8 -in pb-4">
                         {/* Header: Word & Phonetic */}
                         <div className="flex items-center justify-between border-b border-border/50 pb-6">
                             <div className="space-y-1">
@@ -131,10 +131,10 @@ export function DictionaryModal({ word, isOpen, onClose }: DictionaryModalProps)
                             </div>
                             {mainAudio && (
                                 <button
-                                    className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20 transition-all group active:scale-95"
+                                    className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center hover:bg-primary/20  group active:scale-95"
                                     onClick={() => playAudio(mainAudio)}
                                 >
-                                    <Volume2 className="h-7 w-7 transition-transform group-hover:scale-110" />
+                                    <Volume2 className="h-7 w-7  group-hover:scale-110" />
                                 </button>
                             )}
                         </div>
@@ -180,7 +180,7 @@ export function DictionaryModal({ word, isOpen, onClose }: DictionaryModalProps)
                                     href={data[0].sourceUrls[0]}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
+                                    className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary  flex items-center gap-1.5"
                                 >
                                     Source Code <ExternalLink className="h-3 w-3" />
                                 </a>

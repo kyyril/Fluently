@@ -19,7 +19,7 @@ export default function ArticlesPage() {
     const dailyProgress = articlesData?.dailyProgress || progress;
 
     return (
-        <div className="container py-8 px-4 max-w-5xl mx-auto space-y-8 animate-fade-in pb-16">
+        <div className="container py-8 px-4 max-w-5xl mx-auto space-y-8  pb-16">
             {/* Elegant Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-1">
@@ -49,7 +49,7 @@ export default function ArticlesPage() {
                                 </div>
                                 <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                                     <div
-                                        className="h-full bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)] transition-all duration-1000"
+                                        className="h-full bg-primary shadow-[0_0_10px_rgba(var(--primary),0.5)]  "
                                         style={{ width: `${((dailyProgress?.completed || 0) / (dailyProgress?.max || 3)) * 100}%` }}
                                     />
                                 </div>
@@ -67,7 +67,7 @@ export default function ArticlesPage() {
                             key={cat}
                             onClick={() => setCategory(cat)}
                             className={`
-                                px-4 py-1.5 rounded-full text-xs font-bold transition-all
+                                px-4 py-1.5 rounded-full text-xs font-bold 
                                 ${category === cat
                                     ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105'
                                     : 'bg-surface/50 text-muted-foreground hover:bg-surface hover:text-foreground'}
@@ -93,7 +93,7 @@ export default function ArticlesPage() {
             {isLoadingArticles ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-80 rounded-3xl bg-muted animate-pulse" />
+                        <div key={i} className="h-80 rounded-3xl bg-muted " />
                     ))}
                 </div>
             ) : (

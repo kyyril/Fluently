@@ -74,7 +74,7 @@ export default function EditArticlePage() {
     }
 
     return (
-        <div className="p-8 space-y-8 animate-fade-in max-w-4xl mx-auto">
+        <div className="p-8 space-y-8  max-w-4xl mx-auto">
             <div className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => router.back()}>
                     <ArrowLeft className="h-5 w-5" />

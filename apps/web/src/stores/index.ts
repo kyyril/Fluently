@@ -1,1 +1,2 @@
-export { useUIStore, type Theme } from './ui-store';
+// Export all stores here
+export { };

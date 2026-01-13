@@ -75,7 +75,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     {...props}
                 />
                 {error && (
-                    <p className="text-sm text-destructive animate-fade-in">{error}</p>
+                    <p className="text-sm text-destructive ">{error}</p>
                 )}
             </div>
         );

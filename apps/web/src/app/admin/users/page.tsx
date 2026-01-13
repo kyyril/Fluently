@@ -24,7 +24,7 @@ export default function UserManagementPage() {
 
     if (isLoading) {
         return (
-            <div className="p-8 space-y-6 animate-pulse">
+            <div className="p-8 space-y-6 ">
                 <div className="h-10 w-64 bg-muted rounded-lg" />
                 <div className="h-[600px] bg-muted rounded-xl" />
             </div>
@@ -32,7 +32,7 @@ export default function UserManagementPage() {
     }
 
     return (
-        <div className="p-8 space-y-8 animate-fade-in">
+        <div className="p-8 space-y-8 ">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
@@ -46,7 +46,7 @@ export default function UserManagementPage() {
                         placeholder="Search by name or email..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                        className="w-full pl-10 pr-4 py-2 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary  outline-none"
                     />
                 </div>
             </div>
@@ -54,7 +54,7 @@ export default function UserManagementPage() {
             <Card variant="default" className="border-none shadow-xl bg-surface/50 backdrop-blur-sm">
                 <CardHeader className="flex flex-row items-center justify-between border-b border-border pb-6">
                     <CardTitle className="text-lg font-bold">All Users ({filteredUsers?.length || 0})</CardTitle>
-                    <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-muted hover:bg-muted/80 rounded-lg transition-colors capitalize">
+                    <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold bg-muted hover:bg-muted/80 rounded-lg  capitalize">
                         <Filter className="h-3 w-3" />
                         Status: Active
                     </button>
@@ -74,7 +74,7 @@ export default function UserManagementPage() {
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {filteredUsers?.map((user) => (
-                                    <tr key={user.id} className="group hover:bg-primary/5 transition-all duration-200">
+                                    <tr key={user.id} className="group hover:bg-primary/5  ">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
@@ -114,7 +114,7 @@ export default function UserManagementPage() {
                                         <td className="px-6 py-5 text-right">
                                             <button
                                                 onClick={() => router.push(`/admin/users/${user.id}`)}
-                                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-primary-foreground hover:scale-110 active:scale-95 transition-all shadow-md shadow-primary/20"
+                                                className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-primary-foreground hover:scale-110 active:scale-95  shadow-md shadow-primary/20"
                                                 title="View Detail"
                                             >
                                                 <Eye className="h-4 w-4" />

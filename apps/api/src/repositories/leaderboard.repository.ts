@@ -2,15 +2,20 @@ import { prisma } from '../config/database';
 
 export async function getWeeklyLeaderboard(limit: number = 50) {
     const startOfWeek = new Date();
+    const day = startOfWeek.getDay();
+    const diff = (day + 6) % 7; // Monday is 0, Sunday is 6
+    startOfWeek.setDate(startOfWeek.getDate() - diff);
     startOfWeek.setHours(0, 0, 0, 0);
-    startOfWeek.setDate(startOfWeek.getDate() - (startOfWeek.getDay() || 7)); // Ensure Monday is start of week
 
     // 1. Get top users by XP gained this week using groupBy
     const weeklyAggregates = await prisma.dailyLog.groupBy({
         by: ['userId'],
         where: {
             date: { gte: startOfWeek },
-            totalXp: { gt: 0 }
+            totalXp: { gt: 0 },
+            user: {
+                role: 'USER' // Only count regular users
+            }
         },
         _sum: {
             totalXp: true
@@ -26,7 +31,7 @@ export async function getWeeklyLeaderboard(limit: number = 50) {
     if (weeklyAggregates.length === 0) return [];
 
     // 2. Fetch user details for these users
-    const userIds = weeklyAggregates.map(a => a.userId);
+    const userIds = weeklyAggregates.map((a: { userId: string }) => a.userId);
     const users = await prisma.user.findMany({
         where: {
             id: { in: userIds },
@@ -43,8 +48,8 @@ export async function getWeeklyLeaderboard(limit: number = 50) {
 
     // 3. Map back to entries
     return weeklyAggregates
-        .map((agg, index) => {
-            const user = users.find(u => u.id === agg.userId);
+        .map((agg: { userId: string; _sum: { totalXp: number | null } }, index: number) => {
+            const user = users.find((u: { id: string }) => u.id === agg.userId);
             if (!user) return null;
             return {
                 rank: index + 1,
@@ -75,7 +80,7 @@ export async function getAllTimeLeaderboard(limit: number = 50) {
         take: limit,
     } as any);
 
-    return users.map((user, index) => ({
+    return users.map((user: any, index: number) => ({
         rank: index + 1,
         user: {
             id: user.id,
@@ -92,10 +97,10 @@ export async function getAllTimeLeaderboard(limit: number = 50) {
 export async function getUserRank(userId: string): Promise<number | null> {
     const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { totalXp: true },
+        select: { totalXp: true, role: true },
     });
 
-    if (!user) return null;
+    if (!user || user.role === 'ADMIN') return null;
 
     const rank = await prisma.user.count({
         where: {
@@ -106,3 +111,41 @@ export async function getUserRank(userId: string): Promise<number | null> {
 
     return rank + 1;
 }
+
+export async function getWeeklyUserRank(userId: string): Promise<number | null> {
+    const startOfWeek = new Date();
+    const day = startOfWeek.getDay();
+    const diff = (day + 6) % 7;
+    startOfWeek.setDate(startOfWeek.getDate() - diff);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    // Get current user's weekly XP
+    const userWeeklyLog = await prisma.dailyLog.aggregate({
+        _sum: { totalXp: true },
+        where: {
+            userId,
+            date: { gte: startOfWeek }
+        }
+    });
+
+    const userXp = userWeeklyLog._sum.totalXp || 0;
+    if (userXp === 0) return null;
+
+    // Count how many users have more weekly XP
+    const higherXpUsers = await prisma.dailyLog.groupBy({
+        by: ['userId'],
+        where: {
+            date: { gte: startOfWeek },
+            user: { role: 'USER' }
+        },
+        _sum: { totalXp: true },
+        having: {
+            totalXp: {
+                _sum: { gt: userXp }
+            }
+        }
+    });
+
+    return higherXpUsers.length + 1;
+}
+

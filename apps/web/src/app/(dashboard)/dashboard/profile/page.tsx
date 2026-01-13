@@ -44,7 +44,7 @@ export default function ProfilePage() {
     const currentLevel = levelConfig[user?.level || 'BEGINNER'];
 
     return (
-        <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 animate-fade-in">
+        <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 ">
             {/* Back to Leaderboard if Public */}
             {isPublic && (
                 <Link href="/dashboard/leaderboard">
@@ -69,7 +69,7 @@ export default function ProfilePage() {
                         <div className="relative">
                             <div className="w-28 h-28 sm:w-36 sm:h-36 bg-background rounded-3xl flex items-center justify-center overflow-hidden ring-4 ring-background">
                                 {userLoading ? (
-                                    <div className="w-full h-full bg-muted animate-pulse" />
+                                    <div className="w-full h-full bg-muted " />
                                 ) : user?.avatarUrl ? (
                                     <Image
                                         src={user.avatarUrl}
@@ -94,8 +94,8 @@ export default function ProfilePage() {
                         <div className="flex-1 text-center sm:text-left space-y-3">
                             {userLoading ? (
                                 <>
-                                    <div className="h-10 w-48 bg-muted animate-pulse rounded-lg mx-auto sm:mx-0" />
-                                    <div className="h-4 w-32 bg-muted animate-pulse rounded-md mx-auto sm:mx-0" />
+                                    <div className="h-10 w-48 bg-muted  rounded-lg mx-auto sm:mx-0" />
+                                    <div className="h-4 w-32 bg-muted  rounded-md mx-auto sm:mx-0" />
                                 </>
                             ) : (
                                 <>
@@ -108,8 +108,8 @@ export default function ProfilePage() {
                             <div className="flex flex-wrap justify-center sm:justify-start gap-2 pt-1">
                                 {userLoading ? (
                                     <>
-                                        <div className="h-6 w-20 bg-muted animate-pulse rounded-full" />
-                                        <div className="h-6 w-32 bg-muted animate-pulse rounded-full" />
+                                        <div className="h-6 w-20 bg-muted  rounded-full" />
+                                        <div className="h-6 w-32 bg-muted  rounded-full" />
                                     </>
                                 ) : (
                                     <>
@@ -195,7 +195,7 @@ export default function ProfilePage() {
                                 <h3 className="font-bold">Achievements</h3>
                                 <p className="text-xs text-muted-foreground">
                                     {statsLoading ? (
-                                        <span className="inline-block h-3 w-12 bg-muted animate-pulse rounded" />
+                                        <span className="inline-block h-3 w-12 bg-muted  rounded" />
                                     ) : (
                                         `${stats?.titles?.length || 0} earned`
                                     )}
@@ -206,7 +206,7 @@ export default function ProfilePage() {
                         {statsLoading ? (
                             <div className="grid grid-cols-2 gap-3">
                                 {[1, 2, 3, 4].map(i => (
-                                    <div key={i} className="h-12 bg-muted/30 animate-pulse rounded-xl" />
+                                    <div key={i} className="h-12 bg-muted/30  rounded-xl" />
                                 ))}
                             </div>
                         ) : stats?.titles && stats.titles.length > 0 ? (
@@ -214,7 +214,7 @@ export default function ProfilePage() {
                                 {stats.titles.map((title: { name: string; icon: string }) => (
                                     <div
                                         key={title.name}
-                                        className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors"
+                                        className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 "
                                     >
                                         <span className="text-2xl">{title.icon}</span>
                                         <span className="text-sm font-medium truncate">{title.name}</span>
@@ -250,7 +250,7 @@ export default function ProfilePage() {
                                     <span className="text-sm">Total Days</span>
                                 </div>
                                 {statsLoading ? (
-                                    <div className="h-8 w-12 bg-muted animate-pulse rounded" />
+                                    <div className="h-8 w-12 bg-muted  rounded" />
                                 ) : (
                                     <span className="text-2xl font-black">{stats?.totalDays || 0}</span>
                                 )}
@@ -261,7 +261,7 @@ export default function ProfilePage() {
                                     <span className="text-sm">Days Completed</span>
                                 </div>
                                 {statsLoading ? (
-                                    <div className="h-8 w-12 bg-muted animate-pulse rounded" />
+                                    <div className="h-8 w-12 bg-muted  rounded" />
                                 ) : (
                                     <span className="text-2xl font-black text-green-500">{stats?.completedDays || 0}</span>
                                 )}
@@ -287,7 +287,7 @@ export default function ProfilePage() {
                     {historyLoading ? (
                         <div className="space-y-3">
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="h-20 bg-muted/30 animate-pulse rounded-xl" />
+                                <div key={i} className="h-20 bg-muted/30  rounded-xl" />
                             ))}
                         </div>
                     ) : history && history.length > 0 ? (
@@ -297,7 +297,7 @@ export default function ProfilePage() {
                                 return (
                                     <div
                                         key={day.id}
-                                        className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors"
+                                        className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl hover:bg-muted/50 "
                                     >
                                         <div className="flex-1">
                                             <div className="font-medium">
@@ -315,7 +315,7 @@ export default function ProfilePage() {
                                         {/* Mini progress bar */}
                                         <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                                             <div
-                                                className="h-full bg-primary transition-all duration-500"
+                                                className="h-full bg-primary  "
                                                 style={{ width: `${percentage}%` }}
                                             />
                                         </div>
@@ -367,7 +367,7 @@ function StatCard({
                 </div>
                 <div className="mt-4">
                     {isLoading ? (
-                        <div className="h-8 w-20 bg-muted animate-pulse rounded" />
+                        <div className="h-8 w-20 bg-muted  rounded" />
                     ) : (
                         <div className="text-3xl font-black tracking-tight">
                             {typeof value === 'number' ? value.toLocaleString() : value}

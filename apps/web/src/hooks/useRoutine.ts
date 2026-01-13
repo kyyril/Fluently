@@ -63,6 +63,7 @@ export function useTodayRoutine() {
             return response.data.data;
         },
         staleTime: 1000 * 60 * 5, // 5 minutes
+        gcTime: 1000 * 60 * 10,   // 10 minutes cache
     });
 }
 
@@ -76,8 +77,9 @@ export function useRoutineHistory(limit = 30, userId?: string) {
             const response = await api.get<{ success: boolean; data: HistoryEntry[] }>(endpoint);
             return response.data.data;
         },
-        staleTime: 1000 * 30, // 30 seconds
-        refetchOnWindowFocus: true,
+        staleTime: 1000 * 60 * 2, // 2 minutes
+        gcTime: 1000 * 60 * 10,   // 10 minutes cache
+        refetchOnWindowFocus: false,
     });
 }
 

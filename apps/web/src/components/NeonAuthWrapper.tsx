@@ -7,9 +7,9 @@ import Link from 'next/link';
 import React, { forwardRef } from 'react';
 import '@neondatabase/auth/ui/css';
 
-const NeonLink = forwardRef<HTMLAnchorElement, any>((props, ref) => (
-    <Link {...props} ref={ref} />
-));
+const NeonLink = (props: any) => (
+    <Link {...props} />
+);
 
 export function NeonAuthWrapper({ children }: { children: React.ReactNode }) {
     const router = useRouter();

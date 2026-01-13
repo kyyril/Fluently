@@ -12,7 +12,7 @@ import {
 
 export default function AdminSettingsPage() {
     return (
-        <div className="p-8 space-y-8 animate-fade-in">
+        <div className="p-8 space-y-8 ">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
                 <p className="text-muted-foreground font-medium">Configure platform defaults and security protocols.</p>

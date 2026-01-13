@@ -8,7 +8,7 @@ const cardVariants = cva(
     // Base styles - Borderless, modern aesthetic
     [
         'rounded-lg transition-all duration-200',
-        'animate-fade-in',
+        '',
     ],
     {
         variants: {

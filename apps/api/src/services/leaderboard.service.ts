@@ -1,23 +1,22 @@
 import { leaderboardRepository } from '../repositories';
 import { redis } from '../config';
 
-const CACHE_TTL = 300; // 5 minutes in seconds
+const CACHE_TTL = 600; // 10 minutes in seconds
 
 export async function getWeeklyLeaderboard(userId?: string) {
-    let entries;
-    const cached = await redis.get('leaderboard:weekly');
+    const fetchEntries = async () => {
+        const cached = await redis.get('leaderboard:weekly');
+        if (cached) return JSON.parse(cached);
 
-    if (cached) {
-        entries = JSON.parse(cached);
-    } else {
-        entries = await leaderboardRepository.getWeeklyLeaderboard();
-        await redis.set('leaderboard:weekly', JSON.stringify(entries), 'EX', CACHE_TTL);
-    }
+        const freshEntries = await leaderboardRepository.getWeeklyLeaderboard();
+        await redis.set('leaderboard:weekly', JSON.stringify(freshEntries), 'EX', CACHE_TTL);
+        return freshEntries;
+    };
 
-    let userRank: number | null = null;
-    if (userId) {
-        userRank = await leaderboardRepository.getUserRank(userId);
-    }
+    const [entries, userRank] = await Promise.all([
+        fetchEntries(),
+        userId ? leaderboardRepository.getWeeklyUserRank(userId) : Promise.resolve(null)
+    ]);
 
     return {
         entries,
@@ -27,20 +26,19 @@ export async function getWeeklyLeaderboard(userId?: string) {
 }
 
 export async function getAllTimeLeaderboard(userId?: string) {
-    let entries;
-    const cached = await redis.get('leaderboard:all-time');
+    const fetchEntries = async () => {
+        const cached = await redis.get('leaderboard:all-time');
+        if (cached) return JSON.parse(cached);
 
-    if (cached) {
-        entries = JSON.parse(cached);
-    } else {
-        entries = await leaderboardRepository.getAllTimeLeaderboard();
-        await redis.set('leaderboard:all-time', JSON.stringify(entries), 'EX', CACHE_TTL);
-    }
+        const freshEntries = await leaderboardRepository.getAllTimeLeaderboard();
+        await redis.set('leaderboard:all-time', JSON.stringify(freshEntries), 'EX', CACHE_TTL);
+        return freshEntries;
+    };
 
-    let userRank: number | null = null;
-    if (userId) {
-        userRank = await leaderboardRepository.getUserRank(userId);
-    }
+    const [entries, userRank] = await Promise.all([
+        fetchEntries(),
+        userId ? leaderboardRepository.getUserRank(userId) : Promise.resolve(null)
+    ]);
 
     return {
         entries,

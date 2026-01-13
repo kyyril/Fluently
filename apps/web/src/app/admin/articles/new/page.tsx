@@ -110,7 +110,7 @@ export default function NewArticlePage() {
     };
 
     return (
-        <div className="p-8 space-y-8 animate-fade-in max-w-4xl mx-auto">
+        <div className="p-8 space-y-8  max-w-4xl mx-auto">
             <div className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => router.back()}>
                     <ArrowLeft className="h-5 w-5" />
@@ -125,7 +125,7 @@ export default function NewArticlePage() {
             <div className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
                 <button
                     onClick={() => setShowJsonImport(!showJsonImport)}
-                    className="w-full flex items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 transition-colors"
+                    className="w-full flex items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 "
                 >
                     <div className="flex items-center gap-2 font-bold text-sm text-primary">
                         <Code className="h-4 w-4" />
@@ -135,7 +135,7 @@ export default function NewArticlePage() {
                 </button>
 
                 {showJsonImport && (
-                    <div className="p-4 border-t border-border space-y-4 animate-slide-down">
+                    <div className="p-4 border-t border-border space-y-4 -down">
                         <p className="text-xs text-muted-foreground">
                             Paste a JSON Object <code>{"{...}"}</code> to fill the form, or a JSON Array <code>[{"{...}"}, {"{...}"}]</code> to bulk create.
                         </p>
@@ -162,7 +162,7 @@ export default function NewArticlePage() {
                                 {isBulkImporting && (
                                     <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
                                         <div
-                                            className="h-full bg-primary transition-all duration-300"
+                                            className="h-full bg-primary  "
                                             style={{ width: `${(bulkProgress.current / bulkData.length) * 100}%` }}
                                         />
                                     </div>
@@ -177,7 +177,7 @@ export default function NewArticlePage() {
                                         Cancel
                                     </Button>
                                     <Button size="sm" onClick={executeBulkImport} disabled={isBulkImporting}>
-                                        {isBulkImporting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                                        {isBulkImporting ? <Loader2 className="h-4 w-4  mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                                         {isBulkImporting ? 'Importing...' : 'Confirm Bulk Import'}
                                     </Button>
                                 </>
@@ -281,7 +281,7 @@ export default function NewArticlePage() {
                     <Button type="submit" disabled={createArticle.isPending} className="min-w-[150px]">
                         {createArticle.isPending ? (
                             <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                <Loader2 className="mr-2 h-4 w-4 " />
                                 Saving...
                             </>
                         ) : (

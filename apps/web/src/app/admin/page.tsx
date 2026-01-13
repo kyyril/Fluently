@@ -19,7 +19,7 @@ export default function AdminOverviewPage() {
 
     if (usersLoading) {
         return (
-            <div className="p-8 space-y-8 animate-pulse">
+            <div className="p-8 space-y-8 ">
                 <div className="h-8 w-48 bg-muted rounded mb-8" />
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     {[1, 2, 3].map((i) => (
@@ -36,7 +36,7 @@ export default function AdminOverviewPage() {
     const avgXp = totalUsers > 0 ? Math.round(totalXp / totalUsers) : 0;
 
     return (
-        <div className="p-8 space-y-8 animate-fade-in">
+        <div className="p-8 space-y-8 ">
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card variant="default" className="border-none shadow-md">
@@ -117,10 +117,10 @@ export default function AdminOverviewPage() {
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {users?.map((user) => (
-                                    <tr key={user.id} className="group hover:bg-primary/5 transition-all duration-200">
+                                    <tr key={user.id} className="group hover:bg-primary/5  ">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary group-hover:scale-110 transition-transform">
+                                                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary group-hover:scale-110 ">
                                                     {user.displayName.charAt(0)}
                                                 </div>
                                                 <div className="flex flex-col">
@@ -163,7 +163,7 @@ export default function AdminOverviewPage() {
                                         <td className="px-6 py-5 text-right">
                                             <button
                                                 onClick={() => router.push(`/admin/users/${user.id}`)}
-                                                className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-primary-foreground hover:scale-110 active:scale-95 transition-all shadow-lg shadow-primary/20"
+                                                className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary text-primary-foreground hover:scale-110 active:scale-95  shadow-lg shadow-primary/20"
                                                 title="View User Details"
                                             >
                                                 <Eye className="h-5 w-5" />

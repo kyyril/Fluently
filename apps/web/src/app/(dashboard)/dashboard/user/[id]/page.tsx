@@ -42,7 +42,7 @@ export default function UserProfilePage() {
 
     if (isLoading) {
         return (
-            <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 animate-fade-in">
+            <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 ">
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-muted rounded-xl animate-pulse" />
                     <div className="h-8 w-48 bg-muted rounded-lg animate-pulse" />
@@ -83,7 +83,7 @@ export default function UserProfilePage() {
     }
 
     return (
-        <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 animate-fade-in">
+        <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 ">
             {/* Back Button */}
             <div className="flex items-center gap-4">
                 <Link href="/dashboard/leaderboard">

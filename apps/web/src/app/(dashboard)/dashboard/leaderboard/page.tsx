@@ -49,7 +49,7 @@ export default function LeaderboardPage() {
     };
 
     return (
-        <div className="container py-8 px-4 max-w-4xl mx-auto space-y-6 animate-fade-in">
+        <div className="container py-8 px-4 max-w-4xl mx-auto space-y-6 ">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-1">
@@ -66,13 +66,13 @@ export default function LeaderboardPage() {
                 </div>
 
                 {/* Your Rank Card - Integrated */}
-                <div className={`rounded-2xl p-4 flex items-center gap-4 min-w-[200px] transition-colors ${isLoading ? 'bg-muted/20' : 'bg-primary/5'}`}>
+                <div className={`rounded-2xl p-4 flex items-center gap-4 min-w-[200px]  ${isLoading ? 'bg-muted/20' : 'bg-primary/5'}`}>
                     {isLoading ? (
                         <>
-                            <div className="w-10 h-10 rounded-xl bg-muted animate-pulse" />
+                            <div className="w-10 h-10 rounded-xl bg-muted " />
                             <div className="space-y-2">
-                                <div className="h-3 w-12 bg-muted animate-pulse rounded" />
-                                <div className="h-5 w-24 bg-muted animate-pulse rounded" />
+                                <div className="h-3 w-12 bg-muted  rounded" />
+                                <div className="h-5 w-24 bg-muted  rounded" />
                             </div>
                         </>
                     ) : (
@@ -97,7 +97,7 @@ export default function LeaderboardPage() {
                 <button
                     onClick={() => setTab('weekly')}
                     className={`
-                        flex-1 sm:px-8 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2
+                        flex-1 sm:px-8 py-2.5 rounded-xl text-sm font-bold  flex items-center justify-center gap-2
                         ${tab === 'weekly'
                             ? 'bg-background text-primary shadow-sm'
                             : 'text-muted-foreground hover:text-foreground'}
@@ -109,7 +109,7 @@ export default function LeaderboardPage() {
                 <button
                     onClick={() => setTab('all-time')}
                     className={`
-                        flex-1 sm:px-8 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2
+                        flex-1 sm:px-8 py-2.5 rounded-xl text-sm font-bold  flex items-center justify-center gap-2
                         ${tab === 'all-time'
                             ? 'bg-background text-primary shadow-sm'
                             : 'text-muted-foreground hover:text-foreground'}
@@ -127,7 +127,7 @@ export default function LeaderboardPage() {
                         [1, 0, 2].map((i) => (
                             <div
                                 key={i}
-                                className={`flex flex-col items-center p-6 rounded-3xl bg-muted/10 animate-pulse ${i === 0 ? 'h-[240px] sm:scale-110 sm:z-10 bg-muted/20' : 'h-[200px]'}`}
+                                className={`flex flex-col items-center p-6 rounded-3xl bg-muted/10  ${i === 0 ? 'h-[240px] sm:scale-110 sm:z-10 bg-muted/20' : 'h-[200px]'}`}
                             />
                         ))
                     ) : (
@@ -140,9 +140,9 @@ export default function LeaderboardPage() {
                                     key={entry.user.id}
                                     href={`/dashboard/profile/${entry.user.id}`}
                                     className={`
-                                        flex flex-col items-center p-6 rounded-3xl transition-all group border
+                                        flex flex-col items-center p-6 rounded-3xl  group border
                                         ${isFirst ? 'bg-yellow-500/10 border-yellow-500/20 order-first sm:order-none sm:scale-110 sm:z-10' : 'bg-surface/40 border-transparent order-last sm:order-none'}
-                                        hover:bg-opacity-100 hover:scale-[1.03] duration-300
+                                        hover:bg-opacity-100 hover:scale-[1.03] 
                                     `}
                                 >
                                     <div className="relative mb-4">
@@ -170,7 +170,7 @@ export default function LeaderboardPage() {
                                         </div>
                                     </div>
                                     <div className="text-center space-y-1">
-                                        <div className="font-black text-lg truncate max-w-[140px] group-hover:text-primary transition-colors">
+                                        <div className="font-black text-lg truncate max-w-[140px] group-hover:text-primary ">
                                             {entry.user.displayName}
                                         </div>
                                         <div className="text-xs font-bold text-muted-foreground flex items-center justify-center gap-1">
@@ -202,7 +202,7 @@ export default function LeaderboardPage() {
             <div className="grid gap-2">
                 {isLoading ? (
                     Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-20 bg-muted/10 rounded-2xl animate-pulse" />
+                        <div key={i} className="h-20 bg-muted/10 rounded-2xl " />
                     ))
                 ) : (
                     (data?.entries || []).slice((data?.entries?.length || 0) >= 3 ? 3 : 0).map((entry) => (
@@ -210,7 +210,7 @@ export default function LeaderboardPage() {
                             key={entry.user.id}
                             href={`/dashboard/profile/${entry.user.id}`}
                             className={`
-                                flex items-center justify-between p-4 rounded-2xl border transition-all group
+                                flex items-center justify-between p-4 rounded-2xl border  group
                                 ${getRankStyle(entry.rank)}
                                 ${entry.user.id === user?.id ? 'border-primary/20 ring-1 ring-primary/5' : ''}
                             `}
@@ -242,7 +242,7 @@ export default function LeaderboardPage() {
 
                                 {/* Info */}
                                 <div>
-                                    <div className="font-bold flex items-center gap-2 group-hover:text-primary transition-colors">
+                                    <div className="font-bold flex items-center gap-2 group-hover:text-primary ">
                                         {entry.user.displayName}
                                         {entry.user.id === user?.id && (
                                             <span className="text-[9px] bg-primary text-primary-foreground px-1.5 py-0.5 rounded-md font-black">
@@ -269,7 +269,7 @@ export default function LeaderboardPage() {
                                     <div className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter">XP Points</div>
                                 </div>
                                 <div className="hidden sm:block">
-                                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                                    <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 " />
                                 </div>
                             </div>
                         </Link>
