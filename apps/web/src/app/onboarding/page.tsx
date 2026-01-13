@@ -17,7 +17,11 @@ export default function OnboardingPage() {
     const router = useRouter();
     const { data: user, isLoading, isError } = useUser();
     const { onboarding } = useAuth();
+
+    const [step, setStep] = useState(1);
     const [level, setLevel] = useState('BEGINNER');
+    const [nativeLanguage, setNativeLanguage] = useState('Indonesian');
+    const [country, setCountry] = useState('Indonesia');
 
     useEffect(() => {
         if (!isLoading && (isError || (!user && typeof window !== 'undefined' && !localStorage.getItem('fluently-token')))) {
@@ -37,14 +41,16 @@ export default function OnboardingPage() {
     }, [isLoading, isError, user, router]);
 
     const handleComplete = () => {
-        // English is the only target language, set defaults
         onboarding.mutate({
-            nativeLanguage: 'Indonesian',
+            nativeLanguage,
             targetLanguage: 'English',
-            country: 'Indonesia',
+            country,
             level: level as any
         });
     };
+
+    const nextStep = () => setStep(prev => prev + 1);
+    const prevStep = () => setStep(prev => prev - 1);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4 py-12 relative overflow-y-auto">
@@ -57,16 +63,18 @@ export default function OnboardingPage() {
                         </div>
                         <CardTitle className="text-3xl font-black">
                             {isLoading ? (
-                                <div className="h-9 w-64  rounded mx-auto" />
+                                <div className="h-9 w-64 bg-muted animate-shimmer rounded mx-auto" />
+                            ) : step === 1 ? (
+                                "Where are you from?"
                             ) : (
                                 "What's your English level?"
                             )}
                         </CardTitle>
-                        {isLoading ? (
-                            <div className="h-5 w-48 bg-muted  rounded mx-auto mt-2" />
-                        ) : (
+                        {!isLoading && (
                             <p className="text-muted-foreground mt-2">
-                                Help us personalize your learning experience.
+                                {step === 1
+                                    ? "Tell us a bit about your background."
+                                    : "Help us personalize your learning experience."}
                             </p>
                         )}
                     </CardHeader>
@@ -74,8 +82,42 @@ export default function OnboardingPage() {
                         {isLoading ? (
                             <div className="space-y-3">
                                 {[1, 2, 3].map((i) => (
-                                    <div key={i} className="h-24  rounded-xl" />
+                                    <div key={i} className="h-24 bg-muted animate-shimmer rounded-xl" />
                                 ))}
+                            </div>
+                        ) : step === 1 ? (
+                            <div className="space-y-6">
+                                <div className="space-y-3">
+                                    <label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Native Language</label>
+                                    <select
+                                        value={nativeLanguage}
+                                        onChange={(e) => setNativeLanguage(e.target.value)}
+                                        className="w-full h-14 px-4 rounded-xl bg-muted/50 border-none focus:ring-2 focus:ring-primary font-bold text-lg"
+                                    >
+                                        {['Indonesian', 'Spanish', 'French', 'German', 'Chinese', 'Japanese', 'Korean', 'Portuguese', 'Russian', 'Arabic', 'Hindi'].sort().map(lang => (
+                                            <option key={lang} value={lang}>{lang}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <label className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Country</label>
+                                    <select
+                                        value={country}
+                                        onChange={(e) => setCountry(e.target.value)}
+                                        className="w-full h-14 px-4 rounded-xl bg-muted/50 border-none focus:ring-2 focus:ring-primary font-bold text-lg"
+                                    >
+                                        {['Indonesia', 'Malaysia', 'Singapore', 'Thailand', 'Philippines', 'Vietnam', 'Japan', 'South Korea', 'China', 'United States', 'United Kingdom', 'Brazil', 'Mexico', 'Spain', 'Germany', 'France'].sort().map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="pt-6">
+                                    <Button className="w-full h-14 text-lg font-bold" onClick={nextStep}>
+                                        Next Step
+                                    </Button>
+                                </div>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -102,15 +144,18 @@ export default function OnboardingPage() {
                                     </button>
                                 ))}
 
-                                <div className="pt-6">
+                                <div className="pt-6 flex gap-3">
+                                    <Button variant="ghost" className="h-14 px-8 font-bold" onClick={prevStep}>
+                                        Back
+                                    </Button>
                                     <Button
-                                        className="w-full h-14 text-lg font-bold"
+                                        className="flex-1 h-14 text-lg font-bold"
                                         onClick={handleComplete}
                                         disabled={onboarding.isPending}
                                     >
                                         {onboarding.isPending ? (
                                             <>
-                                                <Loader2 className="h-5 w-5  mr-2" />
+                                                <Loader2 className="h-5 w-5 animate-spin mr-2" />
                                                 Setting up...
                                             </>
                                         ) : (

@@ -71,7 +71,7 @@ export default function AuthPage() {
                         disabled={isLoading}
                     >
                         {isLoading ? (
-                            <Loader2 className="mr-2 h-5 w-5" />
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                         ) : (
                             <img src="/google.svg" alt="Google" className="mr-3 h-5 w-5" />
                         )}

@@ -134,7 +134,7 @@ export default function DashboardPage() {
                 <div className="grid gap-3">
                     {isLoading ? (
                         Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="h-20 bg-muted/20 rounded-2xl " />
+                            <div key={i} className="h-20 bg-muted/20 animate-shimmer rounded-2xl " />
                         ))
                     ) : (
                         routine?.tasks.map((task) => (
@@ -224,7 +224,7 @@ function StatCard({
             </div>
             <div>
                 {isLoading ? (
-                    <div className="h-7 w-16  bg-muted rounded mb-1" />
+                    <div className="h-7 w-16 bg-muted animate-shimmer rounded mb-1" />
                 ) : (
                     <div className="text-2xl font-black tracking-tight">
                         {typeof value === 'number' ? value.toLocaleString() : value}

@@ -59,7 +59,7 @@ export function SmartHeader() {
                     <div className="flex items-center gap-2 text-sm px-3 py-1.5 bg-orange-500/10 rounded-full text-orange-600 dark:text-orange-400">
                         <Flame className="h-4 w-4" />
                         {isLoading ? (
-                            <div className="h-4 w-6 bg-muted rounded" />
+                            <div className="h-4 w-6 bg-muted animate-shimmer rounded" />
                         ) : (
                             <span className="font-bold">{user?.currentStreak || 0}</span>
                         )}
@@ -67,7 +67,7 @@ export function SmartHeader() {
                     <div className="flex items-center gap-2 text-sm px-3 py-1.5 bg-yellow-500/10 rounded-full text-yellow-600 dark:text-yellow-400">
                         <Star className="h-4 w-4" />
                         {isLoading ? (
-                            <div className="h-4 w-10 bg-muted rounded" />
+                            <div className="h-4 w-10 bg-muted animate-shimmer rounded" />
                         ) : (
                             <span className="font-bold">{user?.totalXp?.toLocaleString() || 0}</span>
                         )}

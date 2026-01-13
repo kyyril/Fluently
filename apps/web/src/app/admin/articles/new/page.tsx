@@ -177,7 +177,7 @@ export default function NewArticlePage() {
                                         Cancel
                                     </Button>
                                     <Button size="sm" onClick={executeBulkImport} disabled={isBulkImporting}>
-                                        {isBulkImporting ? <Loader2 className="h-4 w-4  mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                                        {isBulkImporting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                                         {isBulkImporting ? 'Importing...' : 'Confirm Bulk Import'}
                                     </Button>
                                 </>
@@ -281,7 +281,7 @@ export default function NewArticlePage() {
                     <Button type="submit" disabled={createArticle.isPending} className="min-w-[150px]">
                         {createArticle.isPending ? (
                             <>
-                                <Loader2 className="mr-2 h-4 w-4 " />
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 Saving...
                             </>
                         ) : (
