@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState, type ReactNode } from 'react';
+import { ThemeProvider } from 'next-themes';
 import { NeonAuthWrapper } from './NeonAuthWrapper';
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -22,11 +23,13 @@ export function Providers({ children }: { children: ReactNode }) {
     );
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <NeonAuthWrapper>
-                {children}
-            </NeonAuthWrapper>
-            <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            <QueryClientProvider client={queryClient}>
+                <NeonAuthWrapper>
+                    {children}
+                </NeonAuthWrapper>
+                <ReactQueryDevtools initialIsOpen={false} />
+            </QueryClientProvider>
+        </ThemeProvider>
     );
 }

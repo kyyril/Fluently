@@ -7,11 +7,43 @@
    ============================================ */
 
 :root {
-  /* Primary - Vibrant Blue */
+  /* Dark Mode Colors (now default) */
+  --color-primary: 220 90% 66%;
+  --color-primary-foreground: 0 0% 100%;
+
+  --color-secondary: 260 60% 70%;
+  --color-secondary-foreground: 0 0% 100%;
+
+  --color-background: 222 47% 6%;
+  --color-foreground: 210 40% 98%;
+
+  --color-surface: 222 47% 11%;
+  --color-surface-foreground: 210 40% 98%;
+
+  --color-muted: 217 33% 17%;
+  --color-muted-foreground: 215 20% 65%;
+
+  --color-accent: 217 33% 17%;
+  --color-accent-foreground: 210 40% 98%;
+
+  --color-destructive: 0 72% 51%;
+  --color-destructive-foreground: 0 0% 100%;
+
+  --color-border: 217 33% 17% / 0.1;
+  --color-ring: 220 90% 66%;
+
+  /* Radius */
+  --radius: 0.75rem;
+
+  /* Font */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Light Mode (Optional) */
+.light {
   --color-primary: 220 90% 56%;
   --color-primary-foreground: 0 0% 100%;
 
-  /* Secondary - Soft Violet */
   --color-secondary: 260 60% 65%;
   --color-secondary-foreground: 0 0% 100%;
 
@@ -38,37 +70,25 @@
   /* Border & Ring */
   --color-border: 214 32% 91% / 0.1;
   --color-ring: 220 90% 56%;
-
-  /* Radius */
-  --radius: 0.75rem;
-
-  /* Font */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Dark Mode */
+/* Keep .dark for compatibility with Tailwind's darkMode: 'class' */
 .dark {
+  /* Same as :root now */
   --color-primary: 220 90% 66%;
   --color-primary-foreground: 0 0% 100%;
-
   --color-secondary: 260 60% 70%;
   --color-secondary-foreground: 0 0% 100%;
-
   --color-background: 222 47% 6%;
   --color-foreground: 210 40% 98%;
-
   --color-surface: 222 47% 11%;
   --color-surface-foreground: 210 40% 98%;
-
   --color-muted: 217 33% 17%;
   --color-muted-foreground: 215 20% 65%;
-
   --color-accent: 217 33% 17%;
   --color-accent-foreground: 210 40% 98%;
-
   --color-destructive: 0 72% 51%;
   --color-destructive-foreground: 0 0% 100%;
-
   --color-border: 217 33% 17% / 0.1;
   --color-ring: 220 90% 66%;
 }
