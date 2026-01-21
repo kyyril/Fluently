@@ -10,7 +10,8 @@ import {
     Trophy,
     User,
     ShieldCheck,
-    BookOpen
+    BookOpen,
+    Mic
 } from 'lucide-react';
 import { SmartHeader } from '@/components/SmartHeader';
 

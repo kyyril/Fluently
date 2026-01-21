@@ -44,3 +44,6 @@ pnpm dev
 ## Test api
 cd apps/api
 powershell -ExecutionPolicy Bypass -File .\test-api.ps1
+
+## Reset database
+npx prisma db push --force-reset && npx tsx prisma/seed.ts

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, Button } from '@fluently/ui';
 import {
     useTodayRoutine,
@@ -14,7 +15,6 @@ import {
     Star,
     Trophy,
     Target,
-    Languages,
     Headset,
     Mic2,
     PenLine,
@@ -39,6 +39,7 @@ const TASK_COLORS: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+    const router = useRouter();
     const { data: user } = useUser();
     const { data: routine, isLoading } = useTodayRoutine();
 
@@ -48,6 +49,10 @@ export default function DashboardPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleOpenTask = (task: any) => {
+        if (task.taskType === 'SPEAKING_SESSION') {
+            router.push(`/dashboard/speaking?taskId=${task.id}`);
+            return;
+        }
         setActiveTask({ ...task, dailyLogId: routine?.id });
         setDialogOpen(true);
     };
@@ -254,3 +259,4 @@ function CalendarIcon({ className }: { className?: string }) {
         </svg>
     );
 }
+
