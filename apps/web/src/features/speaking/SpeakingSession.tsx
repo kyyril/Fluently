@@ -36,7 +36,7 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
     const micStreamRef = useRef<MediaStream | null>(null);
     const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
 
-    // Initial check for API Key
+    // Initial check for API Key and Saved Session Time
     useEffect(() => {
         const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
         const localKey = localStorage.getItem('gemini_api_key');
@@ -47,7 +47,17 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
         } else {
             setShowKeyModal(true);
         }
-    }, []);
+
+        // Restore elapsed time if available
+        if (taskId) {
+            const today = new Date().toISOString().split('T')[0];
+            const key = `speaking_session_${taskId}_${today}`;
+            const savedTime = localStorage.getItem(key);
+            if (savedTime) {
+                setElapsedTime(parseInt(savedTime, 10));
+            }
+        }
+    }, [taskId]);
 
     // Timer Logic
     useEffect(() => {
@@ -58,7 +68,14 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
                         disconnect(); // Auto disconnect
                         return prev;
                     }
-                    return prev + 1;
+                    const newTime = prev + 1;
+                    // Persist to local storage
+                    if (taskId) {
+                        const today = new Date().toISOString().split('T')[0];
+                        const key = `speaking_session_${taskId}_${today}`;
+                        localStorage.setItem(key, newTime.toString());
+                    }
+                    return newTime;
                 });
             }, 1000);
         } else {
@@ -164,6 +181,12 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
                 { taskId, metadata: { duration: elapsedTime } },
                 {
                     onSuccess: () => {
+                        // Clear saved time for this task
+                        if (taskId) {
+                            const today = new Date().toISOString().split('T')[0];
+                            const key = `speaking_session_${taskId}_${today}`;
+                            localStorage.removeItem(key);
+                        }
                         setTimeout(() => router.push('/dashboard'), 1000);
                     },
                     onError: () => {
@@ -266,83 +289,106 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center h-[600px] w-full bg-gradient-to-b from-gray-900 to-black text-white relative">
+        <div className="flex flex-col items-center justify-between h-full min-h-[600px] w-full bg-background/30 relative overflow-hidden px-4 md:px-8 transition-all">
+            {/* Background Ambient Glow */}
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-secondary/10 blur-[120px] rounded-full pointer-events-none" />
 
             {/* Top Controls */}
-            <div className="absolute top-4 right-4 flex gap-2 z-10">
-                <div className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-sm font-mono flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`} />
-                    {formatTime(elapsedTime)} / 30:00
+            <div className="absolute top-6 right-6 flex gap-3 z-10 transition-all">
+                <div className="px-4 py-2 rounded-full bg-surface/50 border border-white/5 backdrop-blur-md text-sm font-mono flex items-center gap-2.5 shadow-sm text-foreground">
+                    <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]' : 'bg-muted-foreground'}`} />
+                    <span className={isConnected ? 'text-foreground' : 'text-muted-foreground'}>
+                        {formatTime(elapsedTime)} <span className="text-muted-foreground">/ 30:00</span>
+                    </span>
                 </div>
                 <button
                     onClick={() => setShowKeyModal(true)}
-                    className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                    className="p-2 rounded-full bg-surface/50 border border-white/5 hover:bg-white/10 transition-all text-muted-foreground hover:text-foreground backdrop-blur-md"
                     title="API Key Settings"
                 >
                     <Settings className="w-5 h-5" />
                 </button>
             </div>
 
-            {/* Main Visualizer */}
-            <div className="flex-1 flex flex-col items-center justify-center w-full">
+            {/* Main Visualizer - Takes up remaining space and centers the orb */}
+            <div className="flex-1 w-full flex flex-col items-center justify-center py-8">
                 <VoiceOrb volume={volume} state={state} />
             </div>
 
-            {/* Bottom Controls */}
-            <div className="w-full max-w-md p-6 mb-8 flex items-center justify-center gap-6">
+            {/* Bottom Controls - Docked to bottom */}
+            <div className="w-full max-w-md flex flex-col items-center gap-6 pb-8 md:pb-12 z-10 px-2">
 
-                {!isConnected ? (
+                {/* Main Actions */}
+                <div className="flex items-center justify-center gap-4 md:gap-6 w-full px-4">
+                    {!isConnected ? (
+                        <button
+                            onClick={connect}
+                            className="group relative px-8 py-4 rounded-full bg-primary text-primary-foreground font-semibold hover:opacity-90 transition-all shadow-lg hover:shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] flex items-center gap-2 md:gap-3 overflow-hidden text-sm md:text-base w-full justify-center"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                            <Mic className="w-4 h-4 md:w-5 md:h-5" />
+                            <span className="tracking-wide">Start Conversation</span>
+                        </button>
+                    ) : (
+                        <>
+                            <button
+                                onClick={toggleMic}
+                                className={`p-4 md:p-5 rounded-full transition-all border ${isMicOn
+                                    ? 'bg-surface border-white/10 text-foreground hover:bg-white/5'
+                                    : 'bg-destructive/10 border-destructive/20 text-destructive hover:bg-destructive/20'
+                                    }`}
+                            >
+                                {isMicOn ? <Mic className="w-5 h-5 md:w-6 md:h-6" /> : <MicOff className="w-5 h-5 md:w-6 md:h-6" />}
+                            </button>
+
+                            <button
+                                onClick={disconnect}
+                                className="px-8 py-4 rounded-full bg-destructive text-destructive-foreground font-medium hover:opacity-90 transition-all shadow-lg hover:shadow-destructive/25 hover:scale-[1.02] active:scale-[0.98] text-sm md:text-base flex-1 md:flex-none"
+                            >
+                                End Session
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                {/* Manual Complete Trigger */}
+                {taskId && (
                     <button
-                        onClick={connect}
-                        className="px-8 py-3 rounded-full bg-white text-black font-semibold hover:bg-gray-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95 flex items-center gap-2"
+                        onClick={() => setShowSummary(true)}
+                        className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 py-2 px-4 rounded-full hover:bg-surface/50 border border-transparent hover:border-white/5 backdrop-blur-sm"
                     >
-                        <Mic className="w-5 h-5" />
-                        Start Conversation
+                        <CheckCircle2 className="w-4 h-4" />
+                        Complete Task
                     </button>
-                ) : (
-                    <>
-                        <button
-                            onClick={toggleMic}
-                            className={`p-4 rounded-full transition-all ${isMicOn ? 'bg-white/10 hover:bg-white/20 text-white' : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'}`}
-                        >
-                            {isMicOn ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
-                        </button>
-
-                        <button
-                            onClick={disconnect}
-                            className="px-6 py-3 rounded-full bg-red-600 hover:bg-red-700 text-white font-medium transition-all"
-                        >
-                            End Session
-                        </button>
-                    </>
                 )}
             </div>
 
             {/* Summary Modal */}
             {showSummary && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-                    <div className="bg-surface border border-white/10 p-8 rounded-3xl w-full max-w-md text-center space-y-6 shadow-2xl">
-                        <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <CheckCircle2 className="w-10 h-10" />
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                    <div className="bg-surface border border-white/10 p-6 md:p-8 rounded-3xl w-full max-w-lg text-center space-y-8 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                        <div className="w-24 h-24 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(34,197,94,0.2)]">
+                            <CheckCircle2 className="w-12 h-12" />
                         </div>
 
                         <div>
-                            <h2 className="text-2xl font-bold mb-2">Session Ended</h2>
-                            <p className="text-muted-foreground">
-                                You practiced for <span className="text-white font-bold">{formatTime(elapsedTime)}</span>
+                            <h2 className="text-3xl font-bold mb-3 text-foreground">Session Ended</h2>
+                            <p className="text-muted-foreground text-lg">
+                                You practiced for <span className="text-primary font-bold font-mono text-xl">{formatTime(elapsedTime)}</span>
                             </p>
                         </div>
 
                         {taskId ? (
-                            <div className="space-y-3 pt-4">
+                            <div className="space-y-4 pt-4">
                                 <button
                                     onClick={handleCompleteTask}
                                     disabled={state === 'completing'}
-                                    className="w-full py-4 rounded-xl bg-white text-black font-bold hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
+                                    className="w-full py-5 rounded-2xl bg-primary text-primary-foreground font-bold text-lg hover:opacity-90 transition-all shadow-lg hover:shadow-primary/25 flex items-center justify-center gap-3"
                                 >
                                     {state === 'completing' ? (
                                         <>
-                                            <CheckCircle2 className="w-5 h-5 animate-spin" />
+                                            <CheckCircle2 className="w-6 h-6 animate-spin" />
                                             Completing...
                                         </>
                                     ) : (
@@ -350,8 +396,8 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
                                     )}
                                 </button>
                                 <button
-                                    onClick={() => router.push('/dashboard')}
-                                    className="w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-white transition-all"
+                                    onClick={() => setShowSummary(false)}
+                                    className="w-full py-4 rounded-2xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all font-medium"
                                 >
                                     Don't Complete Yet
                                 </button>
@@ -359,7 +405,7 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
                         ) : (
                             <button
                                 onClick={() => router.push('/dashboard')}
-                                className="w-full py-3 rounded-xl bg-white text-black font-bold hover:bg-gray-200 transition-all"
+                                className="w-full py-5 rounded-2xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all"
                             >
                                 Back to Dashboard
                             </button>
