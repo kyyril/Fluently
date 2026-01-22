@@ -1,16 +1,62 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import * as AuthSession from 'expo-auth-session';
+import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/Button';
-import { Target, ChevronLeft } from 'lucide-react-native';
+import { Target, ChevronLeft, Globe } from 'lucide-react-native';
+import api from '@/lib/api/client';
+import { NEON_AUTH_URL } from '@/lib/constants';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function RegisterScreen() {
     const router = useRouter();
-
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [name, setName] = useState('');
+    const setAuth = useAuthStore((state) => state.setAuth);
     const [loading, setLoading] = useState(false);
+
+    const redirectUri = AuthSession.makeRedirectUri({
+        scheme: 'fluently',
+    });
+
+    const handleOAuthRegister = async () => {
+        setLoading(true);
+        try {
+            const authUrl = `${NEON_AUTH_URL}/sign-up?redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+            const result = await WebBrowser.openAuthSessionAsync(authUrl, redirectUri);
+
+            if (result.type === 'success') {
+                const url = new URL(result.url);
+                const params = new URLSearchParams(url.search || url.hash.replace('#', '?'));
+                const token = params.get('token') || params.get('access_token');
+
+                if (!token) {
+                    throw new Error('No authentication token received');
+                }
+
+                // Fetch user data with the token
+                const response = await api.get('/users/me', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                const user = response.data.data;
+                await setAuth(user, token);
+
+                if (user.level) {
+                    router.replace('/(main)');
+                } else {
+                    router.replace('/(auth)/onboarding');
+                }
+            }
+        } catch (err: any) {
+            console.error('Registration error:', err);
+            Alert.alert('Registration Failed', err.message || 'Failed to sign up with Neon Auth');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <KeyboardAvoidingView
@@ -31,57 +77,29 @@ export default function RegisterScreen() {
                 </View>
 
                 <View className="bg-zinc-900 border border-zinc-800 rounded-[32px] p-8">
-                    <View className="space-y-4">
-                        <View>
-                            <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Full Name</Text>
-                            <TextInput
-                                value={name}
-                                onChangeText={setName}
-                                placeholder="John Doe"
-                                placeholderTextColor="#52525b"
-                                className="bg-zinc-950 border border-zinc-800 text-white px-5 py-4 rounded-2xl font-bold"
-                            />
-                        </View>
-
-                        <View className="mt-4">
-                            <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Address</Text>
-                            <TextInput
-                                value={email}
-                                onChangeText={setEmail}
-                                placeholder="you@example.com"
-                                placeholderTextColor="#52525b"
-                                keyboardType="email-address"
-                                autoCapitalize="none"
-                                className="bg-zinc-950 border border-zinc-800 text-white px-5 py-4 rounded-2xl font-bold"
-                            />
-                        </View>
-
-                        <View className="mt-4">
-                            <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Password</Text>
-                            <TextInput
-                                value={password}
-                                onChangeText={setPassword}
-                                placeholder="••••••••"
-                                placeholderTextColor="#52525b"
-                                secureTextEntry
-                                className="bg-zinc-950 border border-zinc-800 text-white px-5 py-4 rounded-2xl font-bold"
-                            />
-                        </View>
-                    </View>
+                    <Text className="text-white text-xl font-black mb-6">Join Fluently</Text>
 
                     <Button
-                        title="Create Account"
-                        onPress={() => { }}
+                        title="Sign up with Neon Auth"
+                        onPress={handleOAuthRegister}
                         loading={loading}
-                        className="mt-8 py-5 rounded-2xl"
+                        icon={<Globe color="white" size={20} />}
+                        className="py-5 rounded-2xl bg-indigo-600"
+                        textClassName="text-base font-black"
                     />
 
-                    <View className="flex-row justify-center mt-6">
+                    <View className="flex-row justify-center mt-8">
                         <Text className="text-zinc-500 font-bold">Already have an account? </Text>
                         <TouchableOpacity onPress={() => router.replace('/(auth)/login')}>
                             <Text className="text-indigo-500 font-black">Sign In</Text>
                         </TouchableOpacity>
                     </View>
+                </View>
+
+                <View className="mt-8 px-4">
+                    <Text className="text-zinc-600 text-[10px] text-center font-bold uppercase tracking-widest leading-4">
+                        By creating an account, you agree to our Terms and consent to our processing of your personal data.
+                    </Text>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>

@@ -1,5 +1,6 @@
 // API Configuration
 export const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:4000/api';
+export const NEON_AUTH_URL = process.env.EXPO_PUBLIC_NEON_AUTH_BASE_URL || '';
 export const GEMINI_API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
 
 // App Configuration

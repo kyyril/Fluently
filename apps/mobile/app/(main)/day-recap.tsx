@@ -12,7 +12,7 @@ import { BookText, ChevronLeft, Sparkles, CheckCircle, AlertCircle, ArrowRight, 
 import { toast } from '@/stores/toastStore';
 import * as Haptics from 'expo-haptics';
 
-export default function DayRecapScreen() {
+function DayRecapScreen() {
     const router = useRouter();
     const { user } = useAuthStore();
     const { hapticsEnabled } = useSettingsStore();
@@ -219,3 +219,5 @@ export default function DayRecapScreen() {
         </KeyboardAvoidingView>
     );
 }
+
+export default DayRecapScreen;
