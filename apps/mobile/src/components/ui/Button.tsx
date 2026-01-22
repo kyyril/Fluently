@@ -1,11 +1,7 @@
 import React from 'react';
 import { Pressable, Text, ActivityIndicator, View } from 'react-native';
-import { styled } from 'nativewind';
 import * as Haptics from 'expo-haptics';
 import { useSettingsStore } from '@/stores/settingsStore';
-
-const StyledPressable = styled(Pressable);
-const StyledText = styled(Text);
 
 export interface ButtonProps {
     onPress: () => void;
@@ -64,7 +60,7 @@ export function Button({
     };
 
     return (
-        <StyledPressable
+        <Pressable
             onPress={handlePress}
             disabled={disabled || loading}
             className={`flex-row items-center justify-center ${variantStyles[variant as keyof typeof variantStyles]} ${sizeStyles[size as keyof typeof sizeStyles]} ${disabled ? 'opacity-50' : ''} ${className}`}
@@ -77,15 +73,15 @@ export function Button({
                     {children ? (
                         children
                     ) : (
-                        <StyledText
+                        <Text
                             className={`font-bold text-white text-center ${textSizeStyles[size as keyof typeof textSizeStyles]} ${textClassName}`}
                         >
                             {title}
-                        </StyledText>
+                        </Text>
                     )}
                 </>
             )}
-        </StyledPressable>
+        </Pressable>
     );
 }
 

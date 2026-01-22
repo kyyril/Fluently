@@ -1,10 +1,5 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { styled } from 'nativewind';
-
-const StyledView = styled(View);
-const StyledText = styled(Text);
-const StyledPressable = styled(Pressable);
 
 interface CardProps {
     children: React.ReactNode;
@@ -13,7 +8,7 @@ interface CardProps {
 }
 
 export function Card({ children, className = '', onPress }: CardProps): JSX.Element {
-    const Component = onPress ? StyledPressable : StyledView;
+    const Component = onPress ? Pressable : View;
     return (
         <Component
             onPress={onPress}
@@ -27,17 +22,17 @@ export function Card({ children, className = '', onPress }: CardProps): JSX.Elem
 
 export function CardHeader({ title, subtitle, className = '' }: { title: string; subtitle?: string; className?: string }): JSX.Element {
     return (
-        <StyledView className={`mb-4 ${className}`}>
-            <StyledText className="text-white text-xl font-black">{title}</StyledText>
+        <View className={`mb-4 ${className}`}>
+            <Text className="text-white text-xl font-black">{title}</Text>
             {subtitle && (
-                <StyledText className="text-zinc-400 text-xs font-medium uppercase tracking-widest mt-1">
+                <Text className="text-zinc-400 text-xs font-medium uppercase tracking-widest mt-1">
                     {subtitle}
-                </StyledText>
+                </Text>
             )}
-        </StyledView>
+        </View>
     );
 }
 
 export function CardContent({ children, className = '' }: { children: React.ReactNode; className?: string }): JSX.Element {
-    return <StyledView className={className}>{children}</StyledView>;
+    return <View className={className}>{children}</View>;
 }

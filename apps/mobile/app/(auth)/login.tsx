@@ -105,12 +105,6 @@ export default function LoginScreen() {
                         </TouchableOpacity>
                     </View>
                 </View>
-
-                <View className="mt-10 items-center">
-                    <Text className="text-zinc-700 text-[10px] font-bold uppercase tracking-widest">
-                        Powered by Gemini AI
-                    </Text>
-                </View>
             </ScrollView>
         </KeyboardAvoidingView>
     );

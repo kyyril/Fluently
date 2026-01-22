@@ -1,11 +1,32 @@
 import { MMKV } from 'react-native-mmkv';
 import { StateStorage } from 'zustand/middleware';
 
-// Create MMKV instance
-export const storage = new MMKV({
-    id: 'fluently-storage',
-    encryptionKey: 'fluently-encryption-key', // In production, use a more secure key
-});
+// Fallback memory storage for Expo Go or environments where native modules aren't available
+class MemoryStorage {
+    private store = new Map<string, string | number | boolean>();
+
+    getString(key: string) { return this.store.get(key) as string | undefined; }
+    getNumber(key: string) { return this.store.get(key) as number | undefined; }
+    getBoolean(key: string) { return this.store.get(key) as boolean | undefined; }
+    set(key: string, value: string | number | boolean) { this.store.set(key, value); }
+    delete(key: string) { this.store.delete(key); }
+    contains(key: string) { return this.store.has(key); }
+    clearAll() { this.store.clear(); }
+}
+
+// Create MMKV instance with safety catch
+let storageInstance: any;
+try {
+    storageInstance = new MMKV({
+        id: 'fluently-storage',
+        encryptionKey: 'fluently-encryption-key',
+    });
+} catch (e) {
+    console.warn('MMKV native module not found, falling back to in-memory storage');
+    storageInstance = new MemoryStorage();
+}
+
+export const storage = storageInstance;
 
 // Zustand-compatible storage adapter
 export const mmkvStorage: StateStorage = {
@@ -23,19 +44,12 @@ export const mmkvStorage: StateStorage = {
 
 // Typed helpers
 export const mmkvHelpers = {
-    // String operations
     getString: (key: string): string | undefined => storage.getString(key),
     setString: (key: string, value: string) => storage.set(key, value),
-
-    // Number operations
     getNumber: (key: string): number | undefined => storage.getNumber(key),
     setNumber: (key: string, value: number) => storage.set(key, value),
-
-    // Boolean operations
     getBoolean: (key: string): boolean | undefined => storage.getBoolean(key),
     setBoolean: (key: string, value: boolean) => storage.set(key, value),
-
-    // Object operations (JSON)
     getObject: <T>(key: string): T | undefined => {
         const value = storage.getString(key);
         if (!value) return undefined;
@@ -48,13 +62,8 @@ export const mmkvHelpers = {
     setObject: <T>(key: string, value: T) => {
         storage.set(key, JSON.stringify(value));
     },
-
-    // Delete
     delete: (key: string) => storage.delete(key),
-
-    // Check existence
     contains: (key: string): boolean => storage.contains(key),
-
-    // Clear all
     clearAll: () => storage.clearAll(),
 };
+
