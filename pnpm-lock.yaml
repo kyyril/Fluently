@@ -132,6 +132,9 @@ importers:
       expo-constants:
         specifier: ~17.0.3
         version: 17.0.8(expo@52.0.48)(react-native@0.76.6)
+      expo-file-system:
+        specifier: ~18.0.6
+        version: 18.0.12(expo@52.0.48)(react-native@0.76.6)
       expo-haptics:
         specifier: ~14.0.1
         version: 14.0.1(expo@52.0.48)

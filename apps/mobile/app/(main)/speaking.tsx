@@ -1,24 +1,31 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, Text, Pressable, Animated } from 'react-native';
-import { Mic2, Square, Play, Pause, Volume2 } from 'lucide-react-native';
+import { Mic2, Square, Volume2, RefreshCw } from 'lucide-react-native';
+import { useAuthStore } from '@/stores/authStore';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { getLanguageCoachResponse } from '@/lib/ai/gemini';
 import * as Haptics from 'expo-haptics';
+import * as FileSystem from 'expo-file-system';
 
-type SessionState = 'idle' | 'recording' | 'processing' | 'playing';
+type SessionState = 'idle' | 'recording' | 'processing' | 'complete';
 
 export default function SpeakingScreen() {
+    const { user } = useAuthStore();
+    const { hapticsEnabled } = useSettingsStore();
+
     const [sessionState, setSessionState] = useState<SessionState>('idle');
     const [transcript, setTranscript] = useState('');
     const [aiResponse, setAiResponse] = useState('');
-    const [duration, setDuration] = useState(0);
-    const pulseAnim = useRef(new Animated.Value(1)).current;
-    const { hapticsEnabled } = useSettingsStore();
+    const [error, setError] = useState('');
+
+    const pulseAnim = React.useRef(new Animated.Value(1)).current;
 
     const startPulseAnimation = useCallback(() => {
         Animated.loop(
             Animated.sequence([
                 Animated.timing(pulseAnim, {
-                    toValue: 1.2,
+                    toValue: 1.3,
                     duration: 800,
                     useNativeDriver: true,
                 }),
@@ -36,15 +43,56 @@ export default function SpeakingScreen() {
         pulseAnim.setValue(1);
     }, [pulseAnim]);
 
+    const { isRecording, duration, startRecording, stopRecording } = useAudioRecorder({
+        onRecordingComplete: async (uri, recordingDuration) => {
+            setSessionState('processing');
+
+            try {
+                // Read audio file as base64
+                const audioBase64 = await FileSystem.readAsStringAsync(uri, {
+                    encoding: FileSystem.EncodingType.Base64,
+                });
+
+                // For now, simulate transcription (in production, send to backend or Gemini)
+                // const transcribedText = await transcribeAudioWithGemini(audioBase64);
+                const transcribedText = "Hello, I would like to practice my English today.";
+                setTranscript(transcribedText);
+
+                // Get AI coaching response
+                const coachResponse = await getLanguageCoachResponse(
+                    transcribedText,
+                    user?.targetLanguage || 'English',
+                    user?.level || 'Intermediate'
+                );
+
+                setAiResponse(coachResponse);
+                setSessionState('complete');
+
+                // Clean up audio file
+                await FileSystem.deleteAsync(uri, { idempotent: true });
+
+            } catch (err) {
+                console.error('Processing error:', err);
+                setError('Failed to process your speech. Please try again.');
+                setSessionState('idle');
+            }
+        },
+        onError: (err) => {
+            setError(err.message);
+            setSessionState('idle');
+        },
+    });
+
     const handleStartRecording = async () => {
         if (hapticsEnabled) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         }
-        setSessionState('recording');
+        setError('');
         setTranscript('');
         setAiResponse('');
+        setSessionState('recording');
         startPulseAnimation();
-        // TODO: Implement actual audio recording with expo-av
+        await startRecording();
     };
 
     const handleStopRecording = async () => {
@@ -52,15 +100,17 @@ export default function SpeakingScreen() {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }
         stopPulseAnimation();
-        setSessionState('processing');
-        // TODO: Send audio to API for transcription and AI response
+        await stopRecording();
+    };
 
-        // Simulate processing
-        setTimeout(() => {
-            setTranscript("Hello, I want to practice my English speaking skills today.");
-            setAiResponse("Great! Your pronunciation is clear. Let's work on some conversational phrases. Try saying: 'I've been learning English for two years.'");
-            setSessionState('idle');
-        }, 2000);
+    const handleReset = () => {
+        if (hapticsEnabled) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+        setSessionState('idle');
+        setTranscript('');
+        setAiResponse('');
+        setError('');
     };
 
     const formatTime = (seconds: number) => {
@@ -93,26 +143,26 @@ export default function SpeakingScreen() {
                 <Animated.View
                     style={{
                         transform: [{ scale: pulseAnim }],
-                        opacity: sessionState === 'recording' ? 0.3 : 0,
+                        opacity: isRecording ? 0.3 : 0,
                     }}
                     className="absolute w-48 h-48 rounded-full bg-purple-500"
                 />
 
                 {/* Recording Button */}
                 <Pressable
-                    onPress={sessionState === 'recording' ? handleStopRecording : handleStartRecording}
-                    className={`w-32 h-32 rounded-full items-center justify-center ${sessionState === 'recording'
+                    onPress={isRecording ? handleStopRecording : handleStartRecording}
+                    disabled={sessionState === 'processing'}
+                    className={`w-32 h-32 rounded-full items-center justify-center ${isRecording
                             ? 'bg-red-500'
                             : sessionState === 'processing'
                                 ? 'bg-zinc-700'
                                 : 'bg-purple-600'
                         }`}
-                    disabled={sessionState === 'processing'}
                 >
-                    {sessionState === 'recording' ? (
+                    {isRecording ? (
                         <Square size={40} color="white" fill="white" />
                     ) : sessionState === 'processing' ? (
-                        <View className="w-8 h-8 border-4 border-white border-t-transparent rounded-full animate-spin" />
+                        <View className="w-8 h-8 border-4 border-white border-t-transparent rounded-full" />
                     ) : (
                         <Mic2 size={48} color="white" />
                     )}
@@ -123,11 +173,18 @@ export default function SpeakingScreen() {
                     {sessionState === 'idle' && 'Tap to start speaking'}
                     {sessionState === 'recording' && 'Listening...'}
                     {sessionState === 'processing' && 'Processing...'}
+                    {sessionState === 'complete' && 'Session complete'}
                 </Text>
 
-                {sessionState === 'recording' && (
+                {isRecording && (
                     <Text className="text-purple-500 text-2xl font-black mt-2">
                         {formatTime(duration)}
+                    </Text>
+                )}
+
+                {error && (
+                    <Text className="text-red-500 text-sm font-bold mt-4 text-center">
+                        {error}
                     </Text>
                 )}
             </View>
@@ -148,11 +205,16 @@ export default function SpeakingScreen() {
 
                 {aiResponse && (
                     <View className="bg-purple-900/20 border border-purple-800/30 rounded-3xl p-5">
-                        <View className="flex-row items-center mb-2">
-                            <Mic2 size={14} color="#a855f7" />
-                            <Text className="text-purple-400 text-[10px] font-black uppercase tracking-widest ml-2">
-                                AI Coach
-                            </Text>
+                        <View className="flex-row items-center justify-between mb-2">
+                            <View className="flex-row items-center">
+                                <Mic2 size={14} color="#a855f7" />
+                                <Text className="text-purple-400 text-[10px] font-black uppercase tracking-widest ml-2">
+                                    AI Coach
+                                </Text>
+                            </View>
+                            <Pressable onPress={handleReset}>
+                                <RefreshCw size={16} color="#a855f7" />
+                            </Pressable>
                         </View>
                         <Text className="text-zinc-200 text-base font-medium">{aiResponse}</Text>
                     </View>
