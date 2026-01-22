@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable, RefreshControl } from 'react-native';
+import { useRouter } from 'expo-router';
 import { BookOpen, Clock, ChevronRight, Star } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api/client';
@@ -16,6 +17,7 @@ interface Article {
 }
 
 export default function ArticlesScreen() {
+    const router = useRouter();
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
 
     const { data: articles, isLoading, refetch } = useQuery({
@@ -62,9 +64,16 @@ export default function ArticlesScreen() {
                 >
                     <Pressable
                         onPress={() => setSelectedLevel(null)}
+                        testID="filter-all"
+                        accessible
+                        accessibilityLabel="Show all levels"
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: !selectedLevel }}
                         className={`px-4 py-2 rounded-full mr-2 ${!selectedLevel ? 'bg-indigo-600' : 'bg-zinc-800'
                             }`}
                     >
+
+
                         <Text className={`font-bold ${!selectedLevel ? 'text-white' : 'text-zinc-400'}`}>
                             All
                         </Text>
@@ -72,10 +81,17 @@ export default function ArticlesScreen() {
                     {levels.map((level) => (
                         <Pressable
                             key={level}
+                            testID={`filter-${level}`}
                             onPress={() => setSelectedLevel(level)}
+                            accessible
+                            accessibilityLabel={`Filter by ${level}`}
+                            accessibilityRole="button"
+                            accessibilityState={{ selected: selectedLevel === level }}
                             className={`px-4 py-2 rounded-full mr-2 ${selectedLevel === level ? 'bg-indigo-600' : 'bg-zinc-800'
                                 }`}
                         >
+
+
                             <Text className={`font-bold ${selectedLevel === level ? 'text-white' : 'text-zinc-400'}`}>
                                 {level}
                             </Text>
@@ -93,18 +109,24 @@ export default function ArticlesScreen() {
                         filteredArticles.map((article) => (
                             <Pressable
                                 key={article.id}
+                                onPress={() => router.push(`/article/${article.id}`)}
+                                accessible
+                                accessibilityLabel={`Article: ${article.title}. Level: ${article.level}. Read time: ${article.readTime} minutes.`}
+                                accessibilityRole="button"
+                                accessibilityHint="Opens article details"
                                 className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 active:bg-zinc-800"
                             >
+
                                 <View className="flex-row justify-between items-start">
                                     <View className="flex-1 pr-4">
                                         <View className="flex-row items-center mb-2">
                                             <View className={`px-2 py-0.5 rounded-md mr-2 ${article.level === 'Beginner' ? 'bg-green-500/20' :
-                                                    article.level === 'Intermediate' ? 'bg-yellow-500/20' :
-                                                        'bg-red-500/20'
+                                                article.level === 'Intermediate' ? 'bg-yellow-500/20' :
+                                                    'bg-red-500/20'
                                                 }`}>
                                                 <Text className={`text-[8px] font-black uppercase ${article.level === 'Beginner' ? 'text-green-500' :
-                                                        article.level === 'Intermediate' ? 'text-yellow-500' :
-                                                            'text-red-500'
+                                                    article.level === 'Intermediate' ? 'text-yellow-500' :
+                                                        'text-red-500'
                                                     }`}>
                                                     {article.level}
                                                 </Text>

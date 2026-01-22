@@ -954,35 +954,35 @@ eas submit --platform all
 ## 📝 Development Checklist
 
 ### Setup Phase
-- [ ] Initialize Expo project with TypeScript
-- [ ] Configure NativeWind
-- [ ] Setup folder structure
-- [ ] Configure API client
-- [ ] Setup Zustand stores
-- [ ] Configure navigation
+- [x] Initialize Expo project with TypeScript
+- [x] Configure NativeWind
+- [x] Setup folder structure
+- [x] Configure API client
+- [x] Setup Zustand stores
+- [x] Configure navigation
 
 ### Core Features
-- [ ] Authentication flow (login, register)
-- [ ] Onboarding flow
-- [ ] Dashboard screen
-- [ ] Task completion
-- [ ] Speaking session with audio
-- [ ] Articles reader
-- [ ] Leaderboard
-- [ ] Profile screen
+- [x] Authentication flow (login, register)
+- [x] Onboarding flow
+- [x] Dashboard screen
+- [x] Task completion
+- [x] Speaking session with audio
+- [x] Articles reader
+- [x] Leaderboard
+- [x] Profile screen
 
 ### Polish
-- [ ] Loading states & skeletons
-- [ ] Error handling & toasts
-- [ ] Pull-to-refresh
-- [ ] Haptic feedback
-- [ ] Animations
-- [ ] Dark mode
+- [x] Loading states & skeletons
+- [x] Error handling & toasts
+- [x] Pull-to-refresh
+- [x] Haptic feedback
+- [x] Animations
+- [x] Dark mode
 
 ### Testing & QA
-- [ ] Unit tests for stores
-- [ ] Integration tests for screens
-- [ ] E2E tests (Detox)
+- [x] Unit tests for stores
+- [ ] Integration tests
+- [ ] E2E tests (Playwright)
 - [ ] Performance profiling
 - [ ] Accessibility audit
 
@@ -1000,5 +1000,6 @@ Note: `@fluently/ui` cannot be used directly (React DOM vs React Native), but pa
 
 ---
 
-*Last Updated: 2026-01-22*
-*Version: 1.0.0*
+*Last Updated: 2026-01-23*
+*Version: 1.1.0*
+

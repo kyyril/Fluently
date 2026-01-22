@@ -23,6 +23,8 @@ declare module "lucide-react-native" {
     export const ChevronRight: Icon;
     export const ChevronLeft: Icon;
     export const Check: Icon;
+    export const Sparkles: Icon;
+
     export const Search: Icon;
     export const Settings: Icon;
     export const X: Icon;

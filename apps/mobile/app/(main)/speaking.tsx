@@ -1,10 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, Pressable, Animated } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import { Mic2, Square, Volume2, RefreshCw } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useAudioRecorder } from '@/hooks/useAudioRecorder';
+import { useTodayRoutine, useCompleteTask } from '@/features/dashboard/hooks/useRoutine';
 import { getLanguageCoachResponse } from '@/lib/ai/gemini';
+import { toast } from '@/stores/toastStore';
 import * as Haptics from 'expo-haptics';
 import * as FileSystem from 'expo-file-system';
 
@@ -13,6 +16,9 @@ type SessionState = 'idle' | 'recording' | 'processing' | 'complete';
 export default function SpeakingScreen() {
     const { user } = useAuthStore();
     const { hapticsEnabled } = useSettingsStore();
+    const queryClient = useQueryClient();
+    const { data: routine } = useTodayRoutine();
+    const completeTaskMutation = useCompleteTask();
 
     const [sessionState, setSessionState] = useState<SessionState>('idle');
     const [transcript, setTranscript] = useState('');
@@ -67,6 +73,20 @@ export default function SpeakingScreen() {
 
                 setAiResponse(coachResponse);
                 setSessionState('complete');
+
+                // Mark task as complete if it's part of the daily routine
+                const speakingTask = routine?.tasks.find(t => t.taskType === 'SPEAKING_SESSION' && !t.completed);
+                if (speakingTask) {
+                    completeTaskMutation.mutate({
+                        taskId: speakingTask.id,
+                        metadata: { transcript: transcribedText }
+                    }, {
+                        onSuccess: () => {
+                            if (hapticsEnabled) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                            toast.success('Speaking practice completed!', '+80 XP earned');
+                        }
+                    });
+                }
 
                 // Clean up audio file
                 await FileSystem.deleteAsync(uri, { idempotent: true });
@@ -152,13 +172,18 @@ export default function SpeakingScreen() {
                 <Pressable
                     onPress={isRecording ? handleStopRecording : handleStartRecording}
                     disabled={sessionState === 'processing'}
+                    accessible
+                    accessibilityLabel={isRecording ? "Stop recording" : "Start speaking"}
+                    accessibilityRole="button"
+                    accessibilityHint={isRecording ? "Stops the current recording session" : "Starts capturing your speech for AI analysis"}
                     className={`w-32 h-32 rounded-full items-center justify-center ${isRecording
-                            ? 'bg-red-500'
-                            : sessionState === 'processing'
-                                ? 'bg-zinc-700'
-                                : 'bg-purple-600'
+                        ? 'bg-red-500'
+                        : sessionState === 'processing'
+                            ? 'bg-zinc-700'
+                            : 'bg-purple-600'
                         }`}
                 >
+
                     {isRecording ? (
                         <Square size={40} color="white" fill="white" />
                     ) : sessionState === 'processing' ? (
@@ -212,9 +237,15 @@ export default function SpeakingScreen() {
                                     AI Coach
                                 </Text>
                             </View>
-                            <Pressable onPress={handleReset}>
+                            <Pressable
+                                onPress={handleReset}
+                                accessible
+                                accessibilityLabel="Reset session"
+                                accessibilityRole="button"
+                            >
                                 <RefreshCw size={16} color="#a855f7" />
                             </Pressable>
+
                         </View>
                         <Text className="text-zinc-200 text-base font-medium">{aiResponse}</Text>
                     </View>

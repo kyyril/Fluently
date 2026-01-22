@@ -1,26 +1,60 @@
-import React from 'react';
-import { View, Text, ScrollView, RefreshControl } from 'react-native';
-import { useTodayRoutine } from '@/features/dashboard/hooks/useRoutine';
+import React, { useMemo, memo } from 'react';
+import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useTodayRoutine, useCompleteTask } from '@/features/dashboard/hooks/useRoutine';
 import { useAuthStore } from '@/stores/authStore';
-import { Card, CardHeader, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { useSettingsStore } from '@/stores/settingsStore';
+import { Card } from '@/components/ui/Card';
 import { Flame, Star, Trophy, Target, Headset, Mic2, PenLine, BookText, ChevronRight, Check } from 'lucide-react-native';
 import { TASK_COLORS, TASK_NAMES, TASK_XP } from '@/lib/constants';
+import { toast } from '@/stores/toastStore';
+import * as Haptics from 'expo-haptics';
 
 const TASK_ICONS: Record<string, React.ReactNode> = {
-    PODCAST_LISTENING: <Headset className="text-task-podcast" size={24} />,
-    SPEAKING_SESSION: <Mic2 className="text-task-speaking" size={24} />,
-    CREATE_SENTENCES: <PenLine className="text-task-sentences" size={24} />,
-    DAY_RECAP: <BookText className="text-task-recap" size={24} />,
+    PODCAST_LISTENING: <Headset color="#3b82f6" size={24} />,
+    SPEAKING_SESSION: <Mic2 color="#a855f7" size={24} />,
+    CREATE_SENTENCES: <PenLine color="#f97316" size={24} />,
+    DAY_RECAP: <BookText color="#22c55e" size={24} />,
 };
 
-export default function DashboardScreen() {
-    const { user } = useAuthStore();
-    const { data: routine, isLoading, refetch } = useTodayRoutine();
+const TASK_ROUTES: Record<string, string> = {
+    PODCAST_LISTENING: '/(main)/articles',
+    SPEAKING_SESSION: '/(main)/speaking',
+    CREATE_SENTENCES: '/(main)/speaking',
+    DAY_RECAP: '/(main)/day-recap',
+};
 
-    const completedCount = routine?.tasks.filter((t) => t.completed).length || 0;
-    const totalTasks = routine?.tasks.length || 0;
-    const progress = routine?.progress || 0;
+
+export default function DashboardScreen() {
+    const router = useRouter();
+    const { user } = useAuthStore();
+    const { hapticsEnabled } = useSettingsStore();
+    const { data: routine, isLoading, refetch } = useTodayRoutine();
+    const completeTaskMutation = useCompleteTask();
+
+    const { completedCount, totalTasks, progress } = useMemo(() => ({
+        completedCount: routine?.tasks.filter((t) => t.completed).length || 0,
+        totalTasks: routine?.tasks.length || 0,
+        progress: routine?.progress || 0
+    }), [routine]);
+
+
+    const handleTaskPress = (task: { id: string; taskType: string; completed: boolean }) => {
+        if (task.completed) {
+            toast.info('Task already completed!');
+            return;
+        }
+
+        if (hapticsEnabled) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+
+        // Navigate to the appropriate screen
+        const route = TASK_ROUTES[task.taskType];
+        if (route) {
+            router.push(route as any);
+        }
+    };
 
     return (
         <ScrollView
@@ -33,8 +67,8 @@ export default function DashboardScreen() {
             {/* Header */}
             <View className="mb-8 mt-10">
                 <View className="flex-row items-center mb-1">
-                    <Target size={12} className="text-indigo-500 mr-2" />
-                    <Text className="text-indigo-500 text-[10px] font-black uppercase tracking-widest">
+                    <Target size={12} color="#6366f1" />
+                    <Text className="text-indigo-500 text-[10px] font-black uppercase tracking-widest ml-2">
                         Daily Progress
                     </Text>
                 </View>
@@ -76,13 +110,19 @@ export default function DashboardScreen() {
                 />
             </View>
 
-            {/* Progress Bar Alternative for Mobile */}
+            {/* Progress Bar */}
             <View className="mb-8">
                 <View className="flex-row justify-between items-end mb-2">
                     <Text className="text-white font-bold">Overall Progress</Text>
                     <Text className="text-indigo-500 font-black text-xl">{progress}%</Text>
                 </View>
-                <View className="h-3 bg-zinc-900 rounded-full overflow-hidden">
+                <View
+                    className="h-3 bg-zinc-900 rounded-full overflow-hidden"
+                    accessible
+                    accessibilityLabel={`Overall progress: ${progress}%`}
+                    accessibilityRole="progressbar"
+                    accessibilityValue={{ min: 0, max: 100, now: progress }}
+                >
                     <View
                         className="h-full bg-indigo-600 rounded-full"
                         style={{ width: `${progress}%` }}
@@ -107,32 +147,43 @@ export default function DashboardScreen() {
                     ))
                 ) : (
                     routine?.tasks.map((task) => (
-                        <Card key={task.id} className={task.completed ? 'opacity-50' : ''}>
-                            <View className="flex-row items-center justify-between">
-                                <View className="flex-row items-center flex-1">
-                                    <View className={`w-12 h-12 rounded-2xl items-center justify-center ${task.completed ? 'bg-zinc-800' : TASK_COLORS[task.taskType]?.bg || 'bg-zinc-800'}`}>
-                                        {task.completed ? <Check color="#71717a" size={24} /> : TASK_ICONS[task.taskType]}
-                                    </View>
-                                    <View className="ml-4 flex-1">
-                                        <Text className={`text-white font-bold text-base ${task.completed ? 'line-through text-zinc-500' : ''}`}>
-                                            {TASK_NAMES[task.taskType] || task.taskType}
-                                        </Text>
-                                        <View className="flex-row items-center mt-0.5">
-                                            <Text className="text-indigo-500 text-[10px] font-black">+{TASK_XP[task.taskType] || 0} XP</Text>
-                                            <Text className="text-zinc-600 mx-1.5 text-[10px]">•</Text>
-                                            <Text className="text-zinc-500 text-[10px] font-bold uppercase tracking-tighter">Daily Target</Text>
+                        <Pressable
+                            key={task.id}
+                            onPress={() => handleTaskPress(task)}
+                            className="active:scale-[0.98]"
+                            accessible
+                            accessibilityLabel={`${TASK_NAMES[task.taskType] || task.taskType}${task.completed ? ', completed' : ''}`}
+                            accessibilityRole="button"
+                            accessibilityHint={`Navigates to ${TASK_NAMES[task.taskType] || task.taskType} practice`}
+                        >
+                            <Card className={task.completed ? 'opacity-50' : ''}>
+
+                                <View className="flex-row items-center justify-between">
+                                    <View className="flex-row items-center flex-1">
+                                        <View className={`w-12 h-12 rounded-2xl items-center justify-center ${task.completed ? 'bg-zinc-800' : TASK_COLORS[task.taskType]?.bg || 'bg-zinc-800'}`}>
+                                            {task.completed ? <Check color="#71717a" size={24} /> : TASK_ICONS[task.taskType]}
+                                        </View>
+                                        <View className="ml-4 flex-1">
+                                            <Text className={`text-white font-bold text-base ${task.completed ? 'line-through text-zinc-500' : ''}`}>
+                                                {TASK_NAMES[task.taskType] || task.taskType}
+                                            </Text>
+                                            <View className="flex-row items-center mt-0.5">
+                                                <Text className="text-indigo-500 text-[10px] font-black">+{TASK_XP[task.taskType] || 0} XP</Text>
+                                                <Text className="text-zinc-600 mx-1.5 text-[10px]">•</Text>
+                                                <Text className="text-zinc-500 text-[10px] font-bold uppercase tracking-tighter">Daily Target</Text>
+                                            </View>
                                         </View>
                                     </View>
+                                    {task.completed ? (
+                                        <View className="bg-green-500/10 px-2 py-1 rounded-md">
+                                            <Text className="text-green-500 text-[8px] font-black uppercase tracking-widest">Completed</Text>
+                                        </View>
+                                    ) : (
+                                        <ChevronRight size={20} color="#52525b" />
+                                    )}
                                 </View>
-                                {task.completed ? (
-                                    <View className="bg-green-500/10 px-2 py-1 rounded-md">
-                                        <Text className="text-green-500 text-[8px] font-black uppercase tracking-widest">Completed</Text>
-                                    </View>
-                                ) : (
-                                    <ChevronRight size={20} color="#52525b" />
-                                )}
-                            </View>
-                        </Card>
+                            </Card>
+                        </Pressable>
                     ))
                 )}
             </View>
@@ -150,14 +201,20 @@ export default function DashboardScreen() {
     );
 }
 
-function StatCard({ icon, value, label, bgColor }: { icon: React.ReactNode, value: string | number, label: string, bgColor: string }) {
+const StatCard = memo(({ icon, value, label, bgColor }: { icon: React.ReactNode; value: string | number; label: string; bgColor: string }): JSX.Element => {
     return (
-        <View className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 w-[48%] mb-3">
+        <View
+            className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 w-[48%] mb-3"
+            accessible
+            accessibilityLabel={`${label}: ${value}`}
+        >
             <View className={`w-9 h-9 ${bgColor} rounded-xl items-center justify-center mb-3`}>
+
                 {icon}
             </View>
             <Text className="text-white text-xl font-black tracking-tight">{value}</Text>
             <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">{label}</Text>
         </View>
     );
-}
+});
+

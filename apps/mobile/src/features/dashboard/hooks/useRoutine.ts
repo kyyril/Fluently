@@ -57,3 +57,24 @@ export function useCompleteTask() {
         },
     });
 }
+export function useSubmitRecap() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async ({ content, dailyLogId }: { content: string; dailyLogId?: string }) => {
+            const response = await api.post<{
+                success: boolean;
+                data: {
+                    feedback: string;
+                    corrections: string[];
+                    corrected: string;
+                    saved: boolean;
+                };
+            }>('/tasks/day-recap/review', { content, dailyLogId });
+            return response.data.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROUTINE_TODAY });
+        },
+    });
+}

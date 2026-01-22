@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/stores/authStore';
 import { View } from 'react-native';
+import { ToastContainer } from '@/components/ui/Toast';
 
 import '../global.css';
 
@@ -26,7 +27,6 @@ export default function RootLayout() {
 
     useEffect(() => {
         // Hide splash screen when ready
-        // You can add more complex logic here (loading fonts, checking session)
         SplashScreen.hideAsync();
     }, []);
 
@@ -43,7 +43,9 @@ export default function RootLayout() {
                     >
                         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                         <Stack.Screen name="(main)" options={{ headerShown: false }} />
+                        <Stack.Screen name="article/[id]" options={{ headerShown: false, presentation: 'modal' }} />
                     </Stack>
+                    <ToastContainer />
                 </View>
             </QueryClientProvider>
         </GestureHandlerRootView>

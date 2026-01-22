@@ -1,22 +1,29 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { styled } from 'nativewind';
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
+const StyledPressable = styled(Pressable);
 
 interface CardProps {
     children: React.ReactNode;
     className?: string;
+    onPress?: () => void;
 }
 
-export function Card({ children, className = '' }: CardProps): JSX.Element {
+export function Card({ children, className = '', onPress }: CardProps): JSX.Element {
+    const Component = onPress ? StyledPressable : StyledView;
     return (
-        <StyledView className={`bg-zinc-900 border border-zinc-800 rounded-3xl p-5 ${className}`}>
+        <Component
+            onPress={onPress}
+            className={`bg-zinc-900 border border-zinc-800 rounded-3xl p-5 ${className}`}
+        >
             {children}
-        </StyledView>
+        </Component>
     );
 }
+
 
 export function CardHeader({ title, subtitle, className = '' }: { title: string; subtitle?: string; className?: string }): JSX.Element {
     return (

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Text, ActivityIndicator } from 'react-native';
+import { Pressable, Text, ActivityIndicator, View } from 'react-native';
 import { styled } from 'nativewind';
 import * as Haptics from 'expo-haptics';
 import { useSettingsStore } from '@/stores/settingsStore';
@@ -9,24 +9,29 @@ const StyledText = styled(Text);
 
 export interface ButtonProps {
     onPress: () => void;
-    title: string;
+    title?: string;
+    children?: React.ReactNode;
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
     size?: 'sm' | 'md' | 'lg';
     loading?: boolean;
     disabled?: boolean;
     className?: string;
     textClassName?: string;
+    icon?: React.ReactNode;
 }
+
 
 export function Button({
     onPress,
     title,
+    children,
     variant = 'primary',
     size = 'md',
     loading = false,
     disabled = false,
     className = '',
     textClassName = '',
+    icon,
 }: ButtonProps): JSX.Element {
     const { hapticsEnabled } = useSettingsStore();
 
@@ -67,12 +72,20 @@ export function Button({
             {loading ? (
                 <ActivityIndicator color="white" size="small" />
             ) : (
-                <StyledText
-                    className={`font-bold text-white text-center ${textSizeStyles[size as keyof typeof textSizeStyles]} ${textClassName}`}
-                >
-                    {title}
-                </StyledText>
+                <>
+                    {icon && <View className="mr-2">{icon}</View>}
+                    {children ? (
+                        children
+                    ) : (
+                        <StyledText
+                            className={`font-bold text-white text-center ${textSizeStyles[size as keyof typeof textSizeStyles]} ${textClassName}`}
+                        >
+                            {title}
+                        </StyledText>
+                    )}
+                </>
             )}
         </StyledPressable>
     );
 }
+
