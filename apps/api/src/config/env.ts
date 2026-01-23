@@ -28,7 +28,7 @@ export const env = parsedEnv.data;
 export const config = {
     port: env.PORT,
     nodeEnv: env.NODE_ENV,
-    corsOrigin: env.CORS_ORIGIN,
+    corsOrigin: env.CORS_ORIGIN.split(',').map(origin => origin.trim()),
     jwtSecret: env.JWT_SECRET,
     jwtExpiresIn: env.JWT_EXPIRES_IN,
     databaseUrl: env.DATABASE_URL,

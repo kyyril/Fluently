@@ -66,6 +66,8 @@ export function useAuth() {
 }
 
 export function useUser(userId?: string) {
+    const { data: session, isPending } = authClient.useSession();
+
     return useQuery({
         queryKey: ['user', userId || 'me'],
         queryFn: async () => {
@@ -73,7 +75,10 @@ export function useUser(userId?: string) {
             const response = await api.get<{ success: boolean; data: User }>(endpoint);
             return response.data.data;
         },
-        retry: false,
+        // Only fetch when session is ready and user is authenticated
+        enabled: !isPending && !!session?.user,
+        retry: 1,
+        retryDelay: 1000, // Wait 1 second before retry (gives time for user provisioning)
         staleTime: 5 * 60 * 1000,  // 5 minutes - user data rarely changes
         gcTime: 10 * 60 * 1000,    // 10 minutes cache
     });

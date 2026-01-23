@@ -21,11 +21,24 @@ export default function AuthPage() {
     const [authError, setAuthError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (mounted && !isPending && session?.user && !isUserLoading && user) {
-            console.log('[AuthPage] Valid user found, role:', user.role);
-            if (user.role === 'ADMIN') {
-                router.push('/admin');
-            } else {
+        // If session exists but still loading user, wait
+        if (mounted && !isPending && session?.user) {
+            // If we have user data, redirect based on role
+            if (!isUserLoading && user) {
+                console.log('[AuthPage] Valid user found, role:', user.role);
+                if (user.role === 'ADMIN') {
+                    router.push('/admin');
+                } else if (user.level) {
+                    router.push('/dashboard');
+                } else {
+                    // New user without level - go to onboarding
+                    router.push('/onboarding');
+                }
+            }
+            // If user loading failed but session exists, still redirect to dashboard
+            // The dashboard will handle the retry/provisioning
+            else if (!isUserLoading && !user) {
+                console.log('[AuthPage] Session exists but user not found, redirecting to dashboard for provisioning');
                 router.push('/dashboard');
             }
         }
