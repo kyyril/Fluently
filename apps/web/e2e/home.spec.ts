@@ -9,7 +9,7 @@ test.describe('Home Page', () => {
         await expect(page.getByText('Structure breeds fluency')).toBeVisible();
 
         // Check CTA buttons
-        const getStartedBtn = page.getByRole('link', { name: /Start Learning Free/i });
+        const getStartedBtn = page.getByRole('link', { name: /Start Learning/i });
         await expect(getStartedBtn).toBeVisible();
         await expect(getStartedBtn).toHaveAttribute('href', '/auth/sign-up');
 
@@ -28,7 +28,7 @@ test.describe('Home Page', () => {
 
     test('should navigate to sign up page', async ({ page }) => {
         await page.goto('/');
-        await page.getByRole('link', { name: /Start Learning Free/i }).click();
+        await page.getByRole('link', { name: /Start Learning/i }).click();
         await expect(page).toHaveURL(/\/auth\/sign-up/);
     });
 });

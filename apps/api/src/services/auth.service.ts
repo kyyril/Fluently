@@ -66,8 +66,8 @@ export async function register(data: {
 
 export async function login(email: string, password: string) {
     const user = await userRepository.findAuthByEmail(email);
-    if (!user) {
-        throw new UnauthorizedError('Invalid email or password');
+    if (!user || !user.passwordHash) {
+        throw new UnauthorizedError('Invalid email or password (no password set)');
     }
 
     const valid = await bcrypt.compare(password, user.passwordHash);
@@ -107,9 +107,39 @@ export async function completeOnboarding(
     return sanitizeUser(user as unknown as UserData);
 }
 
+export async function syncNeonUser(neonUserId: string, email: string, password?: string, displayName?: string) {
+    // Check if user already has a password locally
+    let user = await userRepository.findAuthByEmail(email);
+
+    if (user && user.passwordHash && !password) {
+        // Already synced
+        return {
+            user: sanitizeUser(user as unknown as UserData),
+            token: generateToken(user.id, user.email)
+        };
+    }
+
+    // Hash password if provided
+    const passwordHash = password ? await bcrypt.hash(password, SALT_ROUNDS) : undefined;
+
+    // Provision or update user
+    user = await userRepository.upsert({
+        id: neonUserId,
+        email,
+        displayName: displayName || email.split('@')[0],
+        // If we have a password, we save it. If not (e.g. Google login), we leave the hash as is or empty.
+        ...(passwordHash ? { passwordHash } : {})
+    } as any);
+
+    return {
+        user: sanitizeUser(user as unknown as UserData),
+        token: generateToken(user.id, user.email)
+    };
+}
+
 function generateToken(userId: string, email: string): string {
     const expiresIn = config.jwtExpiresIn || '7d';
-    return jwt.sign({ userId, email }, config.jwtSecret, { expiresIn } as jwt.SignOptions);
+    return jwt.sign({ sub: userId, email }, config.jwtSecret, { expiresIn } as jwt.SignOptions);
 }
 
 function sanitizeUser(user: UserData) {

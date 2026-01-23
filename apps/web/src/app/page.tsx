@@ -59,7 +59,7 @@ export default function HomePage() {
                                 <>
                                     <Link href="/auth/sign-up">
                                         <Button size="lg" className="w-full sm:w-auto">
-                                            Start Learning Free
+                                            Start Learning
                                             <ArrowRight className="h-4 w-4 ml-2" />
                                         </Button>
                                     </Link>

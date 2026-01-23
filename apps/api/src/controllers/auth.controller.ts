@@ -56,3 +56,19 @@ export async function completeOnboarding(
         next(error);
     }
 }
+
+export async function sync(req: Request, res: Response, next: NextFunction) {
+    try {
+        // User data comes from body (already verified by Neon Auth on mobile)
+        const { neonUserId, email, password, displayName } = req.body;
+
+        if (!neonUserId || !email) {
+            throw new Error('neonUserId and email are required');
+        }
+
+        const result = await authService.syncNeonUser(neonUserId, email, password, displayName);
+        sendSuccess(res, result);
+    } catch (error) {
+        next(error);
+    }
+}

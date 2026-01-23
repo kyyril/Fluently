@@ -15,6 +15,9 @@ api.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
         const token = await getToken();
         if (token) {
+            if (__DEV__) {
+                console.log(`[API Request] Token: ${token.substring(0, 10)}... (Length: ${token.length})`);
+            }
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;

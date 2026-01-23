@@ -13,10 +13,11 @@ config.watchFolders = [workspaceRoot];
 // Let Metro know about the root package.json
 config.resolver.nodeModulesPaths = [
     path.resolve(projectRoot, 'node_modules'),
+    path.resolve(workspaceRoot, 'node_modules'),
     path.resolve(workspaceRoot, 'packages'),
 ];
 
 // Handle symlinked packages
-config.resolver.disableHierarchicalLookup = true;
+config.resolver.disableHierarchicalLookup = false;
 
 module.exports = withNativeWind(config, { input: './global.css' });

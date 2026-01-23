@@ -14,6 +14,7 @@ const envSchema = z.object({
     REDIS_URL: z.string().default('redis://localhost:6379'),
     NEON_AUTH_JWKS_URL: z.string().min(1, 'NEON_AUTH_JWKS_URL is required'),
     ADMIN_EMAIL: z.string().email().optional(),
+    INVITATION_CODE: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -36,4 +37,5 @@ export const config = {
     redisUrl: env.REDIS_URL,
     neonAuthJwksUrl: env.NEON_AUTH_JWKS_URL,
     adminEmail: env.ADMIN_EMAIL,
+    invitationCode: env.INVITATION_CODE,
 } as const;

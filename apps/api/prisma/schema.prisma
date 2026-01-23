@@ -1,6 +1,3 @@
-// Prisma Schema for Fluently
-// Database: PostgreSQL
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,38 +7,168 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============================================
-// USER MODEL
-// ============================================
-
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  displayName  String
-  avatarUrl    String?
+  id             String      @id @default(cuid())
+  email          String      @unique
+  passwordHash   String?     // Optional for local login
+  displayName    String
+  avatarUrl      String?
+  
+  // Neon Auth / Better Auth fields
+  name           String?
+  image          String?
+  emailVerified  Boolean     @default(false)
 
-  // Language settings
-  nativeLanguage String
-  targetLanguage String
+  nativeLanguage String      @default("")
+  targetLanguage String      @default("")
   country        String?
   level          Level?
-  role           UserRole  @default(USER)
-
-  // Gamification
-  totalXp       Int @default(0)
-  currentStreak Int @default(0)
-  longestStreak Int @default(0)
-
-  // Relations
-  titles    UserTitle[]
-  dailyLogs DailyLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role           UserRole    @default(USER)
+  totalXp        Int         @default(0)
+  currentStreak  Int         @default(0)
+  longestStreak  Int         @default(0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  dailyLogs      DailyLog[]
+  titles         UserTitle[]
+  sessions       Session[]
+  accounts       Account[]
 
   @@index([email])
   @@index([totalXp])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model DailyLog {
+  id        String           @id @default(cuid())
+  userId    String
+  date      DateTime         @db.Date
+  dayRecap  String?
+  aiReview  String?
+  totalXp   Int              @default(0)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     TaskCompletion[]
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date, totalXp])
+}
+
+model TaskCompletion {
+  id          String    @id @default(cuid())
+  dailyLogId  String
+  taskType    TaskType
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  xpEarned    Int       @default(0)
+  metadata    Json?
+  dailyLog    DailyLog  @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+
+  @@unique([dailyLogId, taskType])
+  @@index([dailyLogId])
+}
+
+model Title {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String
+  icon        String
+  requirement String
+  users       UserTitle[]
+}
+
+model UserTitle {
+  id       String   @id @default(cuid())
+  userId   String
+  titleId  String
+  earnedAt DateTime @default(now())
+  title    Title    @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, titleId])
+  @@index([userId])
+}
+
+model Article {
+  id         String        @id @default(cuid())
+  title      String
+  slug       String        @unique
+  summary    String
+  content    String
+  coverImage String?
+  readTime   Int           @default(5)
+  category   String        @default("General")
+  tags       String[]      @default([])
+  published  Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  reads      ArticleRead[]
+
+  @@index([published])
+  @@index([createdAt])
+  @@index([category])
+}
+
+model ArticleRead {
+  id          String    @id @default(cuid())
+  userId      String
+  articleId   String
+  date        DateTime  @db.Date
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  xpEarned    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  article     Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId, date])
+  @@index([userId, date])
+  @@index([articleId])
 }
 
 enum Level {
@@ -55,131 +182,10 @@ enum UserRole {
   ADMIN
 }
 
-// ============================================
-// DAILY LOG MODEL
-// ============================================
-
-model DailyLog {
-  id     String   @id @default(cuid())
-  userId String
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date   DateTime @db.Date
-
-  // Task completions
-  tasks TaskCompletion[]
-
-  // Day recap & AI
-  dayRecap String? @db.Text
-  aiReview String? @db.Text
-
-  // XP for this day
-  totalXp Int @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, date])
-  @@index([userId])
-  @@index([date, totalXp])
-}
-
-// ============================================
-// TASK COMPLETION MODEL
-// ============================================
-
-model TaskCompletion {
-  id         String   @id @default(cuid())
-  dailyLogId String
-  dailyLog   DailyLog @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
-
-  taskType    TaskType
-  completed   Boolean   @default(false)
-  completedAt DateTime?
-  xpEarned    Int       @default(0)
-
-  // Task-specific data (e.g., podcast URL, verbs learned, sentences)
-  metadata Json?
-
-  @@unique([dailyLogId, taskType])
-  @@index([dailyLogId])
-}
-
 enum TaskType {
   PODCAST_LISTENING
-  LEARN_VERBS // Deprecated
+  LEARN_VERBS
   CREATE_SENTENCES
   SPEAKING_SESSION
   DAY_RECAP
-}
-
-// ============================================
-// TITLE MODEL (Achievements)
-// ============================================
-
-model Title {
-  id          String @id @default(cuid())
-  name        String @unique
-  description String
-  icon        String // Emoji or icon name
-  requirement String // e.g., "7_day_streak", "100_xp", "top_10_leaderboard"
-
-  users UserTitle[]
-}
-
-model UserTitle {
-  id      String @id @default(cuid())
-  userId  String
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  titleId String
-  title   Title  @relation(fields: [titleId], references: [id], onDelete: Cascade)
-
-  earnedAt DateTime @default(now())
-
-  @@unique([userId, titleId])
-  @@index([userId])
-}
-
-// ============================================
-// ARTICLE MODEL (Admin Content)
-// ============================================
-
-model Article {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  summary     String   @db.Text
-  content     String   @db.Text
-  coverImage  String?
-  readTime    Int      @default(5) // Estimated reading time in minutes
-  category    String   @default("General")
-  tags        String[] @default([])
-  published   Boolean  @default(false)
-
-  // Relations
-  reads ArticleRead[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([published])
-  @@index([createdAt])
-  @@index([category])
-}
-
-model ArticleRead {
-  id        String   @id @default(cuid())
-  userId    String
-  articleId String
-  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  date      DateTime @db.Date // For daily tracking
-
-  completed   Boolean   @default(false)
-  completedAt DateTime?
-  xpEarned    Int       @default(0)
-
-  createdAt DateTime @default(now())
-
-  @@unique([userId, articleId, date]) // One read per article per day
-  @@index([userId, date])
-  @@index([articleId])
 }

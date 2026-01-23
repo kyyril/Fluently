@@ -39,5 +39,6 @@ router.post(
     validate(OnboardingSchema),
     authController.completeOnboarding
 );
+router.post('/sync', authController.sync); // Public endpoint - user data comes from body
 
 export default router;

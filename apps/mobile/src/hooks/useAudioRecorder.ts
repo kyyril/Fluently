@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Audio } from 'expo-av';
+import { useAudioRecorder as useExpoAudioRecorder, RecordingOptionsPresets } from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 
 interface UseAudioRecorderOptions {
@@ -16,6 +16,7 @@ interface AudioRecorderState {
 
 export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
     const { onRecordingComplete, onError } = options;
+    const recorder = useExpoAudioRecorder(RecordingOptionsPresets.HIGH_QUALITY);
 
     const [state, setState] = useState<AudioRecorderState>({
         isRecording: false,
@@ -24,44 +25,21 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
         uri: null,
     });
 
-    const recordingRef = useRef<Audio.Recording | null>(null);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Request permissions on mount
+    // Sync state with recorder
     useEffect(() => {
-        const requestPermissions = async () => {
-            try {
-                const { granted } = await Audio.requestPermissionsAsync();
-                if (!granted) {
-                    onError?.(new Error('Microphone permission not granted'));
-                }
-            } catch (error) {
-                onError?.(error as Error);
-            }
-        };
-        requestPermissions();
-
-        return () => {
-            if (timerRef.current) {
-                clearInterval(timerRef.current);
-            }
-        };
-    }, []);
+        setState(prev => ({
+            ...prev,
+            isRecording: recorder.isRecording,
+            isPaused: recorder.status === 'paused',
+        }));
+    }, [recorder.isRecording, recorder.status]);
 
     const startRecording = useCallback(async () => {
         try {
-            // Configure audio mode
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: true,
-                playsInSilentModeIOS: true,
-            });
-
-            const recording = new Audio.Recording();
-            await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-            await recording.startAsync();
-
-            recordingRef.current = recording;
-            setState(prev => ({ ...prev, isRecording: true, isPaused: false, duration: 0 }));
+            recorder.record();
+            setState(prev => ({ ...prev, duration: 0 }));
 
             // Start duration timer
             timerRef.current = setInterval(() => {
@@ -71,29 +49,21 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
         } catch (error) {
             onError?.(error as Error);
         }
-    }, [onError]);
+    }, [recorder, onError]);
 
     const stopRecording = useCallback(async () => {
         try {
-            if (!recordingRef.current) return;
-
             // Stop timer
             if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
             }
 
-            await recordingRef.current.stopAndUnloadAsync();
-            const uri = recordingRef.current.getURI();
+            await recorder.stop();
+            const uri = recorder.uri;
             const duration = state.duration;
 
-            recordingRef.current = null;
             setState(prev => ({ ...prev, isRecording: false, isPaused: false, uri }));
-
-            // Reset audio mode
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: false,
-            });
 
             if (uri) {
                 onRecordingComplete?.(uri, duration);
@@ -104,40 +74,30 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
             onError?.(error as Error);
             return null;
         }
-    }, [state.duration, onRecordingComplete, onError]);
+    }, [recorder, state.duration, onRecordingComplete, onError]);
 
     const pauseRecording = useCallback(async () => {
         try {
-            if (!recordingRef.current || !state.isRecording) return;
-
-            await recordingRef.current.pauseAsync();
-
+            recorder.pause();
             if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
             }
-
-            setState(prev => ({ ...prev, isPaused: true }));
         } catch (error) {
             onError?.(error as Error);
         }
-    }, [state.isRecording, onError]);
+    }, [recorder, onError]);
 
     const resumeRecording = useCallback(async () => {
         try {
-            if (!recordingRef.current || !state.isPaused) return;
-
-            await recordingRef.current.startAsync();
-
+            recorder.record();
             timerRef.current = setInterval(() => {
                 setState(prev => ({ ...prev, duration: prev.duration + 1 }));
             }, 1000);
-
-            setState(prev => ({ ...prev, isPaused: false }));
         } catch (error) {
             onError?.(error as Error);
         }
-    }, [state.isPaused, onError]);
+    }, [recorder, onError]);
 
     const cancelRecording = useCallback(async () => {
         try {
@@ -146,27 +106,19 @@ export function useAudioRecorder(options: UseAudioRecorderOptions = {}) {
                 timerRef.current = null;
             }
 
-            if (recordingRef.current) {
-                await recordingRef.current.stopAndUnloadAsync();
-                const uri = recordingRef.current.getURI();
+            await recorder.stop();
+            const uri = recorder.uri;
 
-                // Delete the file
-                if (uri) {
-                    await FileSystem.deleteAsync(uri, { idempotent: true });
-                }
-
-                recordingRef.current = null;
+            // Delete the file
+            if (uri) {
+                await FileSystem.deleteAsync(uri, { idempotent: true });
             }
 
             setState({ isRecording: false, isPaused: false, duration: 0, uri: null });
-
-            await Audio.setAudioModeAsync({
-                allowsRecordingIOS: false,
-            });
         } catch (error) {
             onError?.(error as Error);
         }
-    }, [onError]);
+    }, [recorder, onError]);
 
     return {
         ...state,

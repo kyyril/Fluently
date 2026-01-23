@@ -35,12 +35,21 @@ export default function OnboardingScreen() {
     const handleComplete = async () => {
         setLoading(true);
         try {
-            await api.post('/users/onboarding', {
+            // Map level to uppercase to match API schema
+            const levelMap: Record<string, string> = {
+                'beginner': 'BEGINNER',
+                'elementary': 'INTERMEDIATE',
+                'intermediate': 'INTERMEDIATE',
+                'advanced': 'ADVANCED',
+            };
+
+            await api.post('/auth/onboarding', {
+                nativeLanguage: 'Indonesian',
                 targetLanguage: selectedLanguage,
-                level: selectedLevel,
+                level: levelMap[selectedLevel] || 'BEGINNER',
             });
 
-            updateUser({ targetLanguage: selectedLanguage, level: selectedLevel });
+            updateUser({ targetLanguage: selectedLanguage, level: levelMap[selectedLevel] || 'BEGINNER' });
             setOnboarded(true);
             router.replace('/(main)');
         } catch (error) {
@@ -83,8 +92,8 @@ export default function OnboardingScreen() {
                                     key={lang.code}
                                     onPress={() => setSelectedLanguage(lang.code)}
                                     className={`flex-row items-center justify-between p-4 rounded-2xl border ${selectedLanguage === lang.code
-                                            ? 'bg-indigo-600/10 border-indigo-600'
-                                            : 'bg-zinc-900 border-zinc-800'
+                                        ? 'bg-indigo-600/10 border-indigo-600'
+                                        : 'bg-zinc-900 border-zinc-800'
                                         }`}
                                 >
                                     <View className="flex-row items-center">
@@ -132,8 +141,8 @@ export default function OnboardingScreen() {
                                     key={level.value}
                                     onPress={() => setSelectedLevel(level.value)}
                                     className={`p-4 rounded-2xl border ${selectedLevel === level.value
-                                            ? 'bg-indigo-600/10 border-indigo-600'
-                                            : 'bg-zinc-900 border-zinc-800'
+                                        ? 'bg-indigo-600/10 border-indigo-600'
+                                        : 'bg-zinc-900 border-zinc-800'
                                         }`}
                                 >
                                     <View className="flex-row items-center justify-between">

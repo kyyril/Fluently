@@ -26,14 +26,22 @@ export async function findById(id: string) {
             longestStreak: true,
             createdAt: true,
             updatedAt: true,
+            passwordHash: true,
         },
     });
 }
 
-// Special function for authentication that needs passwordHash
 export async function findAuthByEmail(email: string) {
     return prisma.user.findUnique({
         where: { email },
+        select: {
+            id: true,
+            email: true,
+            passwordHash: true,
+            displayName: true,
+            role: true,
+            level: true,
+        }
     });
 }
 
@@ -114,6 +122,7 @@ export async function upsert(data: {
     country?: string;
     level?: Level;
     role?: UserRole;
+    passwordHash?: string;
 }) {
     return prisma.user.upsert({
         where: { id: data.id },
@@ -125,11 +134,12 @@ export async function upsert(data: {
             country: data.country,
             level: data.level,
             role: data.role,
+            ...(data.passwordHash ? { passwordHash: data.passwordHash } : {}),
         },
         create: {
             id: data.id,
             email: data.email,
-            passwordHash: '', // No password hash for external auth
+            passwordHash: data.passwordHash || '',
             displayName: data.displayName,
             nativeLanguage: data.nativeLanguage || '',
             targetLanguage: data.targetLanguage || '',
