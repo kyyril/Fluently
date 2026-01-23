@@ -99,6 +99,14 @@ export default function ProfileScreen() {
                         {user?.targetLanguage || 'English'} • {user?.level || 'Beginner'}
                     </Text>
                 </View>
+                {/* Edit Profile Button */}
+                <Pressable
+                    onPress={() => router.push('/(main)/edit-profile' as any)}
+                    className="mt-4 bg-zinc-800 border border-zinc-700 px-5 py-2.5 rounded-xl flex-row items-center"
+                >
+                    <User size={14} color="#a1a1aa" />
+                    <Text className="text-zinc-300 font-bold ml-2">Edit Profile</Text>
+                </Pressable>
             </View>
 
             {/* Stats Grid */}

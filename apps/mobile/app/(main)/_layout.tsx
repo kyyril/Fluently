@@ -1,5 +1,5 @@
 import { Tabs, Redirect } from 'expo-router';
-import { Home, Mic2, Trophy, BookOpen, User } from 'lucide-react-native';
+import { Home, Trophy, BookOpen, User } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function MainLayout() {
@@ -41,13 +41,6 @@ export default function MainLayout() {
                 }}
             />
             <Tabs.Screen
-                name="speaking"
-                options={{
-                    title: 'Speaking',
-                    tabBarIcon: ({ color }: { color: string }) => <Mic2 color={color} size={24} />,
-                }}
-            />
-            <Tabs.Screen
                 name="articles"
                 options={{
                     title: 'Articles',
@@ -66,6 +59,25 @@ export default function MainLayout() {
                 options={{
                     title: 'Profile',
                     tabBarIcon: ({ color }: { color: string }) => <User color={color} size={24} />,
+                }}
+            />
+            {/* Hidden screens - accessed via navigation from Home */}
+            <Tabs.Screen
+                name="speaking"
+                options={{
+                    href: null, // Hide from tab bar
+                }}
+            />
+            <Tabs.Screen
+                name="day-recap"
+                options={{
+                    href: null, // Hide from tab bar
+                }}
+            />
+            <Tabs.Screen
+                name="edit-profile"
+                options={{
+                    href: null, // Hide from tab bar
                 }}
             />
         </Tabs>

@@ -20,18 +20,22 @@ export default function ArticlesScreen() {
     const router = useRouter();
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
 
-    const { data: articles, isLoading, refetch } = useQuery({
+    const { data, isLoading, refetch } = useQuery({
         queryKey: QUERY_KEYS.ARTICLES,
         queryFn: async () => {
             const response = await api.get<{ success: boolean; data: Article[] }>('/articles');
-            return response.data.data;
+            return response.data.data || [];
         },
+        initialData: [],
     });
+
+    // Ensure articles is always an array
+    const articles = Array.isArray(data) ? data : [];
 
     const levels = ['Beginner', 'Intermediate', 'Advanced'];
 
     const filteredArticles = selectedLevel
-        ? articles?.filter((a) => a.level === selectedLevel)
+        ? articles.filter((a) => a.level === selectedLevel)
         : articles;
 
     return (

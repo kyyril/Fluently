@@ -21,7 +21,7 @@ export default function LeaderboardScreen() {
     const { data: leaderboard, isLoading, refetch } = useQuery({
         queryKey: QUERY_KEYS.LEADERBOARD,
         queryFn: async () => {
-            const response = await api.get<{ success: boolean; data: LeaderboardUser[] }>('/leaderboard');
+            const response = await api.get<{ success: boolean; data: LeaderboardUser[] }>('/leaderboard/weekly');
             return response.data.data;
         },
     });
