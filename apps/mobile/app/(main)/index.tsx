@@ -2,6 +2,7 @@ import React, { useMemo, memo } from 'react';
 import { View, Text, ScrollView, RefreshControl, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTodayRoutine, useCompleteTask } from '@/features/dashboard/hooks/useRoutine';
+import { useUser } from '@/hooks/useUser';
 import { useAuthStore } from '@/stores/authStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Card } from '@/components/ui/Card';
@@ -18,15 +19,16 @@ const TASK_ICONS: Record<string, React.ReactNode> = {
 };
 
 const TASK_ROUTES: Record<string, string> = {
-    PODCAST_LISTENING: '/(main)/articles',
+    PODCAST_LISTENING: '/(main)/podcast-listening',
     SPEAKING_SESSION: '/(main)/speaking',
-    CREATE_SENTENCES: '/(main)/speaking',
+    CREATE_SENTENCES: '/(main)/create-sentences',
     DAY_RECAP: '/(main)/day-recap',
 };
 
 
 export default function DashboardScreen() {
     const router = useRouter();
+    const { data: refreshedUser } = useUser();
     const { user } = useAuthStore();
     const { hapticsEnabled } = useSettingsStore();
     const { data: routine, isLoading, refetch } = useTodayRoutine();

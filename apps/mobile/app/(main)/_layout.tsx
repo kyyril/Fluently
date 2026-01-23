@@ -75,6 +75,18 @@ export default function MainLayout() {
                 }}
             />
             <Tabs.Screen
+                name="podcast-listening"
+                options={{
+                    href: null, // Hide from tab bar
+                }}
+            />
+            <Tabs.Screen
+                name="create-sentences"
+                options={{
+                    href: null, // Hide from tab bar
+                }}
+            />
+            <Tabs.Screen
                 name="edit-profile"
                 options={{
                     href: null, // Hide from tab bar

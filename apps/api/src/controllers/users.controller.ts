@@ -94,3 +94,21 @@ export async function getUserHistory(
         next(error);
     }
 }
+
+export async function getMyHistory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    try {
+        const userId = (req as AuthRequest).userId!;
+        const { limit } = req.query;
+        const history = await routineService.getHistory(
+            userId,
+            limit ? parseInt(limit as string) : 30
+        );
+        sendSuccess(res, history);
+    } catch (error) {
+        next(error);
+    }
+}

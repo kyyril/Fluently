@@ -1,15 +1,28 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, Switch, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, Switch, Alert, RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
-import { User, Settings, Bell, Moon, Vibrate, LogOut, ChevronRight, Shield, Globe, Star, Flame, Target } from 'lucide-react-native';
+import { User, Settings, Bell, Moon, Vibrate, LogOut, ChevronRight, Shield, Globe, Star, Flame, Trophy, Target, Award, Zap, Calendar, CheckCircle, TrendingUp } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
+import { useUser } from '@/hooks/useUser';
+import { useUserStats, useRoutineHistory } from '@/features/dashboard/hooks/useRoutine';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { AnimatedCard } from '@/components/ui/AnimatedCard';
 import * as Haptics from 'expo-haptics';
 
 export default function ProfileScreen() {
     const router = useRouter();
+    const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useUserStats();
+    const { data: history, isLoading: historyLoading, refetch: refetchHistory } = useRoutineHistory(7);
     const { user, logout } = useAuthStore();
     const { theme, hapticsEnabled, notificationsEnabled, setTheme, setHaptics, setNotifications } = useSettingsStore();
+
+    const [refreshing, setRefreshing] = React.useState(false);
+
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        await Promise.all([refetchStats(), refetchHistory()]);
+        setRefreshing(false);
+    }, []);
 
     const handleLogout = () => {
         Alert.alert(
@@ -37,8 +50,8 @@ export default function ProfileScreen() {
     };
 
     const StatCard = ({ icon, value, label, color }: { icon: React.ReactNode; value: string | number; label: string; color: string }) => (
-        <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex-1">
-            <View className={`w-8 h-8 ${color} rounded-lg items-center justify-center mb-2`}>
+        <View className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 w-[48%] mb-1">
+            <View className={`w-9 h-9 ${color} rounded-xl items-center justify-center mb-3`}>
                 {icon}
             </View>
             <Text className="text-white text-xl font-black">{value}</Text>
@@ -83,7 +96,18 @@ export default function ProfileScreen() {
     );
 
     return (
-        <ScrollView className="flex-1 bg-black" contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
+        <ScrollView
+            className="flex-1 bg-black"
+            contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                    tintColor="#6366f1"
+                    colors={["#6366f1"]}
+                />
+            }
+        >
             {/* Header */}
             <View className="items-center mb-8">
                 <View className="w-24 h-24 bg-indigo-600 rounded-full items-center justify-center mb-4">
@@ -110,25 +134,117 @@ export default function ProfileScreen() {
             </View>
 
             {/* Stats Grid */}
-            <View className="flex-row gap-3 mb-8">
-                <StatCard
-                    icon={<Flame size={16} color="#f97316" />}
-                    value={user?.currentStreak || 0}
-                    label="Streak"
-                    color="bg-orange-500/10"
-                />
+            <View className="flex-row flex-wrap justify-between mb-8 gap-y-3">
                 <StatCard
                     icon={<Star size={16} color="#eab308" />}
-                    value={user?.totalXp || 0}
+                    value={stats?.totalXp || user?.totalXp || 0}
                     label="Total XP"
                     color="bg-yellow-500/10"
                 />
                 <StatCard
-                    icon={<Target size={16} color="#22c55e" />}
-                    value={user?.longestStreak || 0}
+                    icon={<Flame size={16} color="#f97316" />}
+                    value={stats?.currentStreak || user?.currentStreak || 0}
+                    label="Streak"
+                    color="bg-orange-500/10"
+                />
+                <StatCard
+                    icon={<Trophy size={16} color="#6366f1" />}
+                    value={stats?.longestStreak || user?.longestStreak || 0}
                     label="Best"
+                    color="bg-indigo-500/10"
+                />
+                <StatCard
+                    icon={<Target size={16} color="#22c55e" />}
+                    value={`${Math.round(stats?.completionRate || 0)}%`}
+                    label="Success"
                     color="bg-green-500/10"
                 />
+            </View>
+
+            {/* Learning Progress & Achievements */}
+            <View className="mb-8 gap-y-4">
+                <AnimatedCard index={0}>
+                    <View className="flex-row items-center mb-4">
+                        <View className="w-9 h-9 bg-primary/10 rounded-xl items-center justify-center mr-3">
+                            <Zap size={18} color="#6366f1" />
+                        </View>
+                        <View>
+                            <Text className="text-white font-bold">Learning Progress</Text>
+                            <Text className="text-zinc-500 text-[10px] uppercase font-black">User Journey</Text>
+                        </View>
+                    </View>
+                    <View className="flex-row justify-between">
+                        <View className="items-center flex-1 py-2 border-r border-zinc-800">
+                            <Text className="text-white text-xl font-black">{stats?.totalDays || 0}</Text>
+                            <Text className="text-zinc-500 text-[8px] uppercase font-bold">Total Days</Text>
+                        </View>
+                        <View className="items-center flex-1 py-2">
+                            <Text className="text-green-500 text-xl font-black">{stats?.completedDays || 0}</Text>
+                            <Text className="text-zinc-500 text-[8px] uppercase font-bold">Days Finished</Text>
+                        </View>
+                    </View>
+                </AnimatedCard>
+
+                {stats?.titles && stats.titles.length > 0 && (
+                    <AnimatedCard index={1}>
+                        <View className="flex-row items-center mb-4">
+                            <View className="w-9 h-9 bg-amber-500/10 rounded-xl items-center justify-center mr-3">
+                                <Award size={18} color="#f59e0b" />
+                            </View>
+                            <View>
+                                <Text className="text-white font-bold">Achievements</Text>
+                                <Text className="text-zinc-500 text-[10px] uppercase font-black">{stats.titles.length} Earned</Text>
+                            </View>
+                        </View>
+                        <View className="flex-row flex-wrap gap-2">
+                            {stats.titles.map((title: any, i: number) => (
+                                <View key={i} className="bg-zinc-800 px-3 py-1.5 rounded-full flex-row items-center">
+                                    <Star size={10} color="#f59e0b" />
+                                    <Text className="text-zinc-300 text-[10px] font-bold ml-1.5">{title.name}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </AnimatedCard>
+                )}
+            </View>
+
+            {/* Recent Activity */}
+            <View className="mb-8">
+                <View className="flex-row items-center mb-4 ml-1">
+                    <Calendar size={12} color="#71717a" />
+                    <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest ml-2">Recent Activity</Text>
+                </View>
+
+                <View className="gap-y-3">
+                    {historyLoading ? (
+                        [1, 2].map(i => <View key={i} className="h-16 bg-zinc-900 rounded-2xl animate-pulse" />)
+                    ) : history && history.length > 0 ? (
+                        history.map((day: any) => (
+                            <View key={day.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex-row items-center justify-between">
+                                <View>
+                                    <Text className="text-white font-bold text-sm">
+                                        {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                                    </Text>
+                                    <Text className="text-zinc-500 text-[10px] font-bold">{day.tasksCompleted}/{day.totalTasks} Tasks Completed</Text>
+                                </View>
+                                <View className="items-end">
+                                    <Text className="text-indigo-500 font-black">+{day.totalXp} XP</Text>
+                                    <View className="w-16 h-1 bg-zinc-800 rounded-full mt-1 overflow-hidden">
+                                        <View
+                                            className="h-full bg-indigo-500"
+                                            style={{ width: `${Math.round((day.tasksCompleted / (day.totalTasks || 1)) * 100)}%` }}
+                                        />
+                                    </View>
+                                </View>
+                            </View>
+                        ))
+                    ) : (
+                        <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 items-center">
+                            <Calendar size={32} color="#27272a" />
+                            <Text className="text-zinc-600 text-xs mt-2 font-bold">No recent activity found</Text>
+                        </View>
+                    )}
+                </View>
             </View>
 
             {/* Settings Section */}

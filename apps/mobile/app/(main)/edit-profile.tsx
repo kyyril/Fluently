@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, Save, User, Sprout, Leaf, TreeDeciduous, Check } from 'lucide-react-native';
+import { ChevronLeft, User, Check, Target, Flame, Star } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api/client';
@@ -9,9 +9,9 @@ import { QUERY_KEYS } from '@/lib/constants';
 import { Button } from '@/components/ui/Button';
 
 const LEVELS = [
-    { id: 'BEGINNER', name: 'Beginner', desc: 'Just starting to learn', Icon: Sprout },
-    { id: 'INTERMEDIATE', name: 'Intermediate', desc: 'Can hold basic conversations', Icon: Leaf },
-    { id: 'ADVANCED', name: 'Advanced', desc: 'Near-fluent, refining skills', Icon: TreeDeciduous },
+    { id: 'BEGINNER', name: 'Beginner', desc: 'Just starting to learn', Icon: Target },
+    { id: 'INTERMEDIATE', name: 'Intermediate', desc: 'Can hold basic conversations', Icon: Flame },
+    { id: 'ADVANCED', name: 'Advanced', desc: 'Near-fluent, refining skills', Icon: Star },
 ];
 
 export default function EditProfileScreen() {
