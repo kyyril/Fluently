@@ -40,8 +40,8 @@ export function SmartHeader() {
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 {/* Left side */}
                 <div className="flex items-center gap-4">
-                    <Link href="/dashboard" className="font-bold text-xl text-primary flex items-center gap-2">
-                        <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-sm">
+                    <Link href="/" className="font-bold text-xl text-primary flex items-center gap-2">
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden shadow-sm">
                             <Image
                                 src="/brand.svg"
                                 alt="Fluently"
@@ -50,7 +50,6 @@ export function SmartHeader() {
                                 className="object-contain"
                             />
                         </div>
-                        <span>Fluently</span>
                     </Link>
                 </div>
 

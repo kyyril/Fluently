@@ -3,56 +3,56 @@ import bcrypt from 'bcryptjs';
 
 
 async function main() {
-    console.log('🌱 Seeding database...');
+    console.log('Seeding database...');
 
     // Create titles
     const titles = [
         {
             name: 'Seedling',
             description: 'First week completed',
-            icon: '🌱',
+            icon: 'sprout',
             requirement: 'first_week',
         },
         {
             name: 'On Fire',
             description: '7-day streak achieved',
-            icon: '🔥',
+            icon: 'flame',
             requirement: '7_day_streak',
         },
         {
             name: 'Champion',
             description: 'Top 10 on weekly leaderboard',
-            icon: '🏆',
+            icon: 'trophy',
             requirement: 'top_10_leaderboard',
         },
         {
             name: 'Diamond',
             description: '100-day streak achieved',
-            icon: '💎',
+            icon: 'gem',
             requirement: '100_day_streak',
         },
         {
             name: 'Polyglot',
             description: 'Learning 3+ languages',
-            icon: '🌍',
+            icon: 'globe',
             requirement: 'multiple_languages',
         },
         {
             name: 'Night Owl',
             description: 'Completed tasks after midnight',
-            icon: '🦉',
+            icon: 'moon',
             requirement: 'night_completion',
         },
         {
             name: 'Early Bird',
             description: 'Completed all tasks before 9 AM',
-            icon: '🐤',
+            icon: 'sun',
             requirement: 'early_completion',
         },
         {
             name: 'Perfectionist',
             description: '7 days with 100% completion',
-            icon: '✨',
+            icon: 'check-circle',
             requirement: 'perfect_week',
         },
     ];
@@ -64,7 +64,7 @@ async function main() {
             create: title,
         });
     }
-    console.log(`✅ Created ${titles.length} titles`);
+    console.log(`Created ${titles.length} titles`);
 
     // Create demo user
     const demoPassword = await bcrypt.hash('demo1234', 12);
@@ -83,7 +83,7 @@ async function main() {
             longestStreak: 7,
         },
     } as any);
-    console.log(`✅ Created demo user: demo@fluently.app / demo1234`);
+    console.log(`Created demo user: demo@fluently.app / demo1234`);
 
     // Create primary admin from environment
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@fluently.app';
@@ -100,7 +100,7 @@ async function main() {
             level: 'ADVANCED',
         },
     } as any);
-    console.log(`✅ Created system admin: ${adminEmail}`);
+    console.log(`Created system admin: ${adminEmail}`);
 
     // Award demo user the Seedling title
     const seedlingTitle = await prisma.title.findUnique({
@@ -171,9 +171,9 @@ async function main() {
             },
         },
     });
-    console.log(`✅ Created daily log for demo user for today`);
+    console.log(`Created daily log for demo user for today`);
 
-    console.log('✅ Seed completed!');
+    console.log('Seed completed!');
 }
 
 main()

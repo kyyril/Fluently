@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '@fluently/ui';
 import { useUser, useUpdateProfile } from '@/hooks';
-import { ArrowLeft, Loader2, Save, User, Camera, ChevronRight, Globe } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, User, Camera, ChevronRight, Globe, Sprout, Leaf, TreeDeciduous } from 'lucide-react';
 import Image from 'next/image';
 
 const LEVELS = [
-    { id: 'BEGINNER', name: 'Beginner', desc: 'Just starting to learn', icon: '🌱' },
-    { id: 'INTERMEDIATE', name: 'Intermediate', desc: 'Can hold basic conversations', icon: '🌿' },
-    { id: 'ADVANCED', name: 'Advanced', desc: 'Near-fluent, refining skills', icon: '🌳' },
+    { id: 'BEGINNER', name: 'Beginner', desc: 'Just starting to learn', icon: <Sprout className="w-8 h-8" /> },
+    { id: 'INTERMEDIATE', name: 'Intermediate', desc: 'Can hold basic conversations', icon: <Leaf className="w-8 h-8" /> },
+    { id: 'ADVANCED', name: 'Advanced', desc: 'Near-fluent, refining skills', icon: <TreeDeciduous className="w-8 h-8" /> },
 ];
 
 export default function EditProfilePage() {
@@ -174,7 +174,7 @@ export default function EditProfilePage() {
                                     `}
                                 >
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl   ${level === l.id ? 'scale-110' : 'group-hover:scale-105 opacity-50'}`}>
+                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center    ${level === l.id ? 'scale-110 text-primary bg-primary/10' : 'group-hover:scale-105 opacity-50 text-muted-foreground'}`}>
                                             {l.icon}
                                         </div>
                                         <div>

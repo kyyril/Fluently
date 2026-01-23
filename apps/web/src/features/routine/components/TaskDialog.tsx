@@ -113,7 +113,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                 return (
                     <div className="text-center space-y-4 py-4">
                         <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border-none">
-                            <span className="text-4xl">✍️</span>
+                            <PenLine className="h-8 w-8 text-primary" />
                         </div>
                         <h3 className="text-xl font-bold">Sentence Construction</h3>
                         <p className="text-muted-foreground">

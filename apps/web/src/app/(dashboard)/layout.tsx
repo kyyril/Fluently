@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useUser, useAuth } from '@/hooks';
@@ -12,7 +12,6 @@ import {
     User,
     ShieldCheck,
     BookOpen,
-    Mic
 } from 'lucide-react';
 import { SmartHeader } from '@/components/SmartHeader';
 
@@ -24,79 +23,47 @@ export default function DashboardLayout({
     const router = useRouter();
     const pathname = usePathname();
     const { session, isLoading: isSessionLoading } = useAuth();
-    const { data: user, isLoading: isUserLoading, isError, isFetched } = useUser();
-    const [retryCount, setRetryCount] = useState(0);
+    const { data: user, isLoading: isUserLoading, isFetched } = useUser();
 
-    // Auth redirect (client side only)
+    // Auth redirect
     useEffect(() => {
-        // Wait for session to load first
+        // Wait for session to load
         if (isSessionLoading) return;
 
         // No session = redirect to sign-in
         if (!session?.user) {
-            router.push('/auth/sign-in');
+            router.replace('/auth/sign-in');
             return;
         }
 
-        // Session exists, now wait for user query to complete
+        // Session exists, wait for user data
         if (!isFetched) return;
 
-        // User fetch failed - retry up to 3 times (for new user provisioning)
-        if (isError && retryCount < 3) {
-            const timer = setTimeout(() => {
-                setRetryCount(prev => prev + 1);
-                window.location.reload();
-            }, 1500);
-            return () => clearTimeout(timer);
-        }
-
-        // User loaded successfully
+        // User loaded - check for redirects
         if (user) {
-            // Redirect to onboarding if level not set
             if (!user.level && user.role !== 'ADMIN') {
-                router.push('/onboarding');
-                return;
-            }
-
-            // Redirect admins to admin area
-            if (user.role === 'ADMIN' && !pathname.startsWith('/admin')) {
-                router.push('/admin');
-                return;
+                router.replace('/onboarding');
+            } else if (user.role === 'ADMIN' && !pathname.startsWith('/admin')) {
+                router.replace('/admin');
             }
         }
-    }, [isSessionLoading, session, isFetched, isError, user, router, pathname, retryCount]);
+    }, [isSessionLoading, session, isFetched, user, router, pathname]);
 
-    // Show loading while session is loading
-    if (isSessionLoading) {
+    // Loading states
+    if (isSessionLoading || !session?.user) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-muted-foreground">Loading...</p>
-                </div>
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
 
-    // No session - will redirect, show loading in the meantime
-    if (!session?.user) {
-        return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-muted-foreground">Redirecting...</p>
-                </div>
-            </div>
-        );
-    }
-
-    // Session exists but user data still loading
     if (isUserLoading || !isFetched) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-muted-foreground">Loading your profile...</p>
+                    <p className="text-muted-foreground">Loading profile...</p>
                 </div>
             </div>
         );
@@ -115,15 +82,12 @@ export default function DashboardLayout({
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
-            {/* Top Header */}
             <SmartHeader />
 
-            {/* Main content */}
             <main className="flex-1 pb-32">
                 {children}
             </main>
 
-            {/* Bottom Navigation Bar */}
             <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface/90 backdrop-blur-xl sm:max-w-md sm:mx-auto sm:bottom-6 sm:rounded-2xl sm:shadow-2xl">
                 <div className="flex items-center justify-around h-20 px-4">
                     {navItems.map((item) => {
@@ -134,14 +98,11 @@ export default function DashboardLayout({
                                 key={item.href}
                                 href={item.href}
                                 className={`
-                                    flex flex-col items-center justify-center gap-1 w-20 h-full   relative
+                                    flex flex-col items-center justify-center gap-1 w-20 h-full relative
                                     ${isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}
                                 `}
                             >
-                                <div className={`
-                                    p-2 rounded-xl  
-                                    ${isActive ? 'bg-primary/10' : 'bg-transparent'}
-                                `}>
+                                <div className={`p-2 rounded-xl ${isActive ? 'bg-primary/10' : 'bg-transparent'}`}>
                                     <Icon className={`h-6 w-6 ${isActive ? 'scale-110' : ''}`} />
                                 </div>
                                 <span className="text-[10px] font-bold uppercase tracking-wider">{item.label}</span>

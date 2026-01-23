@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { Card, CardContent, Button } from '@fluently/ui';
-import { User, Flame, Star, Trophy, Target, ArrowLeft, BookOpen } from 'lucide-react';
+import { User, Flame, Star, Trophy, Target, ArrowLeft, BookOpen, Sprout, Leaf, TreeDeciduous } from 'lucide-react';
 import Link from 'next/link';
 
 interface PublicProfile {
@@ -32,12 +32,11 @@ export default function UserProfilePage() {
         enabled: !!userId,
     });
 
-    const levelConfig: Record<string, { emoji: string; color: string; bg: string }> = {
-        BEGINNER: { emoji: '🌱', color: 'text-green-500', bg: 'bg-green-500/10' },
-        INTERMEDIATE: { emoji: '🌿', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-        ADVANCED: { emoji: '🌳', color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    const levelConfig: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
+        BEGINNER: { icon: <Sprout className="w-6 h-6" />, color: 'text-green-500', bg: 'bg-green-500/10' },
+        INTERMEDIATE: { icon: <Leaf className="w-6 h-6" />, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+        ADVANCED: { icon: <TreeDeciduous className="w-6 h-6" />, color: 'text-purple-500', bg: 'bg-purple-500/10' },
     };
-
     const currentLevel = levelConfig[profile?.level || 'BEGINNER'];
 
     if (isLoading) {
@@ -83,23 +82,23 @@ export default function UserProfilePage() {
     }
 
     return (
-        <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 ">
+        <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 " >
             {/* Back Button */}
-            <div className="flex items-center gap-4">
+            < div className="flex items-center gap-4" >
                 <Link href="/dashboard/leaderboard">
                     <Button variant="ghost" size="icon">
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                 </Link>
                 <h1 className="text-2xl font-black">Learner Profile</h1>
-            </div>
+            </div >
 
             {/* Profile Card */}
-            <Card padding="none" className="overflow-hidden bg-surface/50 backdrop-blur-sm border-none">
+            < Card padding="none" className="overflow-hidden bg-surface/50 backdrop-blur-sm border-none" >
                 {/* Gradient Banner */}
-                <div className="h-24 sm:h-32 bg-gradient-to-br from-primary via-primary/80 to-secondary relative overflow-hidden">
+                < div className="h-24 sm:h-32 bg-gradient-to-br from-primary via-primary/80 to-secondary relative overflow-hidden" >
                     <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-                </div>
+                </div >
 
                 <CardContent className="relative px-6 pb-8">
                     {/* Avatar */}
@@ -117,8 +116,8 @@ export default function UserProfilePage() {
                                 )}
                             </div>
                             {/* Level Badge */}
-                            <div className={`absolute -bottom-2 -right-2 w-10 h-10 ${currentLevel.bg} rounded-xl flex items-center justify-center text-2xl`}>
-                                {currentLevel.emoji}
+                            <div className={`absolute -bottom-2 -right-2 w-10 h-10 ${currentLevel.bg} ${currentLevel.color} rounded-xl flex items-center justify-center`}>
+                                {currentLevel.icon}
                             </div>
                         </div>
 
@@ -138,10 +137,10 @@ export default function UserProfilePage() {
                         </div>
                     </div>
                 </CardContent>
-            </Card>
+            </Card >
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4">
+            < div className="grid grid-cols-3 gap-4" >
                 <StatCard
                     icon={<Star className="h-5 w-5" />}
                     value={profile.totalXp}
@@ -164,8 +163,8 @@ export default function UserProfilePage() {
                     bgColor="bg-primary/10"
                     isString
                 />
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
 

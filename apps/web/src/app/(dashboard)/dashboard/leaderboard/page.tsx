@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardContent, Button } from '@fluently/ui';
 import { useWeeklyLeaderboard, useAllTimeLeaderboard, useUser } from '@/hooks';
-import { Trophy, TrendingUp, Crown, Medal, Award, User, Flame, Star, ChevronRight } from 'lucide-react';
+import { Trophy, TrendingUp, Crown, Medal, Award, User, Flame, Star, ChevronRight, Sprout, Leaf, TreeDeciduous } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -42,10 +42,10 @@ export default function LeaderboardPage() {
         }
     };
 
-    const levelEmoji: Record<string, string> = {
-        BEGINNER: '🌱',
-        INTERMEDIATE: '🌿',
-        ADVANCED: '🌳',
+    const levelIcon: Record<string, React.ReactNode> = {
+        BEGINNER: <Sprout className="h-3 w-3" />,
+        INTERMEDIATE: <Leaf className="h-3 w-3" />,
+        ADVANCED: <TreeDeciduous className="h-3 w-3" />,
     };
 
     return (
@@ -173,8 +173,8 @@ export default function LeaderboardPage() {
                                         <div className="font-black text-lg truncate max-w-[140px] group-hover:text-primary ">
                                             {entry.user.displayName}
                                         </div>
-                                        <div className="text-xs font-bold text-muted-foreground flex items-center justify-center gap-1">
-                                            {levelEmoji[entry.user.level]} {entry.user.level}
+                                        <div className="text-xs font-bold text-muted-foreground flex items-center justify-center gap-1.5">
+                                            {levelIcon[entry.user.level]} {entry.user.level}
                                         </div>
                                         <div className="pt-2">
                                             <span className="text-xl font-black text-primary tracking-tight">
@@ -251,7 +251,10 @@ export default function LeaderboardPage() {
                                         )}
                                     </div>
                                     <div className="text-[11px] font-bold text-muted-foreground flex items-center gap-2 mt-0.5">
-                                        <span>{levelEmoji[entry.user.level]} {entry.user.level}</span>
+                                        <div className="flex items-center gap-1">
+                                            {levelIcon[entry.user.level]}
+                                            <span>{entry.user.level}</span>
+                                        </div>
                                         {(entry.user.currentStreak ?? 0) > 0 && (
                                             <span className="flex items-center gap-0.5 text-orange-500">
                                                 <Flame className="h-3 w-3 fill-orange-500/20" />

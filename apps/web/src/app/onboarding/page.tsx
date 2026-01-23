@@ -4,13 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, Button } from '@fluently/ui';
 import { useAuth, useUser } from '@/hooks';
-import { Loader2, BookOpen } from 'lucide-react';
+import { Loader2, BookOpen, Sprout, Leaf, TreeDeciduous } from 'lucide-react';
 
 
 const LEVELS = [
-    { id: 'BEGINNER', name: 'Beginner', desc: 'Just starting to learn English', icon: '🌱' },
-    { id: 'INTERMEDIATE', name: 'Intermediate', desc: 'Can hold basic conversations', icon: '🌿' },
-    { id: 'ADVANCED', name: 'Advanced', desc: 'Near-fluent, refining skills', icon: '🌳' },
+    { id: 'BEGINNER', name: 'Beginner', desc: 'Just starting to learn English', icon: <Sprout className="w-10 h-10" /> },
+    { id: 'INTERMEDIATE', name: 'Intermediate', desc: 'Can hold basic conversations', icon: <Leaf className="w-10 h-10" /> },
+    { id: 'ADVANCED', name: 'Advanced', desc: 'Near-fluent, refining skills', icon: <TreeDeciduous className="w-10 h-10" /> },
 ];
 
 export default function OnboardingPage() {
@@ -159,7 +159,7 @@ export default function OnboardingPage() {
                                                 Setting up...
                                             </>
                                         ) : (
-                                            'Start Learning English 🚀'
+                                            'Start Learning English'
                                         )}
                                     </Button>
                                 </div>

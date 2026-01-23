@@ -15,8 +15,15 @@ import {
     LogOut,
     Edit,
     Zap,
-    CheckCircle2,
     ArrowLeft,
+    Sprout,
+    Leaf,
+    TreeDeciduous,
+    Gem,
+    Moon,
+    Sun,
+    Globe,
+    CheckCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,13 +42,27 @@ export default function ProfilePage() {
     // Determine if this is the current user's profile
     const isMe = !isPublic || userId === currentUser?.id;
 
-    const levelConfig: Record<string, { emoji: string; color: string; bg: string }> = {
-        BEGINNER: { emoji: '🌱', color: 'text-green-500', bg: 'bg-green-500/10' },
-        INTERMEDIATE: { emoji: '🌿', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-        ADVANCED: { emoji: '🌳', color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    const levelConfig: Record<string, { icon: React.ReactNode; color: string; bg: string }> = {
+        BEGINNER: { icon: <Sprout className="w-6 h-6" />, color: 'text-green-500', bg: 'bg-green-500/10' },
+        INTERMEDIATE: { icon: <Leaf className="w-6 h-6" />, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+        ADVANCED: { icon: <TreeDeciduous className="w-6 h-6" />, color: 'text-purple-500', bg: 'bg-purple-500/10' },
     };
 
     const currentLevel = levelConfig[user?.level || 'BEGINNER'];
+
+    const getTitleIcon = (iconName: string) => {
+        switch (iconName) {
+            case 'sprout': return <Sprout className="h-5 w-5 text-green-500" />;
+            case 'flame': return <Flame className="h-5 w-5 text-orange-500" />;
+            case 'trophy': return <Trophy className="h-5 w-5 text-yellow-500" />;
+            case 'gem': return <Gem className="h-5 w-5 text-blue-500" />;
+            case 'globe': return <Globe className="h-5 w-5 text-sky-500" />;
+            case 'moon': return <Moon className="h-5 w-5 text-indigo-400" />;
+            case 'sun': return <Sun className="h-5 w-5 text-amber-500" />;
+            case 'check-circle': return <CheckCircle2 className="h-5 w-5 text-green-400" />;
+            default: return <Award className="h-5 w-5 text-primary" />;
+        }
+    };
 
     return (
         <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8 ">
@@ -84,8 +105,8 @@ export default function ProfilePage() {
                             </div>
                             {/* Level Badge */}
                             {!userLoading && (
-                                <div className={`absolute -bottom-2 -right-2 w-10 h-10 ${currentLevel.bg} rounded-xl flex items-center justify-center text-2xl`}>
-                                    {currentLevel.emoji}
+                                <div className={`absolute -bottom-2 -right-2 w-10 h-10 ${currentLevel.bg} ${currentLevel.color} rounded-xl flex items-center justify-center text-2xl`}>
+                                    {currentLevel.icon}
                                 </div>
                             )}
                         </div>
@@ -214,9 +235,9 @@ export default function ProfilePage() {
                                 {stats.titles.map((title: { name: string; icon: string }) => (
                                     <div
                                         key={title.name}
-                                        className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 "
+                                        className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl hover:bg-muted/50 transition-colors"
                                     >
-                                        <span className="text-2xl">{title.icon}</span>
+                                        <div className="shrink-0">{getTitleIcon(title.icon)}</div>
                                         <span className="text-sm font-medium truncate">{title.name}</span>
                                     </div>
                                 ))}

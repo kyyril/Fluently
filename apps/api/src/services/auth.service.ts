@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { userRepository } from '../repositories';
-import { ConflictError, UnauthorizedError } from '../utils/errors';
+import { ConflictError, UnauthorizedError, BadRequestError } from '../utils/errors';
 
 type Level = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
 
@@ -29,7 +29,16 @@ export async function register(data: {
     email: string;
     password: string;
     displayName: string;
+    invitationCode?: string;
 }) {
+    // Validate invitation code if required
+    const requiredCode = config.invitationCode;
+    if (requiredCode) {
+        if (!data.invitationCode || data.invitationCode !== requiredCode) {
+            throw new BadRequestError('Invalid invitation code');
+        }
+    }
+
     // Check if user exists
     const existing = await userRepository.findByEmail(data.email);
     if (existing) {
@@ -47,7 +56,7 @@ export async function register(data: {
     });
 
     // Generate token
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.email);
 
     return {
         user: sanitizeUser(user as unknown as UserData),
@@ -66,7 +75,7 @@ export async function login(email: string, password: string) {
         throw new UnauthorizedError('Invalid email or password');
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.email);
 
     return {
         user: sanitizeUser(user as unknown as UserData),
@@ -98,9 +107,9 @@ export async function completeOnboarding(
     return sanitizeUser(user as unknown as UserData);
 }
 
-function generateToken(userId: string): string {
+function generateToken(userId: string, email: string): string {
     const expiresIn = config.jwtExpiresIn || '7d';
-    return jwt.sign({ userId }, config.jwtSecret, { expiresIn } as jwt.SignOptions);
+    return jwt.sign({ userId, email }, config.jwtSecret, { expiresIn } as jwt.SignOptions);
 }
 
 function sanitizeUser(user: UserData) {

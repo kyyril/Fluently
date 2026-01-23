@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Button, Card, CardContent } from '@fluently/ui';
-import { BookOpen, Trophy, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
+import { BookOpen, Trophy, Sparkles, ArrowRight, Loader2, Headphones, PenLine, Mic2, Book, Sprout, Flame, Gem } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -11,12 +11,6 @@ export default function HomePage() {
     const { data: session, isPending } = authClient.useSession();
     const router = useRouter();
 
-    useEffect(() => {
-        if (!isPending && session?.user?.emailVerified) {
-            router.push('/dashboard');
-        }
-    }, [session, isPending, router]);
-
     if (isPending) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -24,8 +18,6 @@ export default function HomePage() {
             </div>
         );
     }
-
-    if (session) return null;
 
     return (
         <main className="min-h-screen">
@@ -56,17 +48,28 @@ export default function HomePage() {
 
                         {/* CTA */}
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link href="/auth/sign-up">
-                                <Button size="lg" className="w-full sm:w-auto">
-                                    Start Learning Free
-                                    <ArrowRight className="h-4 w-4 ml-2" />
-                                </Button>
-                            </Link>
-                            <Link href="/auth/sign-in">
-                                <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                                    Sign In
-                                </Button>
-                            </Link>
+                            {session ? (
+                                <Link href="/dashboard">
+                                    <Button size="lg" className="w-full sm:w-auto">
+                                        Go to Dashboard
+                                        <ArrowRight className="h-4 w-4 ml-2" />
+                                    </Button>
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link href="/auth/sign-up">
+                                        <Button size="lg" className="w-full sm:w-auto">
+                                            Start Learning Free
+                                            <ArrowRight className="h-4 w-4 ml-2" />
+                                        </Button>
+                                    </Link>
+                                    <Link href="/auth/sign-in">
+                                        <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                                            Sign In
+                                        </Button>
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -84,14 +87,14 @@ export default function HomePage() {
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
                         {[
-                            { icon: '🎧', title: 'Listening', desc: 'Immerse yourself in native content' },
-                            { icon: '✍️', title: 'Create Sentences', desc: 'Apply new verbs in context' },
-                            { icon: '🗣️', title: 'Speaking Session', desc: '45 minutes of active practice' },
-                            { icon: '📔', title: 'Day Recap Journal', desc: 'Reflect and get AI feedback' },
+                            { icon: <Headphones className="h-8 w-8 text-primary" />, title: 'Listening', desc: 'Immerse yourself in native content' },
+                            { icon: <PenLine className="h-8 w-8 text-primary" />, title: 'Create Sentences', desc: 'Apply new verbs in context' },
+                            { icon: <Mic2 className="h-8 w-8 text-primary" />, title: 'Speaking Session', desc: '45 minutes of active practice' },
+                            { icon: <Book className="h-8 w-8 text-primary" />, title: 'Day Recap Journal', desc: 'Reflect and get AI feedback' },
                         ].map((item, i) => (
                             <Card key={i} variant="interactive">
                                 <CardContent className="pt-6">
-                                    <div className="text-4xl mb-4">{item.icon}</div>
+                                    <div className="mb-4">{item.icon}</div>
                                     <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
                                     <p className="text-sm text-muted-foreground">{item.desc}</p>
                                 </CardContent>
@@ -113,15 +116,16 @@ export default function HomePage() {
                                 Stay motivated with our gamification system. Earn XP, maintain streaks,
                                 climb the leaderboard, and unlock exclusive titles.
                             </p>
-                            <ul className="space-y-3">
+                            <ul className="space-y-4">
                                 {[
-                                    '🌱 Seedling - First week completed',
-                                    '🔥 On Fire - 7-day streak',
-                                    '🏆 Champion - Top 10 on leaderboard',
-                                    '💎 Diamond - 100-day streak',
-                                ].map((title, i) => (
-                                    <li key={i} className="flex items-center gap-2 text-sm">
-                                        {title}
+                                    { icon: <Sprout className="h-4 w-4 text-green-500" />, text: 'Seedling - First week completed' },
+                                    { icon: <Flame className="h-4 w-4 text-orange-500" />, text: 'On Fire - 7-day streak' },
+                                    { icon: <Trophy className="h-4 w-4 text-yellow-500" />, text: 'Champion - Top 10 on leaderboard' },
+                                    { icon: <Gem className="h-4 w-4 text-blue-500" />, text: 'Diamond - 100-day streak' },
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-sm font-medium">
+                                        {item.icon}
+                                        <span>{item.text}</span>
                                     </li>
                                 ))}
                             </ul>

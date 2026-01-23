@@ -151,7 +151,7 @@ export default function AdminOverviewPage() {
                                         <td className="px-6 py-5 text-center">
                                             <div className="flex items-center justify-center gap-1 font-black text-orange-500">
                                                 {user.currentStreak}
-                                                <span className="text-lg">🔥</span>
+                                                <Flame className="h-4 w-4" />
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-center text-muted-foreground text-xs font-bold whitespace-nowrap">

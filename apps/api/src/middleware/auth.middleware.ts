@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import * as jose from 'jose';
 import { UnauthorizedError, ForbiddenError } from '../utils/errors';
 import { userRepository } from '../repositories';
+import { config } from '../config';
 
 // Configure JWKS from Neon Auth
-const JWKS = jose.createRemoteJWKSet(new URL(process.env.NEON_AUTH_JWKS_URL!));
+const JWKS = jose.createRemoteJWKSet(new URL(config.neonAuthJwksUrl));
 
 export interface AuthRequest extends Request {
     userId?: string;
@@ -13,7 +14,7 @@ export interface AuthRequest extends Request {
 }
 
 /**
- * JWT authentication middleware using jose (supports EdDSA)
+ * JWT authentication middleware using jose (supports EdDSA from Neon Auth)
  */
 export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
     const authHeader = req.headers.authorization;
@@ -35,7 +36,7 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
 
         // Try to find or auto-provision user
         let user: any = await userRepository.findById(neonUserId);
-        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminEmail = config.adminEmail;
         const isTargetAdmin = payload.email && adminEmail && payload.email === adminEmail;
 
         if (!user && payload.email) {

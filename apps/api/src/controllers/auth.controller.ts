@@ -8,8 +8,8 @@ export async function register(
     next: NextFunction
 ) {
     try {
-        const { email, password, displayName } = req.body;
-        const result = await authService.register({ email, password, displayName });
+        const { email, password, displayName, invitationCode } = req.body;
+        const result = await authService.register({ email, password, displayName, invitationCode });
         sendCreated(res, result);
     } catch (error) {
         next(error);

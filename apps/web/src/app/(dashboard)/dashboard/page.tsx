@@ -75,7 +75,7 @@ export default function DashboardPage() {
                     </h1>
                     <p className="text-muted-foreground text-sm">
                         {progress === 100
-                            ? "You've crushed all your goals for today! 🚀"
+                            ? "You've crushed all your goals for today!"
                             : `You've completed ${completedCount} out of ${totalTasks} tasks today.`}
                     </p>
                 </div>
