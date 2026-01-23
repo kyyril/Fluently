@@ -25,7 +25,7 @@ export async function getTodayRoutine(userId: string) {
 
     return {
         id: dailyLog.id,
-        date: dailyLog.date.toISOString().split('T')[0],
+        date: (dailyLog.date || new Date()).toISOString().split('T')[0],
         tasks: activeTasks.map(
             (task: {
                 id: string;
@@ -71,7 +71,7 @@ export async function getHistory(
             );
             return {
                 id: log.id,
-                date: log.date.toISOString().split('T')[0],
+                date: (log.date || new Date()).toISOString().split('T')[0],
                 totalXp: log.totalXp,
                 tasksCompleted: activeTasks.filter((t) => t.completed).length,
                 totalTasks: activeTasks.length,

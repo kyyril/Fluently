@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Globe, Target, ChevronRight, Check } from 'lucide-react-native';
+import { Globe, Target, ChevronRight, Check, ArrowRight, ChevronLeft } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/Button';
 import api from '@/lib/api/client';
@@ -60,45 +60,67 @@ export default function OnboardingScreen() {
     };
 
     return (
-        <View className="flex-1 bg-black">
-            <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 30, paddingTop: 80 }}>
-                {/* Progress Indicator */}
-                <View className="flex-row mb-8">
-                    <View className={`flex-1 h-1 rounded-full mr-2 ${step >= 1 ? 'bg-indigo-600' : 'bg-zinc-800'}`} />
-                    <View className={`flex-1 h-1 rounded-full ${step >= 2 ? 'bg-indigo-600' : 'bg-zinc-800'}`} />
+        <View style={{ flex: 1, backgroundColor: '#000000' }}>
+            {/* Ambient Background - Deeper & Subtler */}
+            <View className="absolute -top-40 -left-20 w-80 h-80 bg-indigo-600/5 rounded-full" />
+            <View className="absolute -bottom-20 -right-20 w-60 h-60 bg-purple-600/5 rounded-full" />
+
+            <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 24, paddingTop: 60 }} showsVerticalScrollIndicator={false}>
+                {/* Header with Back Button */}
+                <View className="flex-row items-center justify-between mb-8">
+                    {step === 2 ? (
+                        <Pressable
+                            onPress={() => setStep(1)}
+                            className="w-10 h-10 bg-zinc-900/80 rounded-xl items-center justify-center"
+                        >
+                            <ChevronLeft size={20} color="white" />
+                        </Pressable>
+                    ) : <View className="w-10 h-10" />}
+
+                    {/* Progress Indicator */}
+                    <View className="flex-row gap-x-2 flex-1 justify-center px-8">
+                        <View className={`h-1.5 rounded-full flex-1 ${step >= 1 ? 'bg-indigo-600' : 'bg-zinc-800'}`} />
+                        <View className={`h-1.5 rounded-full flex-1 ${step >= 2 ? 'bg-indigo-600' : 'bg-zinc-800'}`} />
+                    </View>
+
+                    <View className="w-10 h-10" />
                 </View>
 
                 {step === 1 ? (
-                    <>
+                    <View className="flex-1">
                         {/* Step 1: Language Selection */}
-                        <View className="mb-8">
-                            <View className="flex-row items-center mb-2">
-                                <Globe size={14} color="#6366f1" />
-                                <Text className="text-indigo-500 text-[10px] font-black uppercase tracking-widest ml-2">
-                                    Step 1 of 2
-                                </Text>
+                        <View className="mb-10">
+                            <View className="flex-row items-center mb-3">
+                                <View className="bg-indigo-500/20 px-3 py-1 rounded-full flex-row items-center border border-indigo-500/30">
+                                    <Globe size={12} color="#818cf8" />
+                                    <Text className="text-indigo-400 text-[10px] font-black uppercase tracking-widest ml-2">
+                                        Language selection
+                                    </Text>
+                                </View>
                             </View>
-                            <Text className="text-white text-3xl font-black mb-2">
-                                What language do you want to learn?
+                            <Text className="text-white text-4xl font-black tracking-tight mb-3">
+                                Choose your target language
                             </Text>
-                            <Text className="text-zinc-500 text-sm">
-                                Select your target language to personalize your learning experience.
+                            <Text className="text-zinc-500 text-sm font-medium leading-5">
+                                What would you like to master? We'll tailor your daily routine based on your choice.
                             </Text>
                         </View>
 
-                        <View className="gap-y-3 mb-8">
+                        <View className="gap-y-3 mb-10">
                             {LANGUAGES.map((lang) => (
                                 <Pressable
                                     key={lang.code}
                                     onPress={() => setSelectedLanguage(lang.code)}
-                                    className={`flex-row items-center justify-between p-4 rounded-2xl border ${selectedLanguage === lang.code
-                                        ? 'bg-indigo-600/10 border-indigo-600'
-                                        : 'bg-zinc-900 border-zinc-800'
+                                    className={`flex-row items-center justify-between p-5 rounded-3xl border ${selectedLanguage === lang.code
+                                        ? 'bg-indigo-600/10 border-indigo-600/50'
+                                        : 'bg-zinc-900/40 border-zinc-800/50'
                                         }`}
                                 >
                                     <View className="flex-row items-center">
-                                        <Text className="text-2xl mr-3">{lang.flag}</Text>
-                                        <Text className={`font-bold ${selectedLanguage === lang.code ? 'text-white' : 'text-zinc-300'}`}>
+                                        <View className="w-12 h-12 bg-zinc-800/50 rounded-2xl items-center justify-center mr-4">
+                                            <Text className="text-2xl">{lang.flag}</Text>
+                                        </View>
+                                        <Text className={`text-lg font-bold ${selectedLanguage === lang.code ? 'text-white' : 'text-zinc-400'}`}>
                                             {lang.name}
                                         </Text>
                                     </View>
@@ -112,45 +134,49 @@ export default function OnboardingScreen() {
                         </View>
 
                         <Button
-                            title="Continue"
+                            title="Continue to Proficiency"
                             onPress={() => setStep(2)}
-                            className="py-5 rounded-2xl"
+                            className="h-16 rounded-2xl"
+                            textClassName="text-lg font-black"
+                            icon={<ArrowRight size={20} color="white" />}
                         />
-                    </>
+                    </View>
                 ) : (
-                    <>
+                    <View className="flex-1">
                         {/* Step 2: Level Selection */}
-                        <View className="mb-8">
-                            <View className="flex-row items-center mb-2">
-                                <Target size={14} color="#6366f1" />
-                                <Text className="text-indigo-500 text-[10px] font-black uppercase tracking-widest ml-2">
-                                    Step 2 of 2
-                                </Text>
+                        <View className="mb-10">
+                            <View className="flex-row items-center mb-3">
+                                <View className="bg-indigo-500/20 px-3 py-1 rounded-full flex-row items-center border border-indigo-500/30">
+                                    <Target size={12} color="#818cf8" />
+                                    <Text className="text-indigo-400 text-[10px] font-black uppercase tracking-widest ml-2">
+                                        Skill assessment
+                                    </Text>
+                                </View>
                             </View>
-                            <Text className="text-white text-3xl font-black mb-2">
+                            <Text className="text-white text-4xl font-black tracking-tight mb-3">
                                 What's your current level?
                             </Text>
-                            <Text className="text-zinc-500 text-sm">
-                                We'll customize content based on your proficiency.
+                            <Text className="text-zinc-500 text-sm font-medium leading-5">
+                                Don't worry, you can always adjust this later. This helps us suggest the right content.
                             </Text>
                         </View>
 
-                        <View className="gap-y-3 mb-8">
+                        <View className="gap-y-3 mb-10">
                             {LEVELS.map((level) => (
                                 <Pressable
                                     key={level.value}
                                     onPress={() => setSelectedLevel(level.value)}
-                                    className={`p-4 rounded-2xl border ${selectedLevel === level.value
-                                        ? 'bg-indigo-600/10 border-indigo-600'
-                                        : 'bg-zinc-900 border-zinc-800'
+                                    className={`p-5 rounded-3xl border ${selectedLevel === level.value
+                                        ? 'bg-indigo-600/10 border-indigo-600/50'
+                                        : 'bg-zinc-900/40 border-zinc-800/50'
                                         }`}
                                 >
                                     <View className="flex-row items-center justify-between">
-                                        <View>
-                                            <Text className={`font-bold text-base ${selectedLevel === level.value ? 'text-white' : 'text-zinc-300'}`}>
+                                        <View className="flex-1 pr-4">
+                                            <Text className={`font-bold text-lg ${selectedLevel === level.value ? 'text-white' : 'text-zinc-300'}`}>
                                                 {level.label}
                                             </Text>
-                                            <Text className="text-zinc-500 text-xs mt-0.5">{level.description}</Text>
+                                            <Text className="text-zinc-500 text-xs mt-1 font-medium">{level.description}</Text>
                                         </View>
                                         {selectedLevel === level.value && (
                                             <View className="w-6 h-6 bg-indigo-600 rounded-full items-center justify-center">
@@ -162,21 +188,15 @@ export default function OnboardingScreen() {
                             ))}
                         </View>
 
-                        <View className="flex-row gap-3">
-                            <Button
-                                title="Back"
-                                onPress={() => setStep(1)}
-                                variant="secondary"
-                                className="flex-1 py-5 rounded-2xl"
-                            />
-                            <Button
-                                title="Get Started"
-                                onPress={handleComplete}
-                                loading={loading}
-                                className="flex-1 py-5 rounded-2xl"
-                            />
-                        </View>
-                    </>
+                        <Button
+                            title={loading ? 'Setting up...' : 'Start Learning Path'}
+                            onPress={handleComplete}
+                            loading={loading}
+                            disabled={loading}
+                            className="h-16 rounded-2xl"
+                            textClassName="text-lg font-black"
+                        />
+                    </View>
                 )}
             </ScrollView>
         </View>

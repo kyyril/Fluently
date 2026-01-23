@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, Pressable, Animated } from 'react-native';
+import { View, Text, Pressable, Animated, ScrollView } from 'react-native';
 import { useQueryClient } from '@tanstack/react-query';
 import { Mic2, Square, Volume2, RefreshCw } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
@@ -140,7 +140,10 @@ export default function SpeakingScreen() {
     };
 
     return (
-        <View className="flex-1 bg-black px-6 pt-16">
+        <ScrollView
+            className="flex-1 bg-black"
+            contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 64, paddingBottom: 180 }}
+        >
             {/* Header */}
             <View className="mb-8">
                 <View className="flex-row items-center mb-1">
@@ -158,7 +161,7 @@ export default function SpeakingScreen() {
             </View>
 
             {/* Main Recording Area */}
-            <View className="flex-1 items-center justify-center">
+            <View className="items-center justify-center my-12">
                 {/* Pulse Ring */}
                 <Animated.View
                     style={{
@@ -251,6 +254,6 @@ export default function SpeakingScreen() {
                     </View>
                 )}
             </View>
-        </View>
+        </ScrollView>
     );
 }

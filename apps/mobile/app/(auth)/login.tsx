@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '@/stores/authStore';
-import { Target, Shield, User, ArrowRight } from 'lucide-react-native';
+import { ArrowRight, Sparkles } from 'lucide-react-native';
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from '@/components/icons/EyeIcons';
+import { BrandLogo } from '@/components/BrandLogo';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { AnimatedCard } from '@/components/ui/AnimatedCard';
 import api from '@/lib/api/client';
 import { deleteToken } from '@/lib/storage/secureStore';
 import { NEON_AUTH_URL } from '@/lib/constants';
@@ -20,7 +23,6 @@ export default function LoginScreen() {
     const [error, setError] = useState<string | null>(null);
 
     React.useEffect(() => {
-        // Clear tokens on mount to prevent old residues causing 401
         deleteToken();
     }, []);
 
@@ -34,7 +36,6 @@ export default function LoginScreen() {
         setError(null);
 
         try {
-            // 1. Try Local API Login First
             try {
                 const response = await api.post('/auth/login', { email, password });
                 const { user, token } = response.data.data;
@@ -44,10 +45,6 @@ export default function LoginScreen() {
                 else router.replace('/(auth)/onboarding');
                 return;
             } catch (err: any) {
-                // If local login fails, it might be a user purely in Neon but not synced yet
-                console.log('[Login] Local login failed, trying Neon fallback...');
-
-                // 2. Neon Auth Fallback
                 const signInResponse = await fetch(`${NEON_AUTH_URL}/sign-in/email`, {
                     method: 'POST',
                     headers: {
@@ -57,21 +54,17 @@ export default function LoginScreen() {
                     body: JSON.stringify({ email, password }),
                 });
 
-                if (!signInResponse.ok) {
-                    throw new Error('Invalid email or password');
-                }
+                if (!signInResponse.ok) throw new Error('Invalid email or password');
 
                 const signInData = await signInResponse.json();
-                console.log('[Login] Neon SignIn Response:', JSON.stringify(signInData));
                 const neonToken = signInData.token || signInData.session?.token;
                 const neonUser = signInData.user;
 
                 if (neonUser && neonUser.id && neonUser.email) {
-                    // Sync to Local API - pass user data directly (no auth needed)
                     const syncResponse = await api.post('/auth/sync', {
                         neonUserId: neonUser.id,
                         email: neonUser.email,
-                        password, // The password user just entered
+                        password,
                         displayName: neonUser.name || neonUser.email.split('@')[0]
                     });
                     const { user, token: localToken } = syncResponse.data.data;
@@ -81,11 +74,9 @@ export default function LoginScreen() {
                     else router.replace('/(auth)/onboarding');
                     return;
                 }
-
-                throw new Error('Authentication failed - no user data');
+                throw new Error('Authentication failed');
             }
         } catch (err: any) {
-            console.error('Login error:', err);
             setError(err.message || 'Invalid email or password');
         } finally {
             setLoading(false);
@@ -93,16 +84,10 @@ export default function LoginScreen() {
     };
 
     return (
-        <View className="flex-1 bg-black">
-            {/* Background Glows */}
-            <View
-                className="absolute -top-20 -right-20 w-80 h-80 bg-indigo-600/20 rounded-full"
-                style={{ transform: [{ scale: 1.5 }] }}
-            />
-            <View
-                className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-600/10 rounded-full"
-                style={{ transform: [{ scale: 1.5 }] }}
-            />
+        <View style={{ flex: 1, backgroundColor: '#000000' }}>
+            {/* Ambient Background - Deeper & Subtler */}
+            <View className="absolute top-[-10%] right-[-20%] w-[100%] h-[50%] bg-indigo-600/5 rounded-full blur-[100px]" />
+            <View className="absolute bottom-[-10%] left-[-20%] w-[100%] h-[50%] bg-purple-600/5 rounded-full blur-[100px]" />
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -113,115 +98,111 @@ export default function LoginScreen() {
                     showsVerticalScrollIndicator={false}
                     keyboardShouldPersistTaps="handled"
                 >
-                    {/* Logo & Header */}
-                    <View className="items-center mb-12">
-                        <View className="w-20 h-20 bg-indigo-600 rounded-3xl items-center justify-center mb-6 shadow-2xl">
-                            <Target color="white" size={40} />
-                        </View>
-                        <Text className="text-white text-4xl font-black tracking-tighter">Fluently</Text>
-                        <Text className="text-zinc-500 text-sm mt-3 font-medium text-center px-8">
-                            Master languages through AI-guided daily routines.
-                        </Text>
-                    </View>
-
-                    {/* Login Form */}
-                    <View className="bg-zinc-900/40 border border-zinc-800/50 p-8 rounded-[40px]">
+                    {/* Header Section */}
+                    <View className="items-center mb-10">
                         <View className="mb-6">
-                            <Text className="text-white text-3xl font-black tracking-tight mb-1">Welcome</Text>
-                            <Text className="text-zinc-500 font-medium">Sign in to your account</Text>
+                            <BrandLogo size={60} />
                         </View>
+                        <View className="flex-row items-center mb-1">
+                            <Sparkles size={12} color="#6366f1" />
+                            <Text className="text-indigo-500 text-[10px] font-black uppercase tracking-[3px] ml-2">Welcome Back</Text>
+                        </View>
+                        <Text className="text-white text-4xl font-black tracking-tight">Fluently</Text>
+                    </View>
 
-                        <View className="gap-y-4 mb-6">
-                            <View>
-                                <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">
-                                    Email
-                                </Text>
-                                <View className="relative">
-                                    <View className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-                                        <User size={18} color="#52525b" />
+                    {/* Main Form Card */}
+                    <AnimatedCard delay={200} className="overflow-hidden">
+                        <View className="p-2">
+                            <Text className="text-white text-2xl font-black mb-1">Sign In</Text>
+                            <Text className="text-zinc-500 text-sm font-medium mb-8">Enter your credentials to continue practice</Text>
+
+                            <View className="gap-y-5">
+                                <View>
+                                    <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Address</Text>
+                                    <View className="relative">
+                                        <View className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+                                            <MailIcon size={18} color="#71717a" />
+                                        </View>
+                                        <Input
+                                            value={email}
+                                            onChangeText={setEmail}
+                                            placeholder="name@example.com"
+                                            keyboardType="email-address"
+                                            autoCapitalize="none"
+                                            className="pl-12 h-14 bg-zinc-800/50 border-zinc-800"
+                                        />
                                     </View>
-                                    <Input
-                                        value={email}
-                                        onChangeText={setEmail}
-                                        placeholder="your@email.com"
-                                        keyboardType="email-address"
-                                        autoCapitalize="none"
-                                        autoComplete="email"
-                                        className="pl-12"
-                                    />
+                                </View>
+
+                                <View>
+                                    <View className="flex-row justify-between items-center mb-2 px-1">
+                                        <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Password</Text>
+                                        <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password' as any)}>
+                                            <Text className="text-indigo-500 text-[10px] font-black uppercase tracking-widest">Forgot?</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View className="relative">
+                                        <View className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+                                            <LockIcon size={18} color="#71717a" />
+                                        </View>
+                                        <Input
+                                            value={password}
+                                            onChangeText={setPassword}
+                                            placeholder="••••••••"
+                                            secureTextEntry={!showPassword}
+                                            autoCapitalize="none"
+                                            className="pl-12 pr-12 h-14 bg-zinc-800/50 border-zinc-800"
+                                        />
+                                        <TouchableOpacity
+                                            onPress={() => setShowPassword(!showPassword)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 p-1"
+                                        >
+                                            {showPassword ? <EyeIcon size={18} color="#6366f1" /> : <EyeOffIcon size={18} color="#52525b" />}
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
 
-                            <View>
-                                <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">
-                                    Password
-                                </Text>
-                                <View className="relative">
-                                    <View className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-                                        <Shield size={18} color="#52525b" />
-                                    </View>
-                                    <Input
-                                        value={password}
-                                        onChangeText={setPassword}
-                                        placeholder="••••••••"
-                                        secureTextEntry={!showPassword}
-                                        autoCapitalize="none"
-                                        className="pl-12 pr-12"
-                                    />
-                                    <TouchableOpacity
-                                        onPress={() => setShowPassword(!showPassword)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2"
-                                    >
-                                        {showPassword ? (
-                                            <Shield size={18} color="#52525b" />
-                                        ) : (
-                                            <Shield size={18} color="#52525b" />
-                                        )}
-                                    </TouchableOpacity>
+                            {error && (
+                                <View className="mt-6 bg-red-500/10 border border-red-500/20 rounded-2xl p-4">
+                                    <Text className="text-red-400 text-xs text-center font-bold">{error}</Text>
                                 </View>
+                            )}
+
+                            <View className="mt-8">
+                                <Button
+                                    title={loading ? '' : 'Continue'}
+                                    onPress={handleLogin}
+                                    disabled={loading}
+                                    className="h-14 rounded-2xl bg-indigo-600"
+                                    textClassName="text-lg font-black"
+                                >
+                                    {loading && <ActivityIndicator color="white" />}
+                                </Button>
                             </View>
+
+                            <View className="mt-8 flex-row items-center justify-center">
+                                <View className="h-[1px] flex-1 bg-zinc-800" />
+                                <Text className="text-zinc-600 text-[10px] font-black uppercase tracking-[2px] mx-4">OR</Text>
+                                <View className="h-[1px] flex-1 bg-zinc-800" />
+                            </View>
+
+                            <TouchableOpacity
+                                onPress={() => router.push('/(auth)/register')}
+                                className="mt-6 h-14 border border-zinc-800 rounded-2xl flex-row items-center justify-center space-x-2"
+                                activeOpacity={0.7}
+                            >
+                                <Text className="text-zinc-400 font-bold">New here? </Text>
+                                <Text className="text-white font-black">Create Account</Text>
+                                <ArrowRight size={16} color="white" style={{ marginLeft: 4 }} />
+                            </TouchableOpacity>
                         </View>
+                    </AnimatedCard>
 
-                        {error && (
-                            <View className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6">
-                                <Text className="text-red-400 text-sm text-center font-bold">{error}</Text>
-                            </View>
-                        )}
-
-                        <Button
-                            title={loading ? 'Signing in...' : 'Sign In'}
-                            onPress={handleLogin}
-                            loading={loading}
-                            disabled={loading}
-                            className="h-14 rounded-2xl"
-                            textClassName="text-lg font-black"
-                        />
-
-                        <TouchableOpacity
-                            onPress={() => router.push('/(auth)/forgot-password' as any)}
-                            className="mt-4 items-center"
-                        >
-                            <Text className="text-indigo-400 text-xs font-bold">
-                                Trouble signing in?
-                            </Text>
-                        </TouchableOpacity>
-
-                        <View className="mt-8 pt-6 border-t border-zinc-800/50">
-                            <View className="flex-row justify-center items-center">
-                                <Text className="text-zinc-500 font-medium">New here? </Text>
-                                <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-                                    <Text className="text-indigo-400 font-black">Create Account</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
-
-                    {/* Footer */}
-                    <View className="mt-8 items-center">
-                        <Text className="text-zinc-700 text-[10px] text-center font-bold uppercase tracking-widest leading-4 px-4">
-                            Secure Environment
-                        </Text>
-                    </View>
+                    {/* Final Note */}
+                    <Text className="mt-8 text-zinc-700 text-[10px] text-center font-black uppercase tracking-widest">
+                        AI-Powered Language Excellence
+                    </Text>
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

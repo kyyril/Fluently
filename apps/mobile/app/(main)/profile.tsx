@@ -98,7 +98,7 @@ export default function ProfileScreen() {
     return (
         <ScrollView
             className="flex-1 bg-black"
-            contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}
+            contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 180 }}
             refreshControl={
                 <RefreshControl
                     refreshing={refreshing}

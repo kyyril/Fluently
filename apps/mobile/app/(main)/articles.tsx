@@ -5,6 +5,8 @@ import { BookOpen, Clock, ChevronRight, Star } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api/client';
 import { QUERY_KEYS } from '@/lib/constants';
+import { useBookmarkStore } from '@/stores/bookmarkStore';
+import { Bookmark } from 'lucide-react-native';
 
 interface Article {
     id: string;
@@ -19,73 +21,90 @@ interface Article {
 export default function ArticlesScreen() {
     const router = useRouter();
     const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+    const [showBookmarks, setShowBookmarks] = useState(false);
+    const { bookmarks } = useBookmarkStore();
 
-    const { data, isLoading, refetch } = useQuery({
+    const { data: articles, isLoading, refetch, isFetching } = useQuery({
         queryKey: QUERY_KEYS.ARTICLES,
         queryFn: async () => {
             const response = await api.get<{ success: boolean; data: { articles: Article[] } }>('/articles');
             return response.data.data.articles || [];
         },
-        initialData: [],
     });
-
-    const articles = Array.isArray(data) ? data : [];
 
     const categories = ['General', 'Business', 'Travel', 'Academic'];
 
-    const filteredArticles = selectedLevel
-        ? articles.filter((a) => a.category === selectedLevel)
-        : articles;
+    const filteredArticles = showBookmarks
+        ? bookmarks
+        : selectedLevel
+            ? (articles || []).filter((a) => a.category === selectedLevel)
+            : (articles || []);
+
+    const handleLevelSelect = (level: string | null) => {
+        setShowBookmarks(false);
+        setSelectedLevel(level);
+    };
+
+    const handleBookmarkToggle = () => {
+        setShowBookmarks(!showBookmarks);
+        setSelectedLevel(null);
+    };
 
     return (
         <View className="flex-1 bg-black">
             <ScrollView
-                contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}
+                contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 180 }}
                 refreshControl={
                     <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor="#6366f1" />
                 }
             >
                 {/* Header */}
-                <View className="mb-6">
-                    <View className="flex-row items-center mb-1">
-                        <BookOpen size={12} color="#3b82f6" />
-                        <Text className="text-blue-500 text-[10px] font-black uppercase tracking-widest ml-2">
-                            Reading Practice
+                <View className="flex-row justify-between items-start mb-6">
+                    <View className="flex-1">
+                        <View className="flex-row items-center mb-1">
+                            <BookOpen size={12} color="#3b82f6" />
+                            <Text className="text-blue-500 text-[10px] font-black uppercase tracking-widest ml-2">
+                                Reading Practice
+                            </Text>
+                        </View>
+                        <Text className="text-white text-3xl font-black">Articles</Text>
+                        <Text className="text-zinc-400 text-sm mt-1">
+                            Improve your reading comprehension
                         </Text>
                     </View>
-                    <Text className="text-white text-3xl font-black">Articles</Text>
-                    <Text className="text-zinc-400 text-sm mt-1">
-                        Improve your reading comprehension
-                    </Text>
+                    <Pressable
+                        onPress={handleBookmarkToggle}
+                        className={`w-12 h-12 rounded-2xl items-center justify-center ${showBookmarks ? 'bg-indigo-600' : 'bg-zinc-900 border border-zinc-800'}`}
+                    >
+                        <Bookmark size={20} color={showBookmarks ? 'white' : '#71717a'} fill={showBookmarks ? 'white' : 'none'} />
+                    </Pressable>
                 </View>
 
-                {/* Level Filter */}
                 <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     className="mb-6"
                 >
                     <Pressable
-                        onPress={() => setSelectedLevel(null)}
+                        onPress={() => handleLevelSelect(null)}
                         testID="filter-all"
                         accessible
                         accessibilityLabel="Show all levels"
                         accessibilityRole="button"
-                        accessibilityState={{ selected: !selectedLevel }}
-                        className={`px-4 py-2 rounded-full mr-2 ${!selectedLevel ? 'bg-indigo-600' : 'bg-zinc-800'
+                        accessibilityState={{ selected: !selectedLevel && !showBookmarks }}
+                        className={`px-4 py-2 rounded-full mr-2 ${!selectedLevel && !showBookmarks ? 'bg-indigo-600' : 'bg-zinc-800'
                             }`}
                     >
-
-
-                        <Text className={`font-bold ${!selectedLevel ? 'text-white' : 'text-zinc-400'}`}>
+                        <Text className={`font-bold ${!selectedLevel && !showBookmarks ? 'text-white' : 'text-zinc-400'}`}>
                             All
                         </Text>
                     </Pressable>
+
                     {categories.map((cat) => (
                         <Pressable
                             key={cat}
                             testID={`filter-${cat}`}
-                            onPress={() => setSelectedLevel(cat)}
+                            onPress={() => handleLevelSelect(cat)}
                             accessible
                             accessibilityLabel={`Filter by ${cat}`}
                             accessibilityRole="button"
@@ -93,8 +112,6 @@ export default function ArticlesScreen() {
                             className={`px-4 py-2 rounded-full mr-2 ${selectedLevel === cat ? 'bg-indigo-600' : 'bg-zinc-800'
                                 }`}
                         >
-
-
                             <Text className={`font-bold ${selectedLevel === cat ? 'text-white' : 'text-zinc-400'}`}>
                                 {cat}
                             </Text>
@@ -114,7 +131,7 @@ export default function ArticlesScreen() {
                                 key={article.id}
                                 onPress={() => router.push(`/article/${article.slug}`)}
                                 accessible
-                                accessibilityLabel={`Article: ${article.title}. Level: ${article.level}. Read time: ${article.readTime} minutes.`}
+                                accessibilityLabel={`Article: ${article.title}. Category: ${article.category}. Read time: ${article.readTime} minutes.`}
                                 accessibilityRole="button"
                                 accessibilityHint="Opens article details"
                                 className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 active:bg-zinc-800"
@@ -154,10 +171,14 @@ export default function ArticlesScreen() {
                             </Pressable>
                         ))
                     ) : (
-                        <View className="items-center py-10">
-                            <BookOpen size={48} color="#3f3f46" />
-                            <Text className="text-zinc-500 font-bold mt-4">No articles available</Text>
-                            <Text className="text-zinc-600 text-sm mt-1">Check back later for new content</Text>
+                        <View className="items-center py-20">
+                            <Bookmark size={48} color="#27272a" />
+                            <Text className="text-zinc-500 font-bold mt-4">
+                                {showBookmarks ? 'No bookmarked articles yet' : 'No articles available'}
+                            </Text>
+                            <Text className="text-zinc-600 text-sm mt-1">
+                                {showBookmarks ? 'Articles you save will appear here' : 'Check back later for new content'}
+                            </Text>
                         </View>
                     )}
                 </View>

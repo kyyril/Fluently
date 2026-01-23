@@ -102,7 +102,7 @@ function DayRecapScreen() {
         >
             <ScrollView
                 className="flex-1"
-                contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}
+                contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 180 }}
             >
                 {/* Header */}
                 <View className="flex-row items-center justify-between mb-8">

@@ -14,6 +14,7 @@ interface User {
     currentStreak: number;
     longestStreak: number;
     lastActiveDate: string;
+    avatarUrl?: string;
     createdAt: string;
 }
 
@@ -46,5 +47,41 @@ export function useUpdateProfile() {
             updateUser(data);
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER_ME });
         },
+    });
+}
+
+export function useUserProfile(id: string) {
+    return useQuery({
+        queryKey: ['user', 'profile', id],
+        queryFn: async () => {
+            const response = await api.get<{ success: boolean; data: User }>(`/users/${id}`);
+            return response.data.data;
+        },
+        enabled: !!id,
+        staleTime: STALE_TIMES.USER,
+    });
+}
+
+export function useOtherUserStats(id: string) {
+    return useQuery({
+        queryKey: ['user', 'stats', id],
+        queryFn: async () => {
+            const response = await api.get<{ success: boolean; data: any }>(`/users/${id}/stats`);
+            return response.data.data;
+        },
+        enabled: !!id,
+        staleTime: STALE_TIMES.USER,
+    });
+}
+
+export function useOtherUserHistory(id: string) {
+    return useQuery({
+        queryKey: ['user', 'history', id],
+        queryFn: async () => {
+            const response = await api.get<{ success: boolean; data: any[] }>(`/users/${id}/history`);
+            return response.data.data;
+        },
+        enabled: !!id,
+        staleTime: STALE_TIMES.USER,
     });
 }

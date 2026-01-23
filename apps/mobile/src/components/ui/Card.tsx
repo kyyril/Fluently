@@ -12,7 +12,7 @@ export function Card({ children, className = '', onPress }: CardProps): JSX.Elem
     return (
         <Component
             onPress={onPress}
-            className={`bg-zinc-900 border border-zinc-800 rounded-3xl p-5 ${className}`}
+            className={`bg-zinc-950 border border-zinc-900 rounded-3xl p-5 ${className}`}
         >
             {children}
         </Component>

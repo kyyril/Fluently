@@ -6,6 +6,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { useAuthStore } from '@/stores/authStore';
 import { View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ToastContainer } from '@/components/ui/Toast';
 
 import '../global.css';
@@ -31,23 +32,26 @@ export default function RootLayout() {
     }, []);
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
-            <QueryClientProvider client={queryClient}>
-                <View className="flex-1 bg-black">
-                    <StatusBar style="light" />
-                    <Stack
-                        screenOptions={{
-                            headerShown: false,
-                            animation: 'fade_from_bottom',
-                        }}
-                    >
-                        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                        <Stack.Screen name="(main)" options={{ headerShown: false }} />
-                        <Stack.Screen name="article/[id]" options={{ headerShown: false, presentation: 'modal' }} />
-                    </Stack>
-                    <ToastContainer />
-                </View>
-            </QueryClientProvider>
-        </GestureHandlerRootView>
+        <SafeAreaProvider>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+                <QueryClientProvider client={queryClient}>
+                    <View style={{ flex: 1, backgroundColor: '#000000' }}>
+                        <StatusBar style="light" />
+                        <Stack
+                            screenOptions={{
+                                headerShown: false,
+                                animation: 'fade_from_bottom',
+                                contentStyle: { backgroundColor: '#000000' }, // Critical for preventing white flash
+                            }}
+                        >
+                            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                            <Stack.Screen name="(main)" options={{ headerShown: false }} />
+                            <Stack.Screen name="article/[id]" options={{ headerShown: false, presentation: 'modal' }} />
+                        </Stack>
+                        <ToastContainer />
+                    </View>
+                </QueryClientProvider>
+            </GestureHandlerRootView>
+        </SafeAreaProvider>
     );
 }

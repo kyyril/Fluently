@@ -156,7 +156,7 @@ function sanitizeUser(user: UserData) {
         totalXp: user.totalXp,
         currentStreak: user.currentStreak,
         longestStreak: user.longestStreak,
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
+        createdAt: user.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt: user.updatedAt?.toISOString() || new Date().toISOString(),
     };
 }

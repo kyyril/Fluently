@@ -12,6 +12,7 @@ import { toast } from '@/stores/toastStore';
 import * as Haptics from 'expo-haptics';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { DictionaryModal } from '@/components/DictionaryModal';
+import { useBookmarkStore } from '@/stores/bookmarkStore';
 
 interface ArticleDetail {
     id: string;
@@ -27,11 +28,13 @@ interface ArticleDetail {
 
 const SimpleMarkdown = ({ content, onWordClick }: { content: string, onWordClick: (word: string) => void }) => {
     // Basic markdown parser for mobile
-    const lines = content.split('\n');
+    const lines = (content || '').split('\n');
 
     const renderWords = (text: string) => {
+        if (!text) return [];
         return text.split(/(\s+)/).map((part, index) => {
-            if (/^\s+$/.test(part) || part === '') return part;
+            if (!part) return null;
+            if (/^\s+$/.test(part)) return part;
 
             return (
                 <Text
@@ -46,13 +49,15 @@ const SimpleMarkdown = ({ content, onWordClick }: { content: string, onWordClick
     };
 
     const RenderInline = (text: string) => {
+        if (!text) return [];
         // Regex to match bold (**text**) or italic (*text*)
         const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
-        return parts.map((part, i) => {
+        return parts.flatMap((part, i) => {
+            if (!part) return [];
             if (part.startsWith('**') && part.endsWith('**')) {
                 const inner = part.substring(2, part.length - 2);
                 return (
-                    <Text key={i} className="text-white font-black">
+                    <Text key={`b-${i}`} className="text-white font-black">
                         {renderWords(inner)}
                     </Text>
                 );
@@ -60,7 +65,7 @@ const SimpleMarkdown = ({ content, onWordClick }: { content: string, onWordClick
             if (part.startsWith('*') && part.endsWith('*')) {
                 const inner = part.substring(1, part.length - 1);
                 return (
-                    <Text key={i} className="text-zinc-200 italic">
+                    <Text key={`i-${i}`} className="text-zinc-200 italic">
                         {renderWords(inner)}
                     </Text>
                 );
@@ -75,7 +80,7 @@ const SimpleMarkdown = ({ content, onWordClick }: { content: string, onWordClick
                 const trimmed = line.trim();
 
                 // Empty lines
-                if (trimmed === '') return <View key={index} className="h-2" />;
+                if (!trimmed) return <View key={`gap-${index}`} className="h-2" />;
 
                 // Headers (Check longest first to avoid partial matches)
                 if (line.startsWith('#### ')) {
@@ -130,7 +135,7 @@ export default function ArticleDetailScreen() {
     const router = useRouter();
     const queryClient = useQueryClient();
     const { hapticsEnabled } = useSettingsStore();
-    const [isBookmarked, setIsBookmarked] = useState(false);
+    const { toggleBookmark, isBookmarked } = useBookmarkStore();
     const { data: routine } = useTodayRoutine();
     const completeTaskMutation = useCompleteTask();
 
@@ -188,10 +193,17 @@ export default function ArticleDetailScreen() {
         }
     };
 
+    const isCurrentlyBookmarked = article ? isBookmarked(article.id) : false;
+
     const handleBookmark = () => {
+        if (!article) return;
         if (hapticsEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        setIsBookmarked(!isBookmarked);
-        toast.info(isBookmarked ? 'Removed from bookmarks' : 'Added to bookmarks');
+
+        toggleBookmark({
+            ...article,
+            bookmarkedAt: Date.now()
+        });
+        toast.info(isCurrentlyBookmarked ? 'Removed from bookmarks' : 'Added to bookmarks');
     };
 
     if (isLoading) {
@@ -219,7 +231,7 @@ export default function ArticleDetailScreen() {
                         onPress={handleBookmark}
                         className="w-10 h-10 bg-zinc-900 rounded-full items-center justify-center mr-2"
                     >
-                        <Bookmark size={18} color={isBookmarked ? '#6366f1' : '#71717a'} fill={isBookmarked ? '#6366f1' : 'none'} />
+                        <Bookmark size={18} color={isCurrentlyBookmarked ? '#6366f1' : '#71717a'} fill={isCurrentlyBookmarked ? '#6366f1' : 'none'} />
                     </Pressable>
                     <Pressable
                         onPress={handleShare}
@@ -230,9 +242,9 @@ export default function ArticleDetailScreen() {
                 </View>
             </View>
 
-            <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 120 }}>
+            <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 180 }}>
                 {/* Cover Image */}
-                {article.coverImage && (
+                {!!article.coverImage && (
                     <Image
                         source={{ uri: article.coverImage }}
                         className="w-full h-56 rounded-3xl mb-6"
@@ -273,17 +285,19 @@ export default function ArticleDetailScreen() {
 
                 {/* Content */}
                 <SimpleMarkdown content={article.content} onWordClick={handleWordClick} />
-            </ScrollView>
 
-            {/* Bottom Action */}
-            <View className="absolute bottom-0 left-0 right-0 p-4 bg-black/95 border-t border-zinc-800">
-                <Button
-                    title="Mark as Complete"
-                    onPress={handleComplete}
-                    loading={completeTaskMutation.isPending}
-                    className="py-5 rounded-2xl"
-                />
-            </View>
+                {/* Mark as Complete Button - Moved inside ScrollView */}
+                <View className="mt-12 mb-8">
+                    <Button
+                        title="Mark as Complete"
+                        onPress={handleComplete}
+                        loading={completeTaskMutation.isPending}
+                        icon={<CheckCircle size={20} color="white" />}
+                        className="py-5 rounded-2xl"
+                    />
+                    <View className="h-12" /> {/* Extra space for navigation bar */}
+                </View>
+            </ScrollView>
 
             <DictionaryModal
                 word={selectedWord}

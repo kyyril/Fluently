@@ -41,6 +41,14 @@ export async function findAuthByEmail(email: string) {
             displayName: true,
             role: true,
             level: true,
+            createdAt: true,
+            updatedAt: true,
+            avatarUrl: true,
+            nativeLanguage: true,
+            targetLanguage: true,
+            totalXp: true,
+            currentStreak: true,
+            longestStreak: true,
         }
     });
 }

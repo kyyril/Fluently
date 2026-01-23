@@ -61,7 +61,7 @@ export default function DashboardScreen() {
     return (
         <ScrollView
             className="flex-1 bg-black"
-            contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
+            contentContainerStyle={{ padding: 20, paddingBottom: 180 }}
             refreshControl={
                 <RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor="#6366f1" />
             }

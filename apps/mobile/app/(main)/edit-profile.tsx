@@ -56,7 +56,7 @@ export default function EditProfileScreen() {
 
     return (
         <View className="flex-1 bg-black">
-            <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 40 }}>
+            <ScrollView contentContainerStyle={{ padding: 20, paddingTop: 60, paddingBottom: 100 }}>
                 {/* Header */}
                 <View className="flex-row items-center mb-8">
                     <Pressable
