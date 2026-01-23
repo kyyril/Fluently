@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, Pressable, RefreshControl, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { BookOpen, Clock, ChevronRight, Star } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
@@ -9,11 +9,11 @@ import { QUERY_KEYS } from '@/lib/constants';
 interface Article {
     id: string;
     title: string;
+    slug: string;
     summary: string;
     readTime: number;
-    level: string;
     category: string;
-    imageUrl?: string;
+    coverImage?: string;
 }
 
 export default function ArticlesScreen() {
@@ -23,19 +23,18 @@ export default function ArticlesScreen() {
     const { data, isLoading, refetch } = useQuery({
         queryKey: QUERY_KEYS.ARTICLES,
         queryFn: async () => {
-            const response = await api.get<{ success: boolean; data: Article[] }>('/articles');
-            return response.data.data || [];
+            const response = await api.get<{ success: boolean; data: { articles: Article[] } }>('/articles');
+            return response.data.data.articles || [];
         },
         initialData: [],
     });
 
-    // Ensure articles is always an array
     const articles = Array.isArray(data) ? data : [];
 
-    const levels = ['Beginner', 'Intermediate', 'Advanced'];
+    const categories = ['General', 'Business', 'Travel', 'Academic'];
 
     const filteredArticles = selectedLevel
-        ? articles.filter((a) => a.level === selectedLevel)
+        ? articles.filter((a) => a.category === selectedLevel)
         : articles;
 
     return (
@@ -82,22 +81,22 @@ export default function ArticlesScreen() {
                             All
                         </Text>
                     </Pressable>
-                    {levels.map((level) => (
+                    {categories.map((cat) => (
                         <Pressable
-                            key={level}
-                            testID={`filter-${level}`}
-                            onPress={() => setSelectedLevel(level)}
+                            key={cat}
+                            testID={`filter-${cat}`}
+                            onPress={() => setSelectedLevel(cat)}
                             accessible
-                            accessibilityLabel={`Filter by ${level}`}
+                            accessibilityLabel={`Filter by ${cat}`}
                             accessibilityRole="button"
-                            accessibilityState={{ selected: selectedLevel === level }}
-                            className={`px-4 py-2 rounded-full mr-2 ${selectedLevel === level ? 'bg-indigo-600' : 'bg-zinc-800'
+                            accessibilityState={{ selected: selectedLevel === cat }}
+                            className={`px-4 py-2 rounded-full mr-2 ${selectedLevel === cat ? 'bg-indigo-600' : 'bg-zinc-800'
                                 }`}
                         >
 
 
-                            <Text className={`font-bold ${selectedLevel === level ? 'text-white' : 'text-zinc-400'}`}>
-                                {level}
+                            <Text className={`font-bold ${selectedLevel === cat ? 'text-white' : 'text-zinc-400'}`}>
+                                {cat}
                             </Text>
                         </Pressable>
                     ))}
@@ -113,7 +112,7 @@ export default function ArticlesScreen() {
                         filteredArticles.map((article) => (
                             <Pressable
                                 key={article.id}
-                                onPress={() => router.push(`/article/${article.id}`)}
+                                onPress={() => router.push(`/article/${article.slug}`)}
                                 accessible
                                 accessibilityLabel={`Article: ${article.title}. Level: ${article.level}. Read time: ${article.readTime} minutes.`}
                                 accessibilityRole="button"
@@ -121,18 +120,19 @@ export default function ArticlesScreen() {
                                 className="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 active:bg-zinc-800"
                             >
 
-                                <View className="flex-row justify-between items-start">
-                                    <View className="flex-1 pr-4">
-                                        <View className="flex-row items-center mb-2">
-                                            <View className={`px-2 py-0.5 rounded-md mr-2 ${article.level === 'Beginner' ? 'bg-green-500/20' :
-                                                article.level === 'Intermediate' ? 'bg-yellow-500/20' :
-                                                    'bg-red-500/20'
-                                                }`}>
-                                                <Text className={`text-[8px] font-black uppercase ${article.level === 'Beginner' ? 'text-green-500' :
-                                                    article.level === 'Intermediate' ? 'text-yellow-500' :
-                                                        'text-red-500'
-                                                    }`}>
-                                                    {article.level}
+                                <View className="flex-row items-center">
+                                    {article.coverImage && (
+                                        <Image
+                                            source={{ uri: article.coverImage }}
+                                            className="w-20 h-20 rounded-2xl mr-4"
+                                            resizeMode="cover"
+                                        />
+                                    )}
+                                    <View className="flex-1 pr-2">
+                                        <View className="flex-row items-center mb-1.5">
+                                            <View className="px-2 py-0.5 rounded-md mr-2 bg-indigo-500/20">
+                                                <Text className="text-[8px] font-black uppercase text-indigo-400">
+                                                    {article.category}
                                                 </Text>
                                             </View>
                                             <View className="flex-row items-center">
@@ -149,7 +149,7 @@ export default function ArticlesScreen() {
                                             {article.summary}
                                         </Text>
                                     </View>
-                                    <ChevronRight size={20} color="#52525b" />
+                                    <ChevronRight size={18} color="#3f3f46" />
                                 </View>
                             </Pressable>
                         ))

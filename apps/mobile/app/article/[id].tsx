@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Pressable, Share } from 'react-native';
+import { View, Text, ScrollView, Pressable, Share, Image, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, Clock, BookOpen, Share as ShareIcon, Bookmark, CheckCircle } from 'lucide-react-native';
@@ -11,18 +11,119 @@ import { useTodayRoutine, useCompleteTask } from '@/features/dashboard/hooks/use
 import { toast } from '@/stores/toastStore';
 import * as Haptics from 'expo-haptics';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { DictionaryModal } from '@/components/DictionaryModal';
 
 interface ArticleDetail {
     id: string;
+    slug: string;
     title: string;
     content: string;
     summary: string;
     readTime: number;
-    level: string;
     category: string;
-    imageUrl?: string;
+    coverImage?: string;
     createdAt: string;
 }
+
+const SimpleMarkdown = ({ content, onWordClick }: { content: string, onWordClick: (word: string) => void }) => {
+    // Basic markdown parser for mobile
+    const lines = content.split('\n');
+
+    const renderWords = (text: string) => {
+        return text.split(/(\s+)/).map((part, index) => {
+            if (/^\s+$/.test(part) || part === '') return part;
+
+            return (
+                <Text
+                    key={index}
+                    onPress={() => onWordClick(part)}
+                    className="active:bg-indigo-500/40 rounded-sm"
+                >
+                    {part}
+                </Text>
+            );
+        });
+    };
+
+    const RenderInline = (text: string) => {
+        // Regex to match bold (**text**) or italic (*text*)
+        const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+        return parts.map((part, i) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+                const inner = part.substring(2, part.length - 2);
+                return (
+                    <Text key={i} className="text-white font-black">
+                        {renderWords(inner)}
+                    </Text>
+                );
+            }
+            if (part.startsWith('*') && part.endsWith('*')) {
+                const inner = part.substring(1, part.length - 1);
+                return (
+                    <Text key={i} className="text-zinc-200 italic">
+                        {renderWords(inner)}
+                    </Text>
+                );
+            }
+            return renderWords(part);
+        });
+    };
+
+    return (
+        <View className="gap-y-4">
+            {lines.map((line, index) => {
+                const trimmed = line.trim();
+
+                // Empty lines
+                if (trimmed === '') return <View key={index} className="h-2" />;
+
+                // Headers (Check longest first to avoid partial matches)
+                if (line.startsWith('#### ')) {
+                    return <Text key={index} className="text-white text-lg font-black mt-3 mb-1">{RenderInline(line.replace('#### ', ''))}</Text>;
+                }
+                if (line.startsWith('### ')) {
+                    return <Text key={index} className="text-white text-xl font-black mt-4 mb-2">{RenderInline(line.replace('### ', ''))}</Text>;
+                }
+                if (line.startsWith('## ')) {
+                    return <Text key={index} className="text-white text-2xl font-black mt-6 mb-3">{RenderInline(line.replace('## ', ''))}</Text>;
+                }
+                if (line.startsWith('# ')) {
+                    return <Text key={index} className="text-white text-3xl font-black mt-8 mb-4">{RenderInline(line.replace('# ', ''))}</Text>;
+                }
+
+                // Blockquotes
+                if (line.startsWith('> ')) {
+                    return (
+                        <View key={index} className="border-l-4 border-indigo-500 pl-4 py-3 my-3 bg-indigo-500/5 rounded-r-2xl">
+                            <Text className="text-zinc-300 text-lg italic leading-8">
+                                {RenderInline(line.substring(2))}
+                            </Text>
+                        </View>
+                    );
+                }
+
+                // Bullet points
+                if (line.startsWith('- ') || line.startsWith('* ')) {
+                    return (
+                        <View key={index} className="flex-row items-start pl-2 mb-2">
+                            <Text className="text-indigo-500 mr-2 text-xl">•</Text>
+                            <Text className="text-zinc-300 text-lg flex-1 leading-8">
+                                {RenderInline(line.substring(2))}
+                            </Text>
+                        </View>
+                    );
+                }
+
+                // Regular paragraphs
+                return (
+                    <Text key={index} className="text-zinc-200 text-lg leading-8">
+                        {RenderInline(line)}
+                    </Text>
+                );
+            })}
+        </View>
+    );
+};
 
 export default function ArticleDetailScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -32,6 +133,20 @@ export default function ArticleDetailScreen() {
     const [isBookmarked, setIsBookmarked] = useState(false);
     const { data: routine } = useTodayRoutine();
     const completeTaskMutation = useCompleteTask();
+
+    // Dictionary State
+    const [selectedWord, setSelectedWord] = useState<string | null>(null);
+    const [isDictionaryOpen, setIsDictionaryOpen] = useState(false);
+
+    const handleWordClick = (word: string) => {
+        // Clean punctuation: remove non-word chars from start/end
+        const cleanWord = word.replace(/^[^\w]+|[^\w]+$/g, '');
+        if (cleanWord) {
+            if (hapticsEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setSelectedWord(cleanWord);
+            setIsDictionaryOpen(true);
+        }
+    };
 
     const { data: article, isLoading, error, refetch } = useQuery({
         queryKey: QUERY_KEYS.ARTICLE(id || ''),
@@ -116,17 +231,20 @@ export default function ArticleDetailScreen() {
             </View>
 
             <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 120 }}>
+                {/* Cover Image */}
+                {article.coverImage && (
+                    <Image
+                        source={{ uri: article.coverImage }}
+                        className="w-full h-56 rounded-3xl mb-6"
+                        resizeMode="cover"
+                    />
+                )}
+
                 {/* Article Meta */}
                 <View className="flex-row items-center mb-4">
-                    <View className={`px-2 py-1 rounded-md mr-3 ${article.level === 'Beginner' ? 'bg-green-500/20' :
-                        article.level === 'Intermediate' ? 'bg-yellow-500/20' :
-                            'bg-red-500/20'
-                        }`}>
-                        <Text className={`text-[10px] font-black uppercase ${article.level === 'Beginner' ? 'text-green-500' :
-                            article.level === 'Intermediate' ? 'text-yellow-500' :
-                                'text-red-500'
-                            }`}>
-                            {article.level}
+                    <View className="px-2 py-1 rounded-md mr-3 bg-indigo-500/20">
+                        <Text className="text-[10px] font-black uppercase text-indigo-400">
+                            {article.category}
                         </Text>
                     </View>
                     <View className="flex-row items-center">
@@ -144,19 +262,17 @@ export default function ArticleDetailScreen() {
                 <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 mb-6">
                     <View className="flex-row items-center mb-2">
                         <BookOpen size={14} color="#6366f1" />
-                        <Text className="text-indigo-400 text-[10px] font-black uppercase tracking-widest ml-2">
+                        <Text className="text-indigo-400 text-xs font-black uppercase tracking-widest ml-2">
                             Summary
                         </Text>
                     </View>
-                    <Text className="text-zinc-300 text-sm leading-relaxed">
+                    <Text className="text-zinc-300 text-lg leading-7">
                         {article.summary}
                     </Text>
                 </View>
 
                 {/* Content */}
-                <Text className="text-zinc-200 text-base leading-7">
-                    {article.content}
-                </Text>
+                <SimpleMarkdown content={article.content} onWordClick={handleWordClick} />
             </ScrollView>
 
             {/* Bottom Action */}
@@ -168,6 +284,12 @@ export default function ArticleDetailScreen() {
                     className="py-5 rounded-2xl"
                 />
             </View>
+
+            <DictionaryModal
+                word={selectedWord}
+                isOpen={isDictionaryOpen}
+                onClose={() => setIsDictionaryOpen(false)}
+            />
         </View>
     );
 }

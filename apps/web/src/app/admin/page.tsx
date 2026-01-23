@@ -9,7 +9,8 @@ import {
     Mail,
     Calendar,
     Award,
-    Eye
+    Eye,
+    Flame
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 

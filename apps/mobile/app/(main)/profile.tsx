@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, Switch, Alert, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, Pressable, Switch, Alert, RefreshControl, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { User, Settings, Bell, Moon, Vibrate, LogOut, ChevronRight, Shield, Globe, Star, Flame, Trophy, Target, Award, Zap, Calendar, CheckCircle, TrendingUp } from 'lucide-react-native';
+import { User, Settings, Bell, Moon, Vibrate, LogOut, ChevronRight, Shield, Globe, Star, Flame, Trophy, Target, Award, Sparkles, Clock, CheckCircle } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
 import { useUser } from '@/hooks/useUser';
 import { useUserStats, useRoutineHistory } from '@/features/dashboard/hooks/useRoutine';
@@ -110,10 +110,17 @@ export default function ProfileScreen() {
         >
             {/* Header */}
             <View className="items-center mb-8">
-                <View className="w-24 h-24 bg-indigo-600 rounded-full items-center justify-center mb-4">
-                    <Text className="text-white text-4xl font-black">
-                        {user?.displayName?.charAt(0) || 'U'}
-                    </Text>
+                <View className="w-24 h-24 bg-indigo-600 rounded-full items-center justify-center mb-4 overflow-hidden">
+                    {user?.avatarUrl ? (
+                        <Image
+                            source={{ uri: user.avatarUrl }}
+                            className="w-full h-full"
+                        />
+                    ) : (
+                        <Text className="text-white text-4xl font-black">
+                            {user?.displayName?.charAt(0) || 'U'}
+                        </Text>
+                    )}
                 </View>
                 <Text className="text-white text-2xl font-black">{user?.displayName || 'User'}</Text>
                 <Text className="text-zinc-500 text-sm">{user?.email || ''}</Text>
@@ -166,7 +173,7 @@ export default function ProfileScreen() {
                 <AnimatedCard index={0}>
                     <View className="flex-row items-center mb-4">
                         <View className="w-9 h-9 bg-primary/10 rounded-xl items-center justify-center mr-3">
-                            <Zap size={18} color="#6366f1" />
+                            <Sparkles size={18} color="#6366f1" />
                         </View>
                         <View>
                             <Text className="text-white font-bold">Learning Progress</Text>
@@ -211,7 +218,7 @@ export default function ProfileScreen() {
             {/* Recent Activity */}
             <View className="mb-8">
                 <View className="flex-row items-center mb-4 ml-1">
-                    <Calendar size={12} color="#71717a" />
+                    <Clock size={12} color="#71717a" />
                     <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest ml-2">Recent Activity</Text>
                 </View>
 
@@ -240,7 +247,7 @@ export default function ProfileScreen() {
                         ))
                     ) : (
                         <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 items-center">
-                            <Calendar size={32} color="#27272a" />
+                            <Clock size={32} color="#27272a" />
                             <Text className="text-zinc-600 text-xs mt-2 font-bold">No recent activity found</Text>
                         </View>
                     )}

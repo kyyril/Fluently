@@ -11,6 +11,8 @@ import { LoadingScreen } from '@/components/ui/States';
 import { BookText, ChevronLeft, Sparkles, CheckCircle, AlertCircle, ArrowRight, Star } from 'lucide-react-native';
 import { toast } from '@/stores/toastStore';
 import * as Haptics from 'expo-haptics';
+import { DictionaryModal } from '@/components/DictionaryModal';
+import { InteractiveText } from '@/components/InteractiveText';
 
 function DayRecapScreen() {
     const router = useRouter();
@@ -26,6 +28,17 @@ function DayRecapScreen() {
         corrections: string[];
         corrected: string;
     } | null>(null);
+    const [selectedWord, setSelectedWord] = useState<string | null>(null);
+    const [isDictionaryOpen, setIsDictionaryOpen] = useState(false);
+
+    const handleWordClick = (word: string) => {
+        const cleanWord = word.replace(/^[^\w]+|[^\w]+$/g, '');
+        if (cleanWord) {
+            if (hapticsEnabled) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setSelectedWord(cleanWord);
+            setIsDictionaryOpen(true);
+        }
+    };
 
     // Get the DAY_RECAP task from the routine
     const recapTask = routine?.tasks.find(t => t.taskType === 'DAY_RECAP');
@@ -168,9 +181,11 @@ function DayRecapScreen() {
                                 </View>
                                 <Text className="text-white font-bold text-lg ml-3">AI Feedback</Text>
                             </View>
-                            <Text className="text-zinc-300 text-sm leading-6">
-                                {aiReview.feedback}
-                            </Text>
+                            <InteractiveText
+                                text={aiReview.feedback}
+                                onWordClick={handleWordClick}
+                                className="text-zinc-300 text-base leading-7"
+                            />
                         </AnimatedCard>
 
                         {aiReview.corrections.length > 0 && (
@@ -185,7 +200,11 @@ function DayRecapScreen() {
                                     {aiReview.corrections.map((correction, i) => (
                                         <View key={i} className="flex-row">
                                             <Text className="text-indigo-500 mr-2">•</Text>
-                                            <Text className="text-zinc-400 text-xs flex-1">{correction}</Text>
+                                            <InteractiveText
+                                                text={correction}
+                                                onWordClick={handleWordClick}
+                                                className="text-zinc-400 text-sm flex-1 leading-6"
+                                            />
                                         </View>
                                     ))}
                                 </View>
@@ -199,22 +218,30 @@ function DayRecapScreen() {
                                 </View>
                                 <Text className="text-white font-bold text-lg ml-3">Corrected Version</Text>
                             </View>
-                            <View className="bg-zinc-950 p-4 rounded-2xl border border-zinc-800">
-                                <Text className="text-white text-sm italic leading-6">
-                                    "{aiReview.corrected}"
-                                </Text>
+                            <View className="bg-zinc-950 p-5 rounded-2xl border border-zinc-800">
+                                <InteractiveText
+                                    text={aiReview.corrected}
+                                    onWordClick={handleWordClick}
+                                    className="text-white text-base italic leading-7"
+                                />
                             </View>
                         </AnimatedCard>
 
                         <Button
                             variant="secondary"
                             className="mt-4"
-                            onPress={() => router.push('/(main)/')}
+                            onPress={() => router.push('/(main)')}
                             title="Back to Dashboard"
                         />
 
                     </View>
                 )}
+
+                <DictionaryModal
+                    word={selectedWord}
+                    isOpen={isDictionaryOpen}
+                    onClose={() => setIsDictionaryOpen(false)}
+                />
             </ScrollView>
         </KeyboardAvoidingView>
     );
