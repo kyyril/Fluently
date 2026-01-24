@@ -20,4 +20,16 @@ config.resolver.nodeModulesPaths = [
 // Handle symlinked packages
 config.resolver.disableHierarchicalLookup = false;
 
+// Enable package exports for libraries that use them (e.g. @google/genai)
+config.resolver.unstable_enablePackageExports = true;
+
+// Set condition names for proper exports resolution (browser-compatible version)
+config.resolver.unstable_conditionNames = ['browser', 'import', 'require'];
+
+// Force @google/genai to use the web version
+config.resolver.extraNodeModules = {
+    ...config.resolver.extraNodeModules,
+    '@google/genai': path.resolve(projectRoot, 'node_modules/@google/genai/dist/web'),
+};
+
 module.exports = withNativeWind(config, { input: './global.css' });
