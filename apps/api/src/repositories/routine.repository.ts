@@ -1,5 +1,5 @@
 import { prisma } from '../config/database';
-import { TaskType } from '../../prisma/generated-client';
+import { TaskType } from '@prisma/client';
 
 const ALL_TASK_TYPES: TaskType[] = [
     'PODCAST_LISTENING',

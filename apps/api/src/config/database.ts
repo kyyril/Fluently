@@ -1,30 +1,30 @@
-import { PrismaClient } from '../../prisma/generated-client';
+import { PrismaClient } from '@prisma/client';
 
-// Prevent multiple instances during hot reload in development
 declare global {
-    // eslint-disable-next-line no-var
     var prisma: PrismaClient | undefined;
 }
 
-const getPrismaClient = () => {
-    try {
-        const url = process.env.DATABASE_URL;
-        if (!url || url.trim() === '') {
-            console.warn('⚠️ DATABASE_URL is missing. Prisma will be initialized in a restricted state.');
+// Inisialisasi Lazy: Hanya dibuat saat pertama kali dipanggil
+let prismaInstance: PrismaClient;
+
+export const getPrisma = () => {
+    if (prismaInstance) return prismaInstance;
+
+    if (process.env.NODE_ENV === 'production') {
+        prismaInstance = new PrismaClient();
+    } else {
+        if (!global.prisma) {
+            global.prisma = new PrismaClient();
         }
-        return new PrismaClient({
-            log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-        });
-    } catch (e) {
-        console.error('❌ Failed to initialize PrismaClient:', e);
-        // Return a proxy or a dummy if needed, but for now just returning the attempted client
-        return new PrismaClient();
+        prismaInstance = global.prisma;
     }
+    return prismaInstance;
 };
 
-export const prisma = globalThis.prisma ?? getPrismaClient();
-
-
-if (process.env.NODE_ENV !== 'production') {
-    globalThis.prisma = prisma;
-}
+// Export shim untuk kompatibilitas dengan kode yang sudah ada
+export const prisma = new Proxy({} as PrismaClient, {
+    get: (target, prop) => {
+        const p = getPrisma();
+        return (p as any)[prop];
+    }
+});

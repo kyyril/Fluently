@@ -6,15 +6,16 @@ dotenv.config();
 const envSchema = z.object({
     PORT: z.string().default('4000').transform(Number),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-    CORS_ORIGIN: z.string().default('http://localhost:3000'),
-    JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
+    CORS_ORIGIN: z.string().default('*'),
+    JWT_SECRET: z.string().default('secret-key-placeholder'),
     JWT_EXPIRES_IN: z.string().default('7d'),
-    DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
-    REDIS_URL: z.string().default('redis://localhost:6379'),
-    NEON_AUTH_JWKS_URL: z.string().min(1, 'NEON_AUTH_JWKS_URL is required'),
+    DATABASE_URL: z.string().optional().default(''),
+    REDIS_URL: z.string().optional().default(''),
+    NEON_AUTH_JWKS_URL: z.string().optional().default(''),
     ADMIN_EMAIL: z.string().email().optional(),
     INVITATION_CODE: z.string().optional(),
 });
+
 
 const parsedEnv = envSchema.safeParse(process.env);
 const envErrors = !parsedEnv.success ? Object.keys(parsedEnv.error.flatten().fieldErrors) : null;
