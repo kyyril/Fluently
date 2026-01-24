@@ -41,6 +41,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', routes);
 
 // Health check
+app.get('/', (req: Request, res: Response) => {
+    res.send('Fluently API is running 🚀');
+});
+
 app.get('/health', (req: Request, res: Response) => {
     res.json({
         status: (config as any)._errors ? 'error' : 'ok',
