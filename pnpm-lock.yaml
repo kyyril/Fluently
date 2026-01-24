@@ -82,16 +82,16 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1
       '@types/cors':
-        specifier: ^2.8.19
+        specifier: ^2.8.17
         version: 2.8.19
       '@types/express':
-        specifier: ^4.17.25
+        specifier: ^4.17.21
         version: 4.17.25
       '@types/ioredis':
         specifier: ^5.0.0
         version: 5.0.0
       '@types/jsonwebtoken':
-        specifier: ^9.0.10
+        specifier: ^9.0.5
         version: 9.0.10
       '@types/node':
         specifier: ^20.11.0
