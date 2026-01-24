@@ -3,28 +3,23 @@
         "target": "es2020",
         "lib": [
             "dom",
-            "dom.iterable",
             "esnext"
         ],
         "allowJs": true,
         "skipLibCheck": true,
         "strict": false,
-        "forceConsistentCasingInFileNames": true,
-        "noEmit": false,
         "esModuleInterop": true,
         "module": "CommonJS",
         "moduleResolution": "Node",
         "resolveJsonModule": true,
-        "isolatedModules": true,
-        "outDir": "./dist",
-        "rootDir": "."
+        "rootDir": ".",
+        "outDir": "dist"
     },
     "include": [
         "src/**/*",
         "api/**/*"
     ],
     "exclude": [
-        "node_modules",
-        "dist"
+        "node_modules"
     ]
 }

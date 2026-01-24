@@ -4,6 +4,6 @@
 
 const app = require('../src/server').default;
 
-module.exports = (req: any, res: any) => {
+module.exports = (req, res) => {
     return app(req, res);
 };
