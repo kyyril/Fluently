@@ -1,4 +1,4 @@
-import { PrismaClient } from '../prisma-client';
+import { PrismaClient } from '@prisma/client';
 
 // Prevent multiple instances during hot reload in development
 declare global {
