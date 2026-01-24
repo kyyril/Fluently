@@ -11,10 +11,20 @@ export const getPrisma = () => {
     if (prismaInstance) return prismaInstance;
 
     if (process.env.NODE_ENV === 'production') {
-        prismaInstance = new PrismaClient();
+        try {
+            prismaInstance = new PrismaClient();
+        } catch (e) {
+            console.error('Failed to initialize PrismaClient (Production):', e);
+            // Fallback object to prevent immediate crash, though DB calls will fail
+            prismaInstance = { $connect: async () => { }, $disconnect: async () => { } } as any;
+        }
     } else {
         if (!global.prisma) {
-            global.prisma = new PrismaClient();
+            try {
+                global.prisma = new PrismaClient();
+            } catch (e) {
+                console.error('Failed to initialize PrismaClient (Dev):', e);
+            }
         }
         prismaInstance = global.prisma;
     }
