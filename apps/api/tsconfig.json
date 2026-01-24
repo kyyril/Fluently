@@ -1,16 +1,25 @@
 {
-    "extends": "../../tsconfig.json",
     "compilerOptions": {
+        "target": "es2020",
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "esnext"
+        ],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": false,
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": false,
+        "esModuleInterop": true,
         "module": "CommonJS",
         "moduleResolution": "Node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
         "outDir": "./dist",
-        "rootDir": ".",
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "strict": false
+        "rootDir": "."
     },
     "include": [
-        "src/**/*",
         "src/**/*",
         "api/**/*",
         "index.ts"

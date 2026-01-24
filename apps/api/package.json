@@ -20,7 +20,6 @@
         "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
-        "@fluently/types": "workspace:*",
         "@google/generative-ai": "^0.24.1",
         "@neondatabase/auth": "0.1.0-beta.20",
         "@prisma/client": "5.22.0",
