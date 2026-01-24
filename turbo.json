@@ -22,7 +22,11 @@
                 "NEON_AUTH_BASE_URL",
                 "NEON_AUTH_JWKS_URL",
                 "GEMINI_API_KEY",
-                "NODE_ENV"
+                "NODE_ENV",
+                "PORT",
+                "CORS_ORIGIN",
+                "JWT_EXPIRES_IN",
+                "ADMIN_EMAIL"
             ]
         },
         "dev": {
