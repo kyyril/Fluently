@@ -109,21 +109,5 @@ export function useCompleteTask() {
     });
 }
 
-export function useDayRecapReview() {
-    return useMutation({
-        mutationFn: async (data: { content: string; dailyLogId?: string }) => {
-            const response = await api.post<{
-                success: boolean;
-                data: {
-                    feedback: string;
-                    corrections: string[];
-                    corrected: string;
-                    saved: boolean;
-                };
-            }>('/tasks/day-recap/review', data);
-            return response.data.data;
-        },
-    });
-}
 
 export { type Task, type DailyRoutine, type HistoryEntry };

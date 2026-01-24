@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Modal, ModalFooter, Button, Input } from '@fluently/ui';
-import { useCompleteTask, useDayRecapReview, getTaskName, getTaskXp } from '@/hooks';
+import { useCompleteTask, getTaskName, getTaskXp } from '@/hooks';
 import { Loader2, CheckCircle2, AlertCircle, Headphones, PenLine, Languages, Mic, Send, BookOpen } from 'lucide-react';
 
 interface Task {
@@ -30,23 +30,21 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
         conclusion: ''
     });
 
-    const { mutate: reviewRecap, isPending: isReviewing } = useDayRecapReview();
 
     useEffect(() => {
         if (isOpen && task) {
             if (task.completed) {
                 setStep('success');
                 if (task.metadata) {
-                    if (task.taskType === 'DAY_RECAP') {
-                        setAiResult(task.metadata);
-                        setInput(task.metadata.original || '');
-                    } else if (task.taskType === 'PODCAST_LISTENING') {
+                    if (task.taskType === 'PODCAST_LISTENING') {
                         setPodcastForm({
                             title: task.metadata.title || '',
                             description: task.metadata.description || '',
                             link: task.metadata.link || '',
                             conclusion: task.metadata.conclusion || ''
                         });
+                    } else if (task.taskType === 'DAY_RECAP') {
+                        setInput(task.metadata.content || '');
                     }
                 }
             } else {
@@ -68,14 +66,6 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
         });
     };
 
-    const handleRecapSubmit = () => {
-        reviewRecap({ content: input, dailyLogId: (task as any).dailyLogId }, {
-            onSuccess: (data) => {
-                setAiResult(data);
-                handleComplete({ ...data, original: input });
-            }
-        });
-    };
 
     const renderTaskIntro = () => {
         switch (task.taskType) {
@@ -102,12 +92,13 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         </div>
                         <h3 className="text-xl font-bold">Journal Your Day</h3>
                         <p className="text-muted-foreground">
-                            Summarize your day in your target language. AI will review your
-                            grammar and provide helpful corrections.
+                            Summarize your day in your target language. Keep track of your
+                            learning progress and daily activities.
                         </p>
                         <Button className="w-full" onClick={() => setStep('active')}>Start Writing</Button>
                     </div>
                 );
+
 
             case 'CREATE_SENTENCES':
                 return (
@@ -198,11 +189,11 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         </div>
                         <Button
                             className="w-full"
-                            onClick={handleRecapSubmit}
-                            disabled={isReviewing || input.length < 10}
+                            onClick={() => handleComplete({ content: input })}
+                            disabled={isCompleting || input.length < 10}
                         >
-                            {isReviewing ? <Loader2 className="h-4 w-4 mr-2" /> : <Send className="h-4 w-4 mr-2" />}
-                            Submit for AI Review
+                            {isCompleting ? <Loader2 className="h-4 w-4 mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                            Save Journal Entry
                         </Button>
                     </div>
                 );
@@ -249,31 +240,23 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
             <div className="mx-auto w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center">
                 <CheckCircle2 className="h-12 w-12 text-green-500" />
             </div>
+
+            {task.taskType === 'DAY_RECAP' && input && (
+                <div className="bg-muted p-4 rounded-xl text-left space-y-3">
+                    <p className="text-sm font-semibold flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-primary" /> Your Entry
+                    </p>
+                    <p className="text-sm italic text-muted-foreground leading-relaxed">
+                        "{input}"
+                    </p>
+                </div>
+            )}
+
             <div>
                 <h3 className="text-2xl font-bold">Good Job!</h3>
                 <p className="text-muted-foreground">You've earned <span className="text-primary font-bold">+{getTaskXp(task.taskType)} XP</span></p>
             </div>
 
-            {task.taskType === 'DAY_RECAP' && aiResult && (
-                <div className="bg-muted p-4 rounded-xl text-left space-y-3">
-                    <p className="text-sm font-semibold flex items-center gap-2">
-                        <Languages className="h-4 w-4 text-primary" /> AI Feedback
-                    </p>
-                    <div className="text-sm space-y-2">
-                        {aiResult.original && (
-                            <div className="pb-2 mb-2 border-b border-border/50">
-                                <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">Your Entry:</p>
-                                <p className="italic text-muted-foreground">"{aiResult.original}"</p>
-                            </div>
-                        )}
-                        <p className="italic">"{aiResult.feedback}"</p>
-                        <div className="pt-2 border-t border-border">
-                            <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">Corrected Version:</p>
-                            <p className="font-medium">{aiResult.corrected}</p>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {task.taskType === 'PODCAST_LISTENING' && podcastForm.title && (
                 <div className="bg-muted p-4 rounded-xl text-left space-y-3 text-sm">
@@ -309,7 +292,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
             isOpen={isOpen}
             onClose={onClose}
             title={step !== 'success' ? getTaskName(task.taskType) : ''}
-            size={task.taskType === 'DAY_RECAP' && step === 'success' ? 'lg' : 'md'}
+            size="md"
         >
             <div key={step}>
                 {step === 'intro' && renderTaskIntro()}
