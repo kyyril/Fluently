@@ -41,7 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api', routes);
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
     res.json({
         status: (config as any)._errors ? 'error' : 'ok',
         timestamp: new Date().toISOString(),

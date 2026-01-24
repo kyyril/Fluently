@@ -2,9 +2,22 @@
     "extends": "../../tsconfig.json",
     "compilerOptions": {
         "module": "CommonJS",
-        "moduleResolution": "node",
+        "moduleResolution": "Node",
         "outDir": "./dist",
-        "rootDir": "."
+        "rootDir": ".",
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "typeRoots": [
+            "../../node_modules/@types",
+            "node_modules/@types"
+        ],
+        "types": [
+            "node",
+            "express",
+            "cors",
+            "compression",
+            "bcryptjs"
+        ]
     },
     "include": [
         "src/**/*",
