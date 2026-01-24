@@ -11,7 +11,7 @@ import Animated, {
     interpolateColor,
     Easing,
 } from 'react-native-reanimated';
-import { Mic2, Volume2, Loader } from 'lucide-react-native';
+import { Mic2, Volume2, Loader2 } from 'lucide-react-native';
 
 interface VoiceOrbProps {
     volume: number;
@@ -214,7 +214,7 @@ export function VoiceOrb({ volume, state }: VoiceOrbProps) {
                 <View style={styles.iconContainer}>
                     {state === 'listening' && <Mic2 color="white" size={32} />}
                     {state === 'speaking' && <Volume2 color="white" size={32} />}
-                    {state === 'connecting' && <Loader color="white" size={28} />}
+                    {state === 'connecting' && <Loader2 color="white" size={28} />}
                     {state === 'idle' && <Mic2 color="rgba(255,255,255,0.5)" size={28} />}
                     {state === 'error' && <Mic2 color="white" size={28} />}
                 </View>
