@@ -174,6 +174,23 @@ export default function RegisterScreen() {
                                 </View>
                             </View>
 
+                            <View>
+                                <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Confirm Password</Text>
+                                <View className="relative">
+                                    <View className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+                                        <LockIcon size={18} color="#71717a" />
+                                    </View>
+                                    <Input
+                                        value={confirmPassword}
+                                        onChangeText={setConfirmPassword}
+                                        placeholder="Repeat your password"
+                                        secureTextEntry={!showPassword}
+                                        autoCapitalize="none"
+                                        className="pl-12 pr-12 h-14 bg-zinc-800/50 border-zinc-800"
+                                    />
+                                </View>
+                            </View>
+
                             {error && (
                                 <View className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4">
                                     <Text className="text-red-400 text-xs text-center font-bold">{error}</Text>

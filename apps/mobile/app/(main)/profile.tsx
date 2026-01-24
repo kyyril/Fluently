@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, Pressable, Switch, Alert, RefreshControl, Image } from 'react-native';
+import { View, Text, ScrollView, Pressable, Switch, Alert, RefreshControl, Image, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { User, Settings, Bell, Moon, Vibrate, LogOut, ChevronRight, Shield, Globe, Star, Flame, Trophy, Target, Award, Sparkles, Clock, CheckCircle } from 'lucide-react-native';
 import { useAuthStore } from '@/stores/authStore';
@@ -14,7 +14,9 @@ export default function ProfileScreen() {
     const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useUserStats();
     const { data: history, isLoading: historyLoading, refetch: refetchHistory } = useRoutineHistory(7);
     const { user, logout } = useAuthStore();
-    const { theme, hapticsEnabled, notificationsEnabled, setTheme, setHaptics, setNotifications } = useSettingsStore();
+    const { theme, hapticsEnabled, notificationsEnabled, geminiApiKey, setTheme, setHaptics, setNotifications, setGeminiApiKey } = useSettingsStore();
+    const [showApiKey, setShowApiKey] = React.useState(false);
+    const [apiKeyInput, setApiKeyInput] = React.useState(geminiApiKey || '');
 
     const [refreshing, setRefreshing] = React.useState(false);
 
@@ -251,6 +253,41 @@ export default function ProfileScreen() {
                             <Text className="text-zinc-600 text-xs mt-2 font-bold">No recent activity found</Text>
                         </View>
                     )}
+                </View>
+            </View>
+
+            {/* AI Settings Section */}
+            <View className="bg-zinc-900 border border-zinc-800 rounded-3xl px-5 mb-6">
+                <Text className="text-zinc-500 text-[10px] font-black uppercase tracking-widest py-4">
+                    AI Configuration
+                </Text>
+                <View className="py-4 border-b border-zinc-800">
+                    <View className="flex-row items-center mb-3">
+                        <View className="w-9 h-9 bg-zinc-800 rounded-xl items-center justify-center mr-3">
+                            <Settings size={18} color="#a1a1aa" />
+                        </View>
+                        <Text className="text-white font-bold">Gemini API Key</Text>
+                    </View>
+                    <View className="flex-row items-center bg-black/50 border border-zinc-700 rounded-xl px-4 h-12">
+                        <TextInput
+                            value={apiKeyInput}
+                            onChangeText={(text) => {
+                                setApiKeyInput(text);
+                                setGeminiApiKey(text);
+                            }}
+                            placeholder="Paste your API Key here"
+                            placeholderTextColor="#52525b"
+                            secureTextEntry={!showApiKey}
+                            className="flex-1 text-white font-mono text-xs"
+                            autoCapitalize="none"
+                        />
+                        <Pressable onPress={() => setShowApiKey(!showApiKey)} className="p-2">
+                            <Text className="text-zinc-500 text-xs font-bold">{showApiKey ? 'Hide' : 'Show'}</Text>
+                        </Pressable>
+                    </View>
+                    <Text className="text-zinc-600 text-[10px] mt-2 leading-4">
+                        Required for Speaking Session mechanism. Your key is stored locally on your device.
+                    </Text>
                 </View>
             </View>
 

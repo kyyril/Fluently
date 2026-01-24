@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@google/genai':
+        specifier: ^1.38.0
+        version: 1.38.0
     devDependencies:
       '@types/node':
         specifier: ^20.11.0
@@ -114,6 +118,9 @@ importers:
       '@fluently/types':
         specifier: file:../../packages/types
         version: file:packages/types
+      '@google/genai':
+        specifier: ^1.38.0
+        version: 1.38.0
       '@google/generative-ai':
         specifier: ^0.24.1
         version: 0.24.1

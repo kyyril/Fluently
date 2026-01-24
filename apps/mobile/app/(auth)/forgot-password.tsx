@@ -26,7 +26,7 @@ export default function ForgotPasswordScreen() {
         setError(null);
 
         try {
-            const response = await fetch(`${NEON_AUTH_URL}/forget-password`, {
+            const response = await fetch(`${NEON_AUTH_URL}/request-password-reset`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ export default function ForgotPasswordScreen() {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || 'Failed to send reset email');
+                throw new Error(errorData.message || `Failed to send reset email (Status: ${response.status})`);
             }
 
             setSuccess(true);

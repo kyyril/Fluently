@@ -8,6 +8,7 @@ interface SettingsState {
     theme: Theme;
     hapticsEnabled: boolean;
     notificationsEnabled: boolean;
+    geminiApiKey?: string;
 
     // Actions
     setTheme: (theme: Theme) => void;
@@ -15,6 +16,7 @@ interface SettingsState {
     setNotifications: (enabled: boolean) => void;
     toggleHaptics: () => void;
     toggleNotifications: () => void;
+    setGeminiApiKey: (key: string) => void;
 }
 
 export const useSettingsStore = create<SettingsState>()(
@@ -37,6 +39,8 @@ export const useSettingsStore = create<SettingsState>()(
             toggleNotifications: () => set((state) => ({
                 notificationsEnabled: !state.notificationsEnabled
             })),
+
+            setGeminiApiKey: (key) => set({ geminiApiKey: key }),
         }),
         {
             name: 'settings-storage',
