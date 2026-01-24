@@ -2,78 +2,50 @@
 
 A structured daily routine language learning app with gamification elements.
 
-## Quick Start
+## Key Features
 
-```bash
-# Install dependencies
-pnpm install
+- **AI Speaking Coach**: Real-time voice conversations powered by **Google Gemini**.
+- **Daily Routine**: Structured 4-step daily workflow: Podcast Listening, Speaking Session, Sentence Creation, and Day Recap Journal.
+- **Gamification**: Earn XP, level up, and maintain streaks. Compete on the global leaderboard.
+- **Platform Sync**: Seamless data synchronization between Web and Mobile (Expo/React Native).
+- **Smart Articles**: Curated reading materials with built-in vocabulary learning, interactive translations, and high-quality audio pronunciation.
 
-# Start development servers
-pnpm dev
-```
+## Preview
 
-## Project Structure
+### Dashboard
+![Dashboard](https://res.cloudinary.com/da5ggxk01/image/upload/v1769253224/e9acb5df-70d6-4979-8983-d194634c0ec8.png)
 
-```
-├── apps/
-│   ├── api/          # Express.js backend
-│   ├── web/          # Next.js frontend
-│   └── mobile/       # (Future)
-├── packages/
-│   ├── ui/           # Shared components
-│   └── types/        # Shared Zod schemas
-└── docs/             # Documentation
-```
+### Speaking Session
+![Speaking Session](https://res.cloudinary.com/da5ggxk01/image/upload/v1769255992/dba91d31-499d-4efd-811a-3d6f65c62c3a.png)
 
-## Documentation
+### Leaderboard
+![Leaderboard](https://res.cloudinary.com/da5ggxk01/image/upload/v1769253422/d66ac437-6c9e-481e-951b-e67f696fb13f.png)
 
-- [Product Requirements](./docs/prd-doc.md)
-- [User Flow](./docs/app-flow-doc.md)
-- [Frontend Guide](./docs/frontend-guide.md)
-- [Backend Guide](./docs/backend-guide.md)
+### Mobile App (React Native)
+![Mobile App](https://res.cloudinary.com/da5ggxk01/image/upload/v1769257077/68e027a8-b029-4bcd-a833-2a7a48855a24.png)
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js, TailwindCSS, Zustand, TanStack Query |
-| Backend | Express.js, Prisma, PostgreSQL |
+| Web | Next.js 14, TailwindCSS, TanStack Query |
+| Mobile | Expo, React Native, NativeWind |
+| Backend | Express.js, Prisma, PostgreSQL (Neon) |
 | AI | Google Gemini |
-| Validation | Zod (shared) |
+| Cache | Redis (ioredis) |
 
-## CI/CD dengan Vercel & GitHub
-Proyek ini dikonfigurasi untuk CI/CD otomatis. Setiap kali Anda melakukan `push` ke branch `main`, Vercel akan memulai proses deploy dan GitHub Actions akan menjalankan validasi kode.
+## Development
 
-### 1. Validasi Kode Otomatis (GitHub Actions)
-File `.github/workflows/ci.yml` telah dikonfigurasi untuk:
-- Menjalankan `pnpm install`.
-- Melakukan Linting ke seluruh workspace.
-- Memastikan build berhasil (Type check).
+```bash
+# Install dependencies
+pnpm install
 
-### 2. Deployment Otomatis (Vercel)
-Untuk efisiensi monorepo, gunakan fitur **Ignore Build Step** di dashboard Vercel agar Vercel hanya mendeploy aplikasi yang berubah.
+# Start development
+pnpm dev
+```
 
-#### Konfigurasi per Project:
-1. **API (Express Serverless)**:
-   - Root Directory: `apps/api`
-   - Build Command: `cd ../.. && npx turbo run build --filter=@fluently/api`
-   - Ignore Build Step: `npx turbo-ignore`
-2. **Web (Next.js)**:
-   - Root Directory: `apps/web`
-   - Build Command: `cd ../.. && npx turbo run build --filter=@fluently/web`
-   - Ignore Build Step: `npx turbo-ignore`
-
-> **Note**: Penggunaan `npx turbo-ignore` memastikan bahwa jika Anda hanya mengubah kode di folder `apps/web`, Vercel tidak akan membuang-buang waktu (dan limit menit build) untuk mendeploy ulang `apps/api`.
-
-### 3. Environment Variables (Wajib)
-Pastikan variable berikut diset di Vercel:
-- **API**: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `NEON_AUTH_JWKS_URL`, `GEMINI_API_KEY`.
-- **Web**: `NEXT_PUBLIC_API_URL` (URL deploy API Anda).
-
-
-## Test api
+## Test API
+```bash
 cd apps/api
 powershell -ExecutionPolicy Bypass -File .\test-api.ps1
-
-## Reset database
-npx prisma db push --force-reset && npx tsx prisma/seed.ts
+```
