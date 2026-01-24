@@ -1,0 +1,35 @@
+{
+    "name": "Fluently - Master English Through Daily Habits",
+    "short_name": "Fluently",
+    "description": "Build consistent English learning habits with gamification. Practice speaking with AI and compete on the leaderboard.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0B1220",
+    "theme_color": "#0B1220",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "en",
+    "categories": [
+        "education",
+        "productivity"
+    ],
+    "icons": [
+        {
+            "src": "/brand.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "/favicon.svg",
+            "sizes": "32x32",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "/apple-touch-icon.svg",
+            "sizes": "180x180",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        }
+    ]
+}
