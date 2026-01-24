@@ -106,8 +106,6 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
 
                         if (neonResponse.ok) {
                             const neonData = await neonResponse.json();
-                            fs.appendFileSync('auth_debug.log', `[${new Date().toISOString()}] Neon Data: ${JSON.stringify(neonData)}\n`);
-
                             if (neonData && (neonData.user || neonData.session)) {
                                 const userData = neonData.user || neonData.session?.user;
                                 if (!userData) throw new Error('User data missing in Neon session');
