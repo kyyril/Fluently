@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -7,6 +7,7 @@ import routes from './routes';
 import { errorHandler, requestLogger } from './middleware';
 
 const app = express();
+
 
 
 // ============================================
@@ -51,8 +52,9 @@ app.get('/health', (req, res) => {
 });
 
 
+
 // 404 handler
-app.use((req, res) => {
+app.use((req: Request, res: Response) => {
     res.status(404).json({
         success: false,
         error: 'Not found',
