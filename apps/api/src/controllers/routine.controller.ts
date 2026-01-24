@@ -10,7 +10,8 @@ export async function getToday(
 ) {
     try {
         const userId = (req as AuthRequest).userId!;
-        const routine = await routineService.getTodayRoutine(userId);
+        const dateStr = req.query.date as string;
+        const routine = await routineService.getTodayRoutine(userId, dateStr);
         sendSuccess(res, routine);
     } catch (error) {
         next(error);

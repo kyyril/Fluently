@@ -1,8 +1,16 @@
 import { routineRepository, userRepository } from '../repositories';
 import { NotFoundError } from '../utils/errors';
 
-export async function getTodayRoutine(userId: string) {
-    const today = new Date();
+export async function getTodayRoutine(userId: string, dateStr?: string) {
+    let today: Date;
+
+    if (dateStr) {
+        // format: YYYY-MM-DD
+        today = new Date(dateStr);
+    } else {
+        today = new Date();
+    }
+
     today.setHours(0, 0, 0, 0);
 
     let dailyLog = await routineRepository.findDailyLog(userId, today);

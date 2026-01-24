@@ -54,11 +54,12 @@ export function getTaskXp(taskType: string): number {
 }
 
 export function useTodayRoutine() {
+    const today = new Date().toISOString().split('T')[0];
     return useQuery({
-        queryKey: ['routine', 'today'],
+        queryKey: ['routine', 'today', today],
         queryFn: async () => {
             const response = await api.get<{ success: boolean; data: DailyRoutine }>(
-                '/routine/today'
+                `/routine/today?date=${today}`
             );
             return response.data.data;
         },

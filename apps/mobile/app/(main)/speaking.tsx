@@ -294,7 +294,6 @@ export default function SpeakingScreen() {
                         </Pressable>
                     </View>
                 )}
-                <Text style={styles.footerText}>Powered by Gemini 2.0</Text>
             </View>
 
             {/* Summary Modal */}

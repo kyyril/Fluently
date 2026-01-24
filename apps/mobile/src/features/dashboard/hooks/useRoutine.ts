@@ -22,11 +22,12 @@ interface DailyRoutine {
 }
 
 export function useTodayRoutine() {
+    const today = new Date().toISOString().split('T')[0];
     return useQuery({
-        queryKey: QUERY_KEYS.ROUTINE_TODAY,
+        queryKey: [...QUERY_KEYS.ROUTINE_TODAY, today],
         queryFn: async () => {
             const response = await api.get<{ success: boolean; data: DailyRoutine }>(
-                '/routine/today'
+                `/routine/today?date=${today}`
             );
             return response.data.data;
         },
