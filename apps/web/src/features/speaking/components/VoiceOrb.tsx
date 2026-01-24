@@ -91,17 +91,6 @@ export const VoiceOrb: React.FC<VoiceOrbProps> = ({ volume, state }) => {
                 </div>
             </div>
 
-            {/* Status Text */}
-            <div className="absolute -bottom-16 md:-bottom-20 text-center">
-                <p className="text-xs md:text-sm font-semibold uppercase tracking-[4px] text-muted-foreground">
-                    {state === 'idle' && 'Ready to Practice'}
-                    {state === 'connecting' && 'Connecting...'}
-                    {state === 'listening' && 'Listening...'}
-                    {state === 'speaking' && 'AI Speaking'}
-                    {state === 'error' && 'Connection Error'}
-                    {state === 'completing' && 'Saving...'}
-                </p>
-            </div>
         </div>
     );
 };

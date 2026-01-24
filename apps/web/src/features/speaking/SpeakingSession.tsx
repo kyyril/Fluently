@@ -172,177 +172,190 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
     const toggleMic = () => setIsMicOn(!isMicOn);
     const saveKey = (key: string) => { localStorage.setItem('gemini_api_key', key); setApiKey(key); setShowKeyModal(false); };
 
+    const getStatusText = () => {
+        switch (state) {
+            case 'idle': return 'Ready to Practice';
+            case 'connecting': return 'Connecting...';
+            case 'listening': return 'Listening...';
+            case 'speaking': return 'AI Speaking';
+            case 'error': return 'Error';
+            case 'completing': return 'Saving...';
+            default: return '';
+        }
+    };
+
     return (
-        <div className="flex flex-col items-center justify-between h-full min-h-[600px] w-full relative overflow-hidden">
-            {/* Background */}
-            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/95 to-background" />
-            <div className="absolute top-[-30%] left-[-20%] w-[60%] h-[60%] bg-blue-500/10 blur-[150px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-[-30%] right-[-20%] w-[60%] h-[60%] bg-purple-500/8 blur-[150px] rounded-full pointer-events-none" />
+        <div className="flex flex-col items-center justify-between h-full min-h-[600px] w-full relative overflow-hidden bg-background">
+            {/* Background Effects */}
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
 
             {/* Header */}
-            <div className="w-full flex items-center justify-between p-4 md:p-6 z-10">
-                <div className="w-10" />
-
-                {/* Timer */}
-                <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-muted/50 backdrop-blur-sm">
-                        <Clock className={`w-4 h-4 ${isConnected ? 'text-blue-400' : 'text-muted-foreground'}`} />
-                        <span className="font-mono text-sm font-medium">
-                            {formatTime(elapsedTime)}
-                            <span className="text-muted-foreground"> / 30:00</span>
-                        </span>
-                    </div>
+            <div className="w-full flex items-center justify-between p-4 md:p-8 z-10">
+                <div className="flex-1">
                     {isConnected && (
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 w-fit">
                             <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                            <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Live</span>
+                            <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Live Session</span>
                         </div>
                     )}
                 </div>
 
-                <button
-                    onClick={() => setShowKeyModal(true)}
-                    className="p-2.5 rounded-full hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground"
-                    title="Settings"
-                >
-                    <Settings className="w-5 h-5" />
-                </button>
-            </div>
-
-            {/* Progress Bar */}
-            {isConnected && (
-                <div className="w-full max-w-md px-6 z-10">
-                    <div className="h-1 bg-muted/30 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${getProgressPercent()}%` }} />
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-muted/30 backdrop-blur-md border border-white/5 shadow-sm">
+                        <Clock className={`w-4 h-4 ${isConnected ? 'text-blue-400' : 'text-muted-foreground'}`} />
+                        <span className="font-mono text-sm font-bold tracking-tight">
+                            {formatTime(elapsedTime)}
+                            <span className="text-muted-foreground/50 ml-1">/ 30:00</span>
+                        </span>
                     </div>
                 </div>
-            )}
 
-            {/* Main Orb */}
-            <div className="flex-1 w-full flex flex-col items-center justify-center z-10">
-                <VoiceOrb volume={volume} state={state} />
-
-                {/* Tip */}
-                {state === 'idle' && (
-                    <div className="mt-16 flex items-center gap-2 px-5 py-3 rounded-2xl bg-amber-500/10 text-amber-400 max-w-sm text-center">
-                        <Sparkles className="w-4 h-4 shrink-0" />
-                        <span className="text-sm">{TIPS[tipIndex]}</span>
-                    </div>
-                )}
+                <div className="flex-1 flex justify-end">
+                    <button
+                        onClick={() => setShowKeyModal(true)}
+                        className="p-3 rounded-full hover:bg-muted/50 transition-all text-muted-foreground hover:text-foreground border border-transparent hover:border-white/5"
+                        title="Settings"
+                    >
+                        <Settings className="w-5 h-5" />
+                    </button>
+                </div>
             </div>
 
-            {/* Controls */}
-            <div className="w-full max-w-lg flex flex-col items-center gap-5 p-6 md:p-8 z-10">
+            {/* Main Area */}
+            <div className="flex-1 w-full flex flex-col items-center justify-center z-10 gap-8 md:gap-14 py-4">
+                <VoiceOrb volume={volume} state={state} />
+
+                <div className="flex flex-col items-center gap-6 px-4">
+                    <p className="text-xs md:text-sm font-bold uppercase tracking-[6px] text-muted-foreground/60 transition-all duration-500">
+                        {getStatusText()}
+                    </p>
+
+                    {state === 'idle' && (
+                        <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 text-amber-500 animate-in fade-in slide-in-from-bottom-2 duration-700 shadow-sm max-w-[280px] md:max-w-md text-center">
+                            <Sparkles className="w-4 h-4 shrink-0" />
+                            <span className="text-sm font-medium tracking-wide">{TIPS[tipIndex]}</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Bottom Controls */}
+            <div className="w-full max-w-xl flex flex-col items-center gap-8 pb-10 md:pb-16 z-10 px-6">
+                {/* Progress */}
+                {isConnected && (
+                    <div className="w-full h-1 bg-muted/20 rounded-full overflow-hidden mb-2">
+                        <div
+                            className="h-full bg-blue-500 transition-all duration-500 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                            style={{ width: `${getProgressPercent()}%` }}
+                        />
+                    </div>
+                )}
+
                 <div className="flex items-center justify-center gap-4 w-full">
                     {!isConnected ? (
                         <button
                             onClick={connect}
                             disabled={state === 'connecting'}
-                            className="group relative flex items-center gap-3 px-10 py-4 rounded-full bg-blue-500 hover:bg-blue-600 text-white font-semibold transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 disabled:opacity-60"
+                            className="group relative flex items-center justify-center gap-4 px-12 py-5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-black text-lg transition-all shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 w-full md:w-auto min-w-[280px]"
                         >
-                            <Mic className="w-5 h-5" />
-                            <span>{state === 'connecting' ? 'Connecting...' : 'Start Conversation'}</span>
+                            <Mic className="w-6 h-6" />
+                            <span className="tracking-tight">{state === 'connecting' ? 'Connecting...' : 'Start Practicing'}</span>
                         </button>
                     ) : (
-                        <>
+                        <div className="flex items-center gap-4 w-full">
                             <button
                                 onClick={toggleMic}
-                                className={`p-4 rounded-full transition-all ${isMicOn
-                                        ? 'bg-muted/50 hover:bg-muted text-foreground'
-                                        : 'bg-red-500/20 text-red-500 hover:bg-red-500/30'
+                                className={`p-5 rounded-full transition-all border shadow-sm ${isMicOn
+                                    ? 'bg-muted/30 border-white/5 text-foreground hover:bg-muted/50'
+                                    : 'bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
                                     }`}
                             >
-                                {isMicOn ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
+                                {isMicOn ? <Mic className="w-7 h-7" /> : <MicOff className="w-7 h-7" />}
                             </button>
                             <button
                                 onClick={disconnect}
-                                className="flex items-center gap-2 px-8 py-4 rounded-full bg-red-500 hover:bg-red-600 text-white font-semibold transition-all shadow-lg shadow-red-500/25"
+                                className="flex-1 flex items-center justify-center gap-3 px-10 py-5 rounded-full bg-red-600 hover:bg-red-500 text-white font-black text-lg transition-all shadow-xl shadow-red-600/20 hover:shadow-red-600/40 hover:scale-[1.02] active:scale-[0.98]"
                             >
-                                <X className="w-5 h-5" />
+                                <X className="w-6 h-6" />
                                 <span>End Session</span>
                             </button>
-                        </>
+                        </div>
                     )}
                 </div>
 
-                {/* Complete Task Button */}
                 {taskId && !isConnected && (
                     <button
                         onClick={() => setShowSummary(true)}
-                        className="text-sm text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
+                        className="text-xs font-bold text-muted-foreground/40 hover:text-primary transition-all flex items-center gap-2 tracking-widest uppercase py-2"
                     >
                         <CheckCircle2 className="w-4 h-4" />
-                        Complete Task
+                        Quick Finish
                     </button>
                 )}
-
-                {/* Footer */}
-                <div className="flex items-center gap-2 text-muted-foreground/60 text-xs">
-                    <Zap className="w-3 h-3" />
-                    <span>Powered by Gemini 2.0</span>
-                </div>
             </div>
 
-            {/* Summary Modal */}
+            {/* Modals */}
             {showSummary && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-                    <div className="bg-background p-8 rounded-3xl w-full max-w-md text-center space-y-6 shadow-2xl">
-                        <div className="w-20 h-20 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto">
-                            <CheckCircle2 className="w-10 h-10" />
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-xl z-50 flex items-center justify-center p-6 sm:p-4">
+                    <div className="bg-surface border border-white/5 p-8 md:p-12 rounded-[40px] w-full max-w-md text-center space-y-8 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+                        <div className="w-24 h-24 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(34,197,94,0.15)]">
+                            <CheckCircle2 className="w-12 h-12" />
                         </div>
-                        <div>
-                            <h2 className="text-2xl font-bold mb-2">Great Session!</h2>
-                            <p className="text-muted-foreground">
-                                You practiced for <span className="text-foreground font-bold font-mono">{formatTime(elapsedTime)}</span>
+                        <div className="space-y-3">
+                            <h2 className="text-3xl font-black tracking-tight">Well Done!</h2>
+                            <p className="text-muted-foreground text-lg">
+                                Practice Time: <span className="text-foreground font-bold font-mono text-xl">{formatTime(elapsedTime)}</span>
                             </p>
                         </div>
-                        {taskId ? (
-                            <div className="space-y-3">
+                        <div className="space-y-3">
+                            {taskId ? (
+                                <>
+                                    <button
+                                        onClick={handleCompleteTask}
+                                        disabled={state === 'completing'}
+                                        className="w-full py-5 rounded-2xl bg-primary text-primary-foreground font-black text-lg hover:opacity-90 transition-all shadow-lg shadow-primary/25 disabled:opacity-50"
+                                    >
+                                        {state === 'completing' ? 'Saving Progress...' : 'Claim 80 XP'}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowSummary(false)}
+                                        className="w-full py-4 rounded-2xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all font-bold"
+                                    >
+                                        Keep Going
+                                    </button>
+                                </>
+                            ) : (
                                 <button
-                                    onClick={handleCompleteTask}
-                                    disabled={state === 'completing'}
-                                    className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-bold hover:opacity-90 transition-all"
+                                    onClick={() => router.push('/dashboard')}
+                                    className="w-full py-5 rounded-2xl bg-foreground text-background font-black text-lg hover:opacity-90 transition-all"
                                 >
-                                    {state === 'completing' ? 'Saving...' : 'Complete Task (+80 XP)'}
+                                    Finish
                                 </button>
-                                <button
-                                    onClick={() => setShowSummary(false)}
-                                    className="w-full py-3 text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                    Continue Practicing
-                                </button>
-                            </div>
-                        ) : (
-                            <button
-                                onClick={() => router.push('/dashboard')}
-                                className="w-full py-4 rounded-2xl bg-foreground text-background font-bold hover:opacity-90 transition-all"
-                            >
-                                Back to Dashboard
-                            </button>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
 
-            {/* API Key Modal */}
             {showKeyModal && (
-                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-background p-6 rounded-2xl w-full max-w-md shadow-xl">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold">Gemini API Key</h3>
-                            <button onClick={() => setShowKeyModal(false)}><X className="w-5 h-5" /></button>
+                <div className="absolute inset-0 bg-background/90 backdrop-blur-md z-50 flex items-center justify-center p-6">
+                    <div className="bg-surface border border-white/10 p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6">
+                        <div className="flex justify-between items-center">
+                            <h3 className="text-xl font-black tracking-tight">Gemini Setup</h3>
+                            <button onClick={() => setShowKeyModal(false)} className="hover:rotate-90 transition-transform"><X className="w-6 h-6" /></button>
                         </div>
-                        <p className="text-muted-foreground text-sm mb-4">Enter your Google Gemini API key to use voice features.</p>
+                        <p className="text-muted-foreground text-sm leading-relaxed">Enter your Google Gemini API key to enable AI voice conversations. This is stored only in your browser.</p>
                         <input
                             type="password"
-                            placeholder="Enter API Key"
-                            className="w-full bg-muted rounded-xl px-4 py-3 mb-4 focus:ring-2 focus:ring-primary outline-none"
+                            placeholder="Paste your API key here..."
+                            className="w-full bg-muted/50 border border-white/5 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm shadow-inner transition-all focus:bg-muted"
                             defaultValue={apiKey}
                             onChange={(e) => setApiKey(e.target.value)}
                         />
-                        <div className="flex gap-2 justify-end">
-                            <button onClick={() => setShowKeyModal(false)} className="px-4 py-2 rounded-lg hover:bg-muted transition-colors">Cancel</button>
-                            <button onClick={() => saveKey(apiKey)} className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium">Save</button>
+                        <div className="flex gap-3 pt-2">
+                            <button onClick={() => setShowKeyModal(false)} className="flex-1 py-4 rounded-xl hover:bg-white/5 font-bold transition-colors">Cancel</button>
+                            <button onClick={() => saveKey(apiKey)} className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black transition-all shadow-lg shadow-blue-600/20">Save Key</button>
                         </div>
                     </div>
                 </div>
