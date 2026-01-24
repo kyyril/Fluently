@@ -28,7 +28,7 @@ export interface AuthRequest extends Request {
  * JWT authentication middleware using jose (supports EdDSA from Neon Auth)
  */
 export async function authenticate(req: AuthRequest, res: Response, next: NextFunction) {
-    const authHeader = req.headers.authorization;
+    const authHeader = (req as any).headers?.authorization;
 
     if (!authHeader?.startsWith('Bearer ')) {
         return next(new UnauthorizedError('Missing authorization header'));
@@ -192,7 +192,7 @@ export function authorizeAdmin(req: AuthRequest, res: Response, next: NextFuncti
  * Optional authentication
  */
 export async function optionalAuth(req: AuthRequest, res: Response, next: NextFunction) {
-    const authHeader = req.headers.authorization;
+    const authHeader = (req as any).headers?.authorization;
 
     if (authHeader?.startsWith('Bearer ')) {
         const token = authHeader.slice(7);
