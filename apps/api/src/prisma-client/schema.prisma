@@ -1,0 +1,193 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
+  output        = "../src/prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  passwordHash String? // Optional for local login
+  displayName  String
+  avatarUrl    String?
+
+  // Neon Auth / Better Auth fields
+  name          String?
+  image         String?
+  emailVerified Boolean @default(false)
+
+  nativeLanguage String      @default("")
+  targetLanguage String      @default("")
+  country        String?
+  level          Level?
+  role           UserRole    @default(USER)
+  totalXp        Int         @default(0)
+  currentStreak  Int         @default(0)
+  longestStreak  Int         @default(0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  dailyLogs      DailyLog[]
+  titles         UserTitle[]
+  sessions       Session[]
+  accounts       Account[]
+
+  @@index([email])
+  @@index([totalXp])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model DailyLog {
+  id        String           @id @default(cuid())
+  userId    String
+  date      DateTime         @db.Date
+  dayRecap  String?
+  aiReview  String?
+  totalXp   Int              @default(0)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     TaskCompletion[]
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date, totalXp])
+}
+
+model TaskCompletion {
+  id          String    @id @default(cuid())
+  dailyLogId  String
+  taskType    TaskType
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  xpEarned    Int       @default(0)
+  metadata    Json?
+  dailyLog    DailyLog  @relation(fields: [dailyLogId], references: [id], onDelete: Cascade)
+
+  @@unique([dailyLogId, taskType])
+  @@index([dailyLogId])
+}
+
+model Title {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String
+  icon        String
+  requirement String
+  users       UserTitle[]
+}
+
+model UserTitle {
+  id       String   @id @default(cuid())
+  userId   String
+  titleId  String
+  earnedAt DateTime @default(now())
+  title    Title    @relation(fields: [titleId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, titleId])
+  @@index([userId])
+}
+
+model Article {
+  id         String        @id @default(cuid())
+  title      String
+  slug       String        @unique
+  summary    String
+  content    String
+  coverImage String?
+  readTime   Int           @default(5)
+  category   String        @default("General")
+  tags       String[]      @default([])
+  published  Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  reads      ArticleRead[]
+
+  @@index([published])
+  @@index([createdAt])
+  @@index([category])
+}
+
+model ArticleRead {
+  id          String    @id @default(cuid())
+  userId      String
+  articleId   String
+  date        DateTime  @db.Date
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  xpEarned    Int       @default(0)
+  createdAt   DateTime  @default(now())
+  article     Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId, date])
+  @@index([userId, date])
+  @@index([articleId])
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TaskType {
+  PODCAST_LISTENING
+  LEARN_VERBS
+  CREATE_SENTENCES
+  SPEAKING_SESSION
+  DAY_RECAP
+}

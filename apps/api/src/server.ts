@@ -4,10 +4,10 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { config } from './config';
 import routes from './routes';
-import { errorHandler } from './middleware';
+import { errorHandler, requestLogger } from './middleware';
 
 const app = express();
-import { requestLogger } from './middleware';
+
 
 // ============================================
 // MIDDLEWARE
