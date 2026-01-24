@@ -42,11 +42,14 @@ app.use('/api', routes);
 // Health check
 app.get('/health', (req, res) => {
     res.json({
-        status: 'ok',
+        status: (config as any)._errors ? 'error' : 'ok',
         timestamp: new Date().toISOString(),
         environment: config.nodeEnv,
+        configErrors: (config as any)._errors || null,
+        vercel: !!process.env.VERCEL,
     });
 });
+
 
 // 404 handler
 app.use((req, res) => {

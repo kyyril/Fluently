@@ -17,31 +17,35 @@ const envSchema = z.object({
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
+const envErrors = !parsedEnv.success ? Object.keys(parsedEnv.error.flatten().fieldErrors) : null;
 
-if (!parsedEnv.success) {
-    const errors = parsedEnv.error.flatten().fieldErrors;
-    console.error('❌ Invalid environment variables:', JSON.stringify(errors, null, 2));
-
-    // In Vercel, we want to see this in logs, but maybe not crash and die if it's just missing non-critical vars
-    // However, for the ones marked required, we must throw.
-    if (process.env.VERCEL) {
-        console.warn('⚠️ Running on Vercel with invalid configuration. Check your environment variables.');
-    }
-
-    throw new Error(`Invalid environment variables: ${Object.keys(errors).join(', ')}`);
+if (envErrors) {
+    console.error('❌ Missing/Invalid Env Vars:', envErrors.join(', '));
 }
 
-export const env = parsedEnv.data;
+// Fallback values for diagnostic mode
+const data = parsedEnv.success ? parsedEnv.data : {
+    PORT: 4000,
+    NODE_ENV: 'production' as const,
+    CORS_ORIGIN: '*',
+    JWT_SECRET: 'temp',
+    JWT_EXPIRES_IN: '7d',
+    DATABASE_URL: '',
+    REDIS_URL: '',
+    NEON_AUTH_JWKS_URL: '',
+};
 
 export const config = {
-    port: env.PORT,
-    nodeEnv: env.NODE_ENV,
-    corsOrigin: env.CORS_ORIGIN.split(',').map(origin => origin.trim()),
-    jwtSecret: env.JWT_SECRET,
-    jwtExpiresIn: env.JWT_EXPIRES_IN,
-    databaseUrl: env.DATABASE_URL,
-    redisUrl: env.REDIS_URL,
-    neonAuthJwksUrl: env.NEON_AUTH_JWKS_URL,
-    adminEmail: env.ADMIN_EMAIL,
-    invitationCode: env.INVITATION_CODE,
+    port: data.PORT,
+    nodeEnv: data.NODE_ENV,
+    corsOrigin: (data.CORS_ORIGIN || '').split(',').map(origin => origin.trim()),
+    jwtSecret: data.JWT_SECRET,
+    jwtExpiresIn: data.JWT_EXPIRES_IN,
+    databaseUrl: data.DATABASE_URL,
+    redisUrl: data.REDIS_URL,
+    neonAuthJwksUrl: data.NEON_AUTH_JWKS_URL,
+    adminEmail: (data as any).ADMIN_EMAIL,
+    invitationCode: (data as any).INVITATION_CODE,
+    _errors: envErrors,
 } as const;
+
