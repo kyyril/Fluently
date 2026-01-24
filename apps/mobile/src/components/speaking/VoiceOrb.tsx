@@ -8,7 +8,6 @@ import Animated, {
     withTiming,
     withSequence,
     interpolate,
-    interpolateColor,
     Easing,
 } from 'react-native-reanimated';
 import { Mic2, Volume2, Loader2 } from 'lucide-react-native';

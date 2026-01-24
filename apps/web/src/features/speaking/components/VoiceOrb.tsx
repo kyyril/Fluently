@@ -1,76 +1,105 @@
 
 import React from 'react';
+import { Mic, Volume2, Loader2 } from 'lucide-react';
 
 interface VoiceOrbProps {
-    volume: number; // 0 to 1
+    volume: number;
     state: 'idle' | 'listening' | 'speaking' | 'connecting' | 'error' | 'completing';
 }
 
 export const VoiceOrb: React.FC<VoiceOrbProps> = ({ volume, state }) => {
-    // Base scale
-    const scale = 1 + Math.min(volume * 2, 1.5);
+    const scale = 1 + Math.min(volume * 1.2, 0.8);
+    const isActive = state === 'listening' || state === 'speaking' || state === 'connecting';
 
-    let colorClass = 'bg-blue-500';
-    let pulseColor = 'bg-blue-400';
+    const getColors = () => {
+        switch (state) {
+            case 'listening':
+                return { bg: 'bg-blue-500', glow: 'rgba(59, 130, 246, 0.5)', ring: 'border-blue-400/30' };
+            case 'speaking':
+                return { bg: 'bg-gradient-to-br from-purple-500 to-pink-500', glow: 'rgba(168, 85, 247, 0.5)', ring: 'border-purple-400/30' };
+            case 'connecting':
+                return { bg: 'bg-amber-500', glow: 'rgba(245, 158, 11, 0.4)', ring: 'border-amber-400/30' };
+            case 'error':
+                return { bg: 'bg-red-500', glow: 'rgba(239, 68, 68, 0.5)', ring: 'border-red-400/30' };
+            case 'completing':
+                return { bg: 'bg-green-500', glow: 'rgba(34, 197, 94, 0.5)', ring: 'border-green-400/30' };
+            default:
+                return { bg: 'bg-zinc-700', glow: 'rgba(63, 63, 70, 0.3)', ring: 'border-zinc-600/20' };
+        }
+    };
 
-    switch (state) {
-        case 'idle':
-            colorClass = 'bg-gray-500';
-            pulseColor = 'bg-gray-400';
-            break;
-        case 'listening':
-            colorClass = 'bg-white';
-            pulseColor = 'bg-blue-100';
-            break;
-        case 'speaking':
-            // Gemini speaking
-            colorClass = 'bg-gradient-to-br from-blue-400 to-purple-500';
-            pulseColor = 'bg-purple-300';
-            break;
-        case 'connecting':
-            colorClass = 'bg-yellow-500';
-            pulseColor = 'bg-yellow-300';
-            break;
-        case 'error':
-            colorClass = 'bg-red-500';
-            pulseColor = 'bg-red-300';
-            break;
-        case 'completing':
-            colorClass = 'bg-green-500';
-            pulseColor = 'bg-green-300';
-            break;
-    }
+    const colors = getColors();
 
     return (
-        <div className="relative flex items-center justify-center w-56 h-56 md:w-80 md:h-80 transition-all duration-700">
-            {/* Deep Ambient Glow */}
+        <div className="relative flex items-center justify-center w-72 h-72 md:w-96 md:h-96">
+            {/* Decorative Rings */}
             <div
-                className={`absolute rounded-full opacity-30 blur-[80px] md:blur-[120px] transition-all duration-1000 ${colorClass}`}
+                className={`absolute w-[320px] h-[320px] md:w-[420px] md:h-[420px] rounded-full border border-dashed ${colors.ring} opacity-20 animate-spin`}
+                style={{ animationDuration: '30s' }}
+            />
+            <div
+                className={`absolute w-[360px] h-[360px] md:w-[480px] md:h-[480px] rounded-full border border-dashed ${colors.ring} opacity-10`}
+                style={{ animation: 'spin 45s linear infinite reverse' }}
+            />
+
+            {/* Outer Glow Layers */}
+            <div
+                className={`absolute w-48 h-48 md:w-64 md:h-64 rounded-full blur-[80px] transition-all duration-300 ${colors.bg}`}
                 style={{
-                    width: `${150 * scale}%`,
-                    height: `${150 * scale}%`,
+                    transform: `scale(${scale * 1.5})`,
+                    opacity: 0.25 + volume * 0.3
+                }}
+            />
+            <div
+                className={`absolute w-36 h-36 md:w-48 md:h-48 rounded-full blur-[50px] transition-all duration-200 ${colors.bg}`}
+                style={{
+                    transform: `scale(${scale * 1.2})`,
+                    opacity: 0.35 + volume * 0.25
                 }}
             />
 
+            {/* Pulse Ring (active states only) */}
+            {isActive && (
+                <div
+                    className={`absolute w-28 h-28 md:w-36 md:h-36 rounded-full ${colors.bg} animate-ping`}
+                    style={{
+                        opacity: 0.2,
+                        animationDuration: '2s'
+                    }}
+                />
+            )}
+
             {/* Core Orb */}
             <div
-                className={`relative w-40 h-40 md:w-56 md:h-56 rounded-full shadow-[0_0_50px_rgba(255,255,255,0.1)] transition-all duration-75 flex items-center justify-center ${colorClass}`}
+                className={`relative w-24 h-24 md:w-32 md:h-32 rounded-full ${colors.bg} shadow-2xl transition-transform duration-100 flex items-center justify-center overflow-hidden`}
                 style={{
-                    transform: `scale(${scale})`
+                    transform: `scale(${scale})`,
+                    boxShadow: `0 0 60px ${colors.glow}, 0 0 100px ${colors.glow}`
                 }}
             >
-                <div className={`absolute inset-0 rounded-full blur-md opacity-60 ${pulseColor}`} />
+                {/* Inner highlight */}
+                <div className="absolute top-2 left-4 w-8 h-5 bg-white/30 rounded-full blur-sm rotate-[-20deg]" />
+
+                {/* Core center */}
+                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full ${colors.bg} opacity-60`} />
+
+                {/* Icon */}
+                <div className="absolute inset-0 flex items-center justify-center text-white/90">
+                    {state === 'listening' && <Mic className="w-8 h-8 md:w-10 md:h-10" />}
+                    {state === 'speaking' && <Volume2 className="w-8 h-8 md:w-10 md:h-10" />}
+                    {state === 'connecting' && <Loader2 className="w-8 h-8 md:w-10 md:h-10 animate-spin" />}
+                </div>
             </div>
 
             {/* Status Text */}
-            <div className="absolute -bottom-12 text-center">
-                <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-                    {state === 'idle' && 'Ready'}
+            <div className="absolute -bottom-16 md:-bottom-20 text-center">
+                <p className="text-xs md:text-sm font-semibold uppercase tracking-[4px] text-muted-foreground">
+                    {state === 'idle' && 'Ready to Practice'}
                     {state === 'connecting' && 'Connecting...'}
-                    {state === 'listening' && 'Listening'}
-                    {state === 'speaking' && 'Gemini'}
-                    {state === 'error' && 'Error'}
-                    {state === 'completing' && 'Completing Task...'}
+                    {state === 'listening' && 'Listening...'}
+                    {state === 'speaking' && 'AI Speaking'}
+                    {state === 'error' && 'Connection Error'}
+                    {state === 'completing' && 'Saving...'}
                 </p>
             </div>
         </div>
