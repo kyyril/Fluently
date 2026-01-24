@@ -1,28 +1,10 @@
-let app: any;
-let error: any = null;
+import express from 'express';
+import app from '../src/server';
 
-try {
-    // Kita impor di dalam try-catch supaya jika ada crash saat loading (misal Prisma error),
-    // aplikasinya tidak langsung mati total di Vercel.
-    app = require('../src/server').default;
-} catch (e: any) {
-    console.error('CRITICAL STARTUP ERROR:', e);
-    error = e;
-}
+const debugApp = express();
 
-export default function (req: any, res: any) {
-    if (error) {
-        return res.status(500).json({
-            error: 'Failed to start application',
-            message: error.message,
-            stack: error.stack,
-            hint: 'Check your environment variables like DATABASE_URL or NEON_AUTH_JWKS_URL'
-        });
-    }
+// Pasang aplikasi utama di bawah prefix /api jika diperlukan, 
+// atau langsung saja jalankan server.
+debugApp.use('/', app);
 
-    if (app) {
-        return app(req, res);
-    }
-
-    return res.status(500).json({ error: 'Application not initialized' });
-}
+export default debugApp;
