@@ -5,7 +5,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GeminiLiveClient } from './lib/GeminiLiveClient';
 import { VoiceOrb } from './components/VoiceOrb';
-import { Mic, MicOff, Settings, X, CheckCircle2, Sparkles, Clock, Zap } from 'lucide-react';
+import { Mic, MicOff, Settings, X, CheckCircle2, Sparkles, Zap, Trophy } from 'lucide-react';
 import { useCompleteTask } from '@/hooks/useRoutine';
 
 interface SpeakingSessionProps {
@@ -25,6 +25,7 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
     const { mutate: completeTask, isPending: isCompleting } = useCompleteTask();
 
     const [apiKey, setApiKey] = useState<string>('');
+    const [customPrompt, setCustomPrompt] = useState<string>('');
     const [client, setClient] = useState<GeminiLiveClient | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [isMicOn, setIsMicOn] = useState(true);
@@ -44,9 +45,13 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
     useEffect(() => {
         const envKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
         const localKey = localStorage.getItem('gemini_api_key');
+        const localPrompt = localStorage.getItem('speaking_custom_prompt') || '';
+
         if (envKey) setApiKey(envKey);
         else if (localKey) setApiKey(localKey);
         else setShowKeyModal(true);
+
+        setCustomPrompt(localPrompt);
 
         if (taskId) {
             const today = new Date().toISOString().split('T')[0];
@@ -88,7 +93,12 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
             const newClient = new GeminiLiveClient(apiKey, {
                 model: "gemini-2.5-flash-native-audio-preview-09-2025",
                 voiceName: "Puck",
-                systemInstruction: `You are Fluently AI, a friendly language tutor. Keep responses concise (1-3 sentences). Correct mistakes gently. Ask open-ended questions.`
+                systemInstruction: `You are Fluently AI, a professional English tutor. 
+                Your goal is to help students practice their English speaking skills.
+                ALWAYS respond in English. 
+                Keep responses brief and engaging (1-3 sentences). 
+                If the user makes a mistake, provide a very short correction at the end of your response.
+                ${customPrompt ? `The user has specified this focus/personality for today: "${customPrompt}". Adapt your style and topic to this instruction.` : 'Start the conversation with a warm greeting in English.'}`
             });
 
             newClient.onConnected = () => { setIsConnected(true); setState('listening'); startAudioCapture(newClient); };
@@ -167,7 +177,13 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
     };
 
     const toggleMic = () => setIsMicOn(!isMicOn);
-    const saveKey = (key: string) => { localStorage.setItem('gemini_api_key', key); setApiKey(key); setShowKeyModal(false); };
+    const saveSettings = (key: string, prompt: string) => {
+        localStorage.setItem('gemini_api_key', key);
+        localStorage.setItem('speaking_custom_prompt', prompt);
+        setApiKey(key);
+        setCustomPrompt(prompt);
+        setShowKeyModal(false);
+    };
 
     const getStatusText = () => {
         switch (state) {
@@ -183,35 +199,14 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
 
     return (
         <div className="flex flex-col items-center justify-between h-full min-h-[600px] w-full relative overflow-hidden bg-background">
-            {/* Background Effects */}
-            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
-
             {/* Header */}
-            <div className="w-full flex items-center justify-between p-4 md:p-8 z-10">
-                <div className="flex-1">
-                    {isConnected && (
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 w-fit">
-                            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                            <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Live Session</span>
-                        </div>
-                    )}
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-3 px-4 py-2 rounded-full bg-muted/30 backdrop-blur-md border border-white/5 shadow-sm">
-                        <Clock className={`w-4 h-4 ${isConnected ? 'text-blue-400' : 'text-muted-foreground'}`} />
-                        <span className="font-mono text-sm font-bold tracking-tight">
-                            {formatTime(elapsedTime)}
-                        </span>
-                    </div>
-                </div>
+            <div className="w-full flex items-center justify-between p-6 md:p-10 z-10">
+                <div className="flex-1" />
 
                 <div className="flex-1 flex justify-end">
                     <button
                         onClick={() => setShowKeyModal(true)}
-                        className="p-3 rounded-full hover:bg-muted/50 transition-all text-muted-foreground hover:text-foreground border border-transparent hover:border-white/5"
-                        title="Settings"
+                        className="p-3 rounded-xl bg-surface/50 hover:bg-surface transition-all text-muted-foreground hover:text-foreground"
                     >
                         <Settings className="w-5 h-5" />
                     </button>
@@ -219,53 +214,52 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
             </div>
 
             {/* Main Area */}
-            <div className="flex-1 w-full flex flex-col items-center justify-center z-10 gap-8 md:gap-14 py-4">
+            <div className="flex-1 w-full flex flex-col items-center justify-center z-10 gap-10 md:gap-16 py-4">
                 <VoiceOrb volume={volume} state={state} />
 
-                <div className="flex flex-col items-center gap-6 px-4">
-                    <p className="text-xs md:text-sm font-bold uppercase tracking-[6px] text-muted-foreground/60 transition-all duration-500">
+                <div className="flex flex-col items-center gap-4 px-4 text-center">
+                    <p className="text-xs font-black uppercase tracking-[4px] text-muted-foreground transition-all duration-500">
                         {getStatusText()}
                     </p>
 
                     {state === 'idle' && (
-                        <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 text-amber-500 animate-in fade-in slide-in-from-bottom-2 duration-700 shadow-sm max-w-[280px] md:max-w-md text-center">
+                        <div className="flex items-center gap-3 px-6 py-4 rounded-2xl bg-primary/5 text-primary max-w-xs text-center border-none">
                             <Sparkles className="w-4 h-4 shrink-0" />
-                            <span className="text-sm font-medium tracking-wide">{TIPS[tipIndex]}</span>
+                            <span className="text-xs font-bold tracking-tight">{TIPS[tipIndex]}</span>
                         </div>
                     )}
                 </div>
             </div>
 
             {/* Bottom Controls */}
-            <div className="w-full max-w-xl flex flex-col items-center gap-8 pb-10 md:pb-16 z-10 px-6">
-
-                <div className="flex items-center justify-center gap-4 w-full">
+            <div className="w-full max-w-lg flex flex-col items-center gap-6 pb-10 md:pb-16 z-10 px-6">
+                <div className="flex items-center justify-center gap-3 w-full">
                     {!isConnected ? (
                         <button
                             onClick={connect}
                             disabled={state === 'connecting'}
-                            className="group relative flex items-center justify-center gap-4 px-12 py-5 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-black text-lg transition-all shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 w-full md:w-auto min-w-[280px]"
+                            className="group relative flex items-center justify-center gap-3 px-10 py-4 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm transition-all shadow-lg shadow-primary/10 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 w-full sm:w-auto min-w-[240px]"
                         >
-                            <Mic className="w-6 h-6" />
-                            <span className="tracking-tight">{state === 'connecting' ? 'Connecting...' : 'Start Practicing'}</span>
+                            <Mic className="w-5 h-5" />
+                            <span>{state === 'connecting' ? 'Connecting...' : 'Start Session'}</span>
                         </button>
                     ) : (
-                        <div className="flex items-center gap-4 w-full">
+                        <div className="flex items-center gap-3 w-full">
                             <button
                                 onClick={toggleMic}
-                                className={`p-5 rounded-full transition-all border shadow-sm ${isMicOn
-                                    ? 'bg-muted/30 border-white/5 text-foreground hover:bg-muted/50'
-                                    : 'bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
+                                className={`p-4 rounded-xl transition-all ${isMicOn
+                                    ? 'bg-surface/50 text-foreground hover:bg-surface'
+                                    : 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
                                     }`}
                             >
-                                {isMicOn ? <Mic className="w-7 h-7" /> : <MicOff className="w-7 h-7" />}
+                                {isMicOn ? <Mic className="w-6 h-6" /> : <MicOff className="w-6 h-6" />}
                             </button>
                             <button
                                 onClick={disconnect}
-                                className="flex-1 flex items-center justify-center gap-3 px-10 py-5 rounded-full bg-red-600 hover:bg-red-500 text-white font-black text-lg transition-all shadow-xl shadow-red-600/20 hover:shadow-red-600/40 hover:scale-[1.02] active:scale-[0.98]"
+                                className="flex-1 flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold text-sm transition-all"
                             >
-                                <X className="w-6 h-6" />
-                                <span>End Session</span>
+                                <X className="w-5 h-5" />
+                                <span>End Practice</span>
                             </button>
                         </div>
                     )}
@@ -274,48 +268,45 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
                 {taskId && !isConnected && (
                     <button
                         onClick={() => setShowSummary(true)}
-                        className="text-xs font-bold text-muted-foreground/40 hover:text-primary transition-all flex items-center gap-2 tracking-widest uppercase py-2"
+                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 hover:text-primary transition-all flex items-center gap-2"
                     >
-                        <CheckCircle2 className="w-4 h-4" />
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                         Quick Finish
                     </button>
                 )}
             </div>
 
-            {/* Modals */}
+            {/* Modals - Clean Flat Board Style */}
             {showSummary && (
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-xl z-50 flex items-center justify-center p-6 sm:p-4">
-                    <div className="bg-surface border border-white/5 p-8 md:p-12 rounded-[40px] w-full max-w-md text-center space-y-8 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
-                        <div className="w-24 h-24 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto shadow-[0_0_40px_rgba(34,197,94,0.15)]">
-                            <CheckCircle2 className="w-12 h-12" />
+                <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+                    <div className="bg-surface p-6 md:p-10 rounded-2xl w-full max-w-sm text-center space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-300 border-none">
+                        <div className="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mx-auto">
+                            <Trophy className="w-8 h-8" />
                         </div>
-                        <div className="space-y-3">
-                            <h2 className="text-3xl font-black tracking-tight">Well Done!</h2>
-                            <p className="text-muted-foreground text-lg">
-                                Practice Time: <span className="text-foreground font-bold font-mono text-xl">{formatTime(elapsedTime)}</span>
-                            </p>
+                        <div className="space-y-1">
+                            <h2 className="text-2xl font-black tracking-tight">Great Work!</h2>
                         </div>
-                        <div className="space-y-3">
+                        <div className="space-y-2 pt-4">
                             {taskId ? (
                                 <>
                                     <button
                                         onClick={handleCompleteTask}
                                         disabled={state === 'completing'}
-                                        className="w-full py-5 rounded-2xl bg-primary text-primary-foreground font-black text-lg hover:opacity-90 transition-all shadow-lg shadow-primary/25 disabled:opacity-50"
+                                        className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/10 disabled:opacity-50"
                                     >
-                                        {state === 'completing' ? 'Saving Progress...' : 'Claim 80 XP'}
+                                        {state === 'completing' ? 'Saving...' : 'Claim 80 XP'}
                                     </button>
                                     <button
                                         onClick={() => setShowSummary(false)}
-                                        className="w-full py-4 rounded-2xl hover:bg-white/5 text-muted-foreground hover:text-foreground transition-all font-bold"
+                                        className="w-full py-3 rounded-xl hover:bg-muted/5 text-muted-foreground font-black uppercase tracking-widest text-[9px]"
                                     >
-                                        Keep Going
+                                        Keep Practicing
                                     </button>
                                 </>
                             ) : (
                                 <button
                                     onClick={() => router.push('/dashboard')}
-                                    className="w-full py-5 rounded-2xl bg-foreground text-background font-black text-lg hover:opacity-90 transition-all"
+                                    className="w-full py-4 rounded-xl bg-surface hover:bg-surface/80 text-foreground font-bold text-sm transition-all"
                                 >
                                     Finish
                                 </button>
@@ -326,23 +317,40 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
             )}
 
             {showKeyModal && (
-                <div className="absolute inset-0 bg-background/90 backdrop-blur-md z-50 flex items-center justify-center p-6">
-                    <div className="bg-surface border border-white/10 p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6">
+                <div className="fixed inset-0 bg-background/90 backdrop-blur-md z-50 flex items-center justify-center p-6">
+                    <div className="bg-surface p-6 rounded-2xl w-full max-w-sm shadow-2xl space-y-5 border-none">
                         <div className="flex justify-between items-center">
-                            <h3 className="text-xl font-black tracking-tight">Gemini Setup</h3>
-                            <button onClick={() => setShowKeyModal(false)} className="hover:rotate-90 transition-transform"><X className="w-6 h-6" /></button>
+                            <h3 className="text-lg font-black tracking-tight">Session Settings</h3>
+                            <button onClick={() => setShowKeyModal(false)} className="hover:rotate-90 transition-transform"><X className="w-5 h-5 text-muted-foreground" /></button>
                         </div>
-                        <p className="text-muted-foreground text-sm leading-relaxed">Enter your Google Gemini API key to enable AI voice conversations. This is stored only in your browser.</p>
-                        <input
-                            type="password"
-                            placeholder="Paste your API key here..."
-                            className="w-full bg-muted/50 border border-white/5 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-blue-500 outline-none font-mono text-sm shadow-inner transition-all focus:bg-muted"
-                            defaultValue={apiKey}
-                            onChange={(e) => setApiKey(e.target.value)}
-                        />
-                        <div className="flex gap-3 pt-2">
-                            <button onClick={() => setShowKeyModal(false)} className="flex-1 py-4 rounded-xl hover:bg-white/5 font-bold transition-colors">Cancel</button>
-                            <button onClick={() => saveKey(apiKey)} className="flex-1 py-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black transition-all shadow-lg shadow-blue-600/20">Save Key</button>
+
+                        <div className="space-y-4">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-70">Personalization (Optional)</label>
+                                <textarea
+                                    placeholder="e.g. Talk about tech jobs, act like a pirate, or help me practice for a job interview..."
+                                    className="w-full h-24 bg-background border-none rounded-xl px-4 py-3 focus:ring-1 focus:ring-primary/40 outline-none text-xs leading-relaxed resize-none shadow-inner"
+                                    value={customPrompt}
+                                    onChange={(e) => setCustomPrompt(e.target.value)}
+                                />
+                                <p className="text-[9px] text-muted-foreground italic leading-tight">This will change how the AI behaves and what it talks about.</p>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-70">Gemini API Key</label>
+                                <input
+                                    type="password"
+                                    placeholder="your-api-key..."
+                                    className="w-full bg-background border-none rounded-xl px-4 py-3 focus:ring-1 focus:ring-primary/40 outline-none font-mono text-xs shadow-inner"
+                                    value={apiKey}
+                                    onChange={(e) => setApiKey(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-2">
+                            <button onClick={() => setShowKeyModal(false)} className="flex-1 py-3 rounded-lg hover:bg-muted/50 font-black uppercase tracking-widest text-[9px] text-muted-foreground">Cancel</button>
+                            <button onClick={() => saveSettings(apiKey, customPrompt)} className="flex-1 py-3 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[9px]">Apply Settings</button>
                         </div>
                     </div>
                 </div>

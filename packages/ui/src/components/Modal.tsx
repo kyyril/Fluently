@@ -67,7 +67,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
             <>
                 {/* Backdrop */}
                 <div
-                    className="fixed inset-0 z-50 bg-black/50"
+                    className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
                     onClick={onClose}
                     aria-hidden="true"
                 />
@@ -83,7 +83,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
                         'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
                         'w-full p-6',
                         'bg-surface text-surface-foreground',
-                        'rounded-xl shadow-xl',
+                        'rounded-2xl shadow-2xl border-none',
                         sizeClasses[size],
                         className
                     )}

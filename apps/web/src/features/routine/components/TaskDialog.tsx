@@ -75,55 +75,58 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
         switch (task.taskType) {
             case 'PODCAST_LISTENING':
                 return (
-                    <div className="text-center space-y-4 py-4">
-                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                    <div className="text-center space-y-6 py-6">
+                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
                             <Headphones className="h-8 w-8 text-primary" />
                         </div>
-                        <h3 className="text-xl font-bold">Listen to a Podcast</h3>
-                        <p className="text-muted-foreground">
-                            Listen to at least 15 minutes of content in your target language.
-                            Focus on native speakers and try to catch the main theme.
-                        </p>
-                        <Button className="w-full" onClick={() => setStep('active')}>Start Task</Button>
+                        <div className="space-y-2">
+                            <h3 className="text-2xl font-black tracking-tight">Podcast Review</h3>
+                            <p className="text-muted-foreground text-sm leading-relaxed px-4">
+                                Listen to at least 15 minutes of content. Focus on native speakers and summarize your takeaways.
+                            </p>
+                        </div>
+                        <Button className="w-full h-12 font-bold" onClick={() => setStep('active')}>Start Task</Button>
                     </div>
                 );
 
             case 'DAY_RECAP':
                 return (
-                    <div className="text-center space-y-4 py-4">
-                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                    <div className="text-center space-y-6 py-6">
+                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
                             <BookOpen className="h-8 w-8 text-primary" />
                         </div>
-                        <h3 className="text-xl font-bold">Journal Your Day</h3>
-                        <p className="text-muted-foreground">
-                            Summarize your day in your target language. Keep track of your
-                            learning progress and daily activities.
-                        </p>
-                        <Button className="w-full" onClick={() => setStep('active')}>Start Writing</Button>
+                        <div className="space-y-2">
+                            <h3 className="text-2xl font-black tracking-tight">Daily Journal</h3>
+                            <p className="text-muted-foreground text-sm leading-relaxed px-4">
+                                Summarize your day in English. Track your progress and common mistakes you made today.
+                            </p>
+                        </div>
+                        <Button className="w-full h-12 font-bold" onClick={() => setStep('active')}>Start Writing</Button>
                     </div>
                 );
 
 
             case 'CREATE_SENTENCES':
                 return (
-                    <div className="text-center space-y-4 py-4">
-                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center border-none">
+                    <div className="text-center space-y-6 py-6">
+                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
                             <PenLine className="h-8 w-8 text-primary" />
                         </div>
-                        <h3 className="text-xl font-bold">Sentence Construction</h3>
-                        <p className="text-muted-foreground">
-                            Take the verbs you just learned and use them in full sentences.
-                            This builds practical speaking and writing skills.
-                        </p>
-                        <Button className="w-full" onClick={() => setStep('active')}>Start Writing</Button>
+                        <div className="space-y-2">
+                            <h3 className="text-2xl font-black tracking-tight">Construction</h3>
+                            <p className="text-muted-foreground text-sm leading-relaxed px-4">
+                                Practice your verbs by building full sentences. Focus on natural phrasing and grammar.
+                            </p>
+                        </div>
+                        <Button className="w-full h-12 font-bold" onClick={() => setStep('active')}>Start Writing</Button>
                     </div>
                 );
             default:
                 return (
-                    <div className="text-center space-y-4 py-4">
-                        <h3 className="text-xl font-bold">{getTaskName(task.taskType)}</h3>
-                        <p className="text-muted-foreground">Ready to start this language learning task?</p>
-                        <Button className="w-full" onClick={() => setStep('active')}>Start Task</Button>
+                    <div className="text-center space-y-6 py-6">
+                        <h3 className="text-2xl font-black tracking-tight">{getTaskName(task.taskType)}</h3>
+                        <p className="text-muted-foreground text-sm">Ready to start this language learning task?</p>
+                        <Button className="w-full h-12 font-bold" onClick={() => setStep('active')}>Start Task</Button>
                     </div>
                 );
         }
@@ -134,85 +137,85 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
             case 'PODCAST_LISTENING':
                 return (
                     <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Video/Podcast Title</label>
+                        <div className="space-y-1.5 px-1">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Title</label>
                             <Input
                                 placeholder="e.g. Spanish with Juan - Episode 45"
                                 value={podcastForm.title}
                                 onChange={(e) => setPodcastForm({ ...podcastForm, title: e.target.value })}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Short Description</label>
+                        <div className="space-y-1.5 px-1">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Key Takeaways</label>
                             <textarea
-                                className="w-full min-h-[80px] p-3 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary  resize-none text-sm"
-                                placeholder="What was it about?"
+                                className="w-full min-h-[100px] p-4 bg-muted/30 rounded-2xl border-none focus:ring-1 focus:ring-primary/40 outline-none resize-none text-sm transition-all"
+                                placeholder="What did you learn from this session?"
                                 value={podcastForm.description}
                                 onChange={(e) => setPodcastForm({ ...podcastForm, description: e.target.value })}
                             />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-muted-foreground italic">Source Link (Optional)</label>
+                        <div className="grid grid-cols-2 gap-3 px-1">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40 italic">Link (Optional)</label>
                                 <Input
-                                    placeholder="YouTube/Spotify Link"
+                                    placeholder="Source..."
                                     value={podcastForm.link}
                                     onChange={(e) => setPodcastForm({ ...podcastForm, link: e.target.value })}
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-muted-foreground italic">Conclusion (Optional)</label>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-40 italic">Note (Optional)</label>
                                 <Input
-                                    placeholder="Your takeaway..."
+                                    placeholder="Quick note..."
                                     value={podcastForm.conclusion}
                                     onChange={(e) => setPodcastForm({ ...podcastForm, conclusion: e.target.value })}
                                 />
                             </div>
                         </div>
                         <Button
-                            className="w-full mt-2"
+                            className="w-full h-14 mt-4 font-bold"
                             onClick={() => handleComplete(podcastForm)}
                             disabled={!podcastForm.title || !podcastForm.description || isCompleting}
                         >
-                            {isCompleting ? <Loader2 className="h-4 w-4 mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-                            Complete Task & Get Score
+                            {isCompleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                            Finish Task
                         </Button>
                     </div>
                 );
             case 'DAY_RECAP':
                 return (
                     <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Your Daily Recap</label>
+                        <div className="space-y-1.5 px-1">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Daily Journal Entry</label>
                             <textarea
-                                className="w-full min-h-[150px] p-4 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary  resize-none"
-                                placeholder="Hoy aprendí sobre..."
+                                className="w-full min-h-[200px] p-5 bg-muted/30 rounded-2xl border-none focus:ring-1 focus:ring-primary/40 outline-none resize-none text-sm leading-relaxed"
+                                placeholder="Today I practiced my speaking skills and learned new verbs..."
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                             />
                         </div>
                         <Button
-                            className="w-full"
+                            className="w-full h-14 font-bold"
                             onClick={() => handleComplete({ content: input })}
                             disabled={isCompleting || input.length < 10}
                         >
-                            {isCompleting ? <Loader2 className="h-4 w-4 mr-2" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
-                            Save Journal Entry
+                            {isCompleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                            Post to Timeline
                         </Button>
                     </div>
                 );
 
             case 'SPEAKING_SESSION':
                 return (
-                    <div className="text-center space-y-6 py-6">
-                        <div className="mx-auto w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center ">
-                            <Mic className="h-12 w-12 text-primary" />
+                    <div className="text-center space-y-8 py-8">
+                        <div className="mx-auto w-24 h-24 bg-primary/10 rounded-2xl flex items-center justify-center ">
+                            <Mic className="h-10 w-10 text-primary" />
                         </div>
-                        <div className="space-y-2">
-                            <h3 className="text-2xl font-black">Recording...</h3>
-                            <p className="text-muted-foreground">Talk about your weekend plans or a recent book you read.</p>
+                        <div className="space-y-2 px-4">
+                            <h3 className="text-3xl font-black tracking-tight">Practice Session</h3>
+                            <p className="text-muted-foreground text-sm">Finish your active speaking session to claim rewards.</p>
                         </div>
-                        <Button variant="outline" className="w-full" onClick={() => handleComplete()}>Finish Session</Button>
+                        <Button className="w-full h-14 font-bold" onClick={() => handleComplete()}>Finish Session</Button>
                     </div>
                 );
 
@@ -221,10 +224,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                 const canRemove = sentences.length > 3;
                 const allFilled = sentences.every(s => s.trim().length >= 5);
 
-                const addSentence = () => {
-                    if (canAdd) setSentences([...sentences, '']);
-                };
-
+                const addSentence = () => { if (canAdd) setSentences([...sentences, '']); };
                 const removeSentence = (index: number) => {
                     if (canRemove) {
                         const newSentences = [...sentences];
@@ -235,135 +235,76 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
 
                 return (
                     <div className="space-y-4">
-                        <p className="text-sm text-muted-foreground italic mb-2">
-                            Write at least 3 sentences (max 10). Each must have at least 5 characters.
-                        </p>
-
-                        <div className="max-h-[350px] overflow-y-auto pr-2 space-y-4 pt-1">
+                        <div className="max-h-[400px] overflow-y-auto pr-2 space-y-4 px-1 pt-1">
                             {sentences.map((sentence, i) => (
                                 <div key={i} className="relative group animate-in fade-in slide-in-from-top-1">
-                                    <div className="flex items-center justify-between mb-1 px-1">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">
-                                            Sentence {i + 1}
+                                    <div className="flex items-center justify-between mb-1">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-primary/60">
+                                            Construct {i + 1}
                                         </label>
                                         {canRemove && (
-                                            <button
-                                                onClick={() => removeSentence(i)}
-                                                className="text-muted-foreground hover:text-red-500 transition-colors"
-                                            >
+                                            <button onClick={() => removeSentence(i)} className="text-muted-foreground/30 hover:text-red-500 transition-colors">
                                                 <Trash2 className="h-3 w-3" />
                                             </button>
                                         )}
                                     </div>
                                     <Input
-                                        placeholder={`Enter sentence ${i + 1}...`}
+                                        placeholder="Type your sentence..."
                                         value={sentence}
                                         onChange={(e) => {
                                             const newSentences = [...sentences];
                                             newSentences[i] = e.target.value;
                                             setSentences(newSentences);
                                         }}
-                                        className={sentence.trim().length > 0 && sentence.trim().length < 5 ? "border-red-500/50" : ""}
+                                        className={sentence.trim().length > 0 && sentence.trim().length < 5 ? "ring-1 ring-red-500/50" : ""}
                                     />
                                 </div>
                             ))}
                         </div>
 
-                        <div className="flex gap-3 mt-4">
+                        <div className="flex gap-3 pt-4 px-1">
                             {canAdd && (
                                 <Button
-                                    variant="outline"
-                                    className="flex-1 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 h-12"
+                                    variant="ghost"
+                                    className="flex-1 bg-surface/50 rounded-2xl h-14 text-muted-foreground hover:text-primary"
                                     onClick={addSentence}
                                 >
                                     <Plus className="h-4 w-4 mr-2" />
-                                    Add Sentence
+                                    Add
                                 </Button>
                             )}
 
                             <Button
-                                className="flex-[2] h-12 font-bold"
+                                className="flex-[3] h-14 font-black uppercase tracking-widest text-xs"
                                 onClick={() => handleComplete({ sentences: sentences.filter(s => s.trim()) })}
                                 disabled={!allFilled || isCompleting}
                             >
-                                {isCompleting ? (
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                ) : (
-                                    <Send className="h-4 w-4 mr-2" />
-                                )}
-                                Submit {sentences.length} Sentences
+                                {isCompleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                                Submit Construction
                             </Button>
                         </div>
                     </div>
                 );
             }
             default:
-                return (
-                    <div className="text-center space-y-6 py-8">
-                        <p className="text-lg">Are you finished with this task?</p>
-                        <div className="grid grid-cols-2 gap-4">
-                            <Button variant="outline" onClick={() => setStep('intro')}>Not yet</Button>
-                            <Button onClick={() => handleComplete()}>Yes, I'm Done</Button>
-                        </div>
-                    </div>
-                );
+                return null;
         }
     };
 
     const renderSuccess = () => (
-        <div className="text-center space-y-6 py-4">
-            <div className="mx-auto w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center">
+        <div className="text-center space-y-10 py-6">
+            <div className="mx-auto w-24 h-24 bg-green-500/10 rounded-2xl flex items-center justify-center">
                 <CheckCircle2 className="h-12 w-12 text-green-500" />
             </div>
 
-            {task.taskType === 'DAY_RECAP' && input && (
-                <div className="bg-muted p-4 rounded-xl text-left space-y-3">
-                    <p className="text-sm font-semibold flex items-center gap-2">
-                        <BookOpen className="h-4 w-4 text-primary" /> Your Entry
-                    </p>
-                    <p className="text-sm italic text-muted-foreground leading-relaxed">
-                        "{input}"
-                    </p>
-                </div>
-            )}
-
-            <div>
-                <h3 className="text-2xl font-bold">Good Job!</h3>
-                <p className="text-muted-foreground">You've earned <span className="text-primary font-bold">+{getTaskXp(task.taskType)} XP</span></p>
+            <div className="space-y-2">
+                <h3 className="text-4xl font-black tracking-tighter">Excellent!</h3>
+                <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">
+                    You earned <span className="text-primary">+{getTaskXp(task.taskType)} XP</span>
+                </p>
             </div>
 
-
-            {task.taskType === 'CREATE_SENTENCES' && sentences.some(s => s.trim()) && (
-                <div className="bg-muted p-4 rounded-xl text-left space-y-3 text-sm">
-                    <p className="font-semibold flex items-center gap-2">
-                        <PenLine className="h-4 w-4 text-primary" /> Your Sentences
-                    </p>
-                    <div className="space-y-2">
-                        {sentences.filter(s => s.trim()).map((s, i) => (
-                            <p key={i} className="text-muted-foreground leading-relaxed">
-                                <span className="text-primary font-bold mr-2">{i + 1}.</span> {s}
-                            </p>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {task.taskType === 'PODCAST_LISTENING' && podcastForm.title && (
-                <div className="bg-muted p-4 rounded-xl text-left space-y-3 text-sm">
-                    <div className="flex items-center gap-2 font-bold text-primary">
-                        <Headphones className="h-4 w-4" /> {podcastForm.title}
-                    </div>
-                    <p className="text-muted-foreground">{podcastForm.description}</p>
-                    {podcastForm.conclusion && (
-                        <div className="pt-2 border-t border-border">
-                            <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">Conclusion:</p>
-                            <p className="">{podcastForm.conclusion}</p>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            <Button className="w-full" onClick={() => {
+            <Button className="w-full h-14 font-bold" onClick={() => {
                 onClose();
                 setTimeout(() => {
                     setStep('intro');
@@ -372,7 +313,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                     setPodcastForm({ title: '', description: '', link: '', conclusion: '' });
                 }, 300);
             }}>
-                Return to Dashboard
+                Back to Dashboard
             </Button>
         </div>
     );
@@ -381,10 +322,10 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={step !== 'success' ? getTaskName(task.taskType) : ''}
+            title=""
             size="md"
         >
-            <div key={step}>
+            <div key={step} className="animate-in fade-in duration-500">
                 {step === 'intro' && renderTaskIntro()}
                 {step === 'active' && renderActiveTask()}
                 {step === 'success' && renderSuccess()}
