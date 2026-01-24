@@ -67,8 +67,10 @@ app.use(errorHandler);
 // START SERVER
 // ============================================
 
-const server = app.listen(config.port, () => {
-    console.log(`
+// Only start the server if not running in a serverless environment (Vercel)
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
+    const server = app.listen(config.port, () => {
+        console.log(`
 🚀 Fluently API Server
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    Port:        ${config.port}
@@ -77,15 +79,17 @@ const server = app.listen(config.port, () => {
    API:         http://localhost:${config.port}/api
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   `);
-});
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('SIGTERM received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('Server closed.');
-        process.exit(0);
     });
-});
+
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+        console.log('SIGTERM received. Shutting down gracefully...');
+        server.close(() => {
+            console.log('Server closed.');
+            process.exit(0);
+        });
+    });
+}
+
 
 export default app;
