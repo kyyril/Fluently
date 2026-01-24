@@ -59,30 +59,7 @@ export function useCompleteTask() {
         },
     });
 }
-export function useSubmitRecap() {
-    const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: async ({ content, dailyLogId }: { content: string; dailyLogId?: string }) => {
-            const response = await api.post<{
-                success: boolean;
-                data: {
-                    feedback: string;
-                    corrections: string[];
-                    corrected: string;
-                    saved: boolean;
-                };
-            }>('/tasks/day-recap/review', { content, dailyLogId });
-            return response.data.data;
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROUTINE_TODAY });
-            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER_ME });
-            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER_STATS });
-            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ROUTINE_HISTORY });
-        },
-    });
-}
 export function useUserStats(userId?: string) {
     return useQuery({
         queryKey: userId ? [QUERY_KEYS.USER_STATS, userId] : [QUERY_KEYS.USER_STATS],

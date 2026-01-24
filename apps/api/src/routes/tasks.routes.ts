@@ -9,13 +9,6 @@ const router = Router();
 router.use(authenticate);
 
 // Validation schemas
-const DayRecapReviewSchema = z.object({
-    body: z.object({
-        content: z.string().min(10, 'Recap must be at least 10 characters'),
-        dailyLogId: z.string().optional(),
-    }),
-});
-
 const CompleteTaskSchema = z.object({
     body: z.object({
         metadata: z.record(z.string(), z.unknown()).optional(),
@@ -24,6 +17,5 @@ const CompleteTaskSchema = z.object({
 
 // Routes
 router.post('/:taskId/complete', validate(CompleteTaskSchema), tasksController.completeTask);
-router.post('/day-recap/review', validate(DayRecapReviewSchema), tasksController.reviewDayRecap);
 
 export default router;

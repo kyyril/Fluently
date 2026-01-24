@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useTodayRoutine, useCompleteTask, useSubmitRecap } from '@/features/dashboard/hooks/useRoutine';
+import { useTodayRoutine, useCompleteTask } from '@/features/dashboard/hooks/useRoutine';
 import { useAuthStore } from '@/stores/authStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Button } from '@/components/ui/Button';
@@ -19,15 +19,9 @@ function DayRecapScreen() {
     const { user } = useAuthStore();
     const { hapticsEnabled } = useSettingsStore();
     const { data: routine, isLoading: loadingRoutine } = useTodayRoutine();
-    const submitRecapMutation = useSubmitRecap();
     const completeTaskMutation = useCompleteTask();
 
     const [content, setContent] = useState('');
-    const [aiReview, setAiReview] = useState<{
-        feedback: string;
-        corrections: string[];
-        corrected: string;
-    } | null>(null);
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const [isDictionaryOpen, setIsDictionaryOpen] = useState(false);
 
@@ -48,13 +42,6 @@ function DayRecapScreen() {
         if (routine?.dayRecap) {
             setContent(routine.dayRecap);
         }
-        if (routine?.aiReview) {
-            try {
-                setAiReview(JSON.parse(routine.aiReview));
-            } catch (e) {
-                console.error('Failed to parse AI review:', e);
-            }
-        }
     }, [routine]);
 
     const handleSubmit = async () => {
@@ -73,23 +60,17 @@ function DayRecapScreen() {
         }
 
         try {
-            const result = await submitRecapMutation.mutateAsync({
-                content,
-                dailyLogId: routine?.id
-            });
-
-            setAiReview(result);
-
             // If the task is not yet completed, complete it
             if (recapTask && !recapTask.completed) {
                 await completeTaskMutation.mutateAsync({
                     taskId: recapTask.id,
+                    metadata: { content }
                 });
                 toast.success('Daily Recap complete! +40 XP');
             }
         } catch (error) {
             console.error(error);
-            toast.error('Failed to process recap. Please try again.');
+            toast.error('Failed to save recap. Please try again.');
         }
     };
 
@@ -134,12 +115,12 @@ function DayRecapScreen() {
                         How was your <Text className="text-indigo-500">day</Text>?
                     </Text>
                     <Text className="text-zinc-400 text-sm mt-1">
-                        Write a short summary of your day in {user?.targetLanguage || 'your target language'}. Our AI will provide feedback on your grammar.
+                        Write a short summary of your day in {user?.targetLanguage || 'your target language'} to track your progress.
                     </Text>
                 </View>
 
                 {/* Input Area */}
-                {!aiReview || !isAlreadyCompleted ? (
+                {!isAlreadyCompleted ? (
                     <View className="mb-6">
                         <View className="bg-zinc-900 border border-zinc-800 rounded-3xl p-4 min-h-[200px]">
                             <TextInput
@@ -150,10 +131,10 @@ function DayRecapScreen() {
                                 value={content}
                                 onChangeText={setContent}
                                 style={{ textAlignVertical: 'top' }}
-                                editable={!submitRecapMutation.isPending && !isAlreadyCompleted}
+                                editable={!completeTaskMutation.isPending && !isAlreadyCompleted}
                                 accessible
                                 accessibilityLabel="Write your daily recap here"
-                                accessibilityHint="Provide at least 10 characters for Gemini AI to review"
+                                accessibilityHint="Provide at least 10 characters"
                             />
 
                         </View>
@@ -162,69 +143,27 @@ function DayRecapScreen() {
                             <Button
                                 className="mt-4"
                                 onPress={handleSubmit}
-                                loading={submitRecapMutation.isPending || completeTaskMutation.isPending}
+                                loading={completeTaskMutation.isPending}
                                 icon={<ArrowRight size={20} color="white" />}
-                                title="Submit Recap"
+                                title="Save Journal Entry"
                             />
 
                         )}
                     </View>
-                ) : null}
-
-                {/* AI Review Results */}
-                {aiReview && (
+                ) : (
                     <View className="gap-y-6">
                         <AnimatedCard index={0}>
                             <View className="flex-row items-center mb-3">
                                 <View className="bg-green-500/20 p-2 rounded-lg">
                                     <CheckCircle size={18} color="#22c55e" />
                                 </View>
-                                <Text className="text-white font-bold text-lg ml-3">AI Feedback</Text>
+                                <Text className="text-white font-bold text-lg ml-3">Your Entry</Text>
                             </View>
                             <InteractiveText
-                                text={aiReview.feedback}
+                                text={content}
                                 onWordClick={handleWordClick}
-                                className="text-zinc-300 text-base leading-7"
+                                className="text-zinc-300 text-base italic leading-7"
                             />
-                        </AnimatedCard>
-
-                        {aiReview.corrections.length > 0 && (
-                            <AnimatedCard index={1}>
-                                <View className="flex-row items-center mb-3">
-                                    <View className="bg-yellow-500/20 p-2 rounded-lg">
-                                        <AlertCircle size={18} color="#eab308" />
-                                    </View>
-                                    <Text className="text-white font-bold text-lg ml-3">Improvements</Text>
-                                </View>
-                                <View className="gap-y-2">
-                                    {aiReview.corrections.map((correction, i) => (
-                                        <View key={i} className="flex-row">
-                                            <Text className="text-indigo-500 mr-2">•</Text>
-                                            <InteractiveText
-                                                text={correction}
-                                                onWordClick={handleWordClick}
-                                                className="text-zinc-400 text-sm flex-1 leading-6"
-                                            />
-                                        </View>
-                                    ))}
-                                </View>
-                            </AnimatedCard>
-                        )}
-
-                        <AnimatedCard index={2}>
-                            <View className="flex-row items-center mb-3">
-                                <View className="bg-indigo-500/20 p-2 rounded-lg">
-                                    <Star size={18} color="#6366f1" />
-                                </View>
-                                <Text className="text-white font-bold text-lg ml-3">Corrected Version</Text>
-                            </View>
-                            <View className="bg-zinc-950 p-5 rounded-2xl border border-zinc-800">
-                                <InteractiveText
-                                    text={aiReview.corrected}
-                                    onWordClick={handleWordClick}
-                                    className="text-white text-base italic leading-7"
-                                />
-                            </View>
                         </AnimatedCard>
 
                         <Button
@@ -233,7 +172,6 @@ function DayRecapScreen() {
                             onPress={() => router.push('/(main)')}
                             title="Back to Dashboard"
                         />
-
                     </View>
                 )}
 
