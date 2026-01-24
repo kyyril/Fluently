@@ -8,7 +8,15 @@ import { prisma } from '../config/database';
 import { config } from '../config';
 
 // Configure JWKS from Neon Auth
-const JWKS = jose.createRemoteJWKSet(new URL(config.neonAuthJwksUrl));
+let JWKS: jose.JWTVerifyGetKey | undefined;
+try {
+    if (config.neonAuthJwksUrl) {
+        JWKS = jose.createRemoteJWKSet(new URL(config.neonAuthJwksUrl));
+    }
+} catch (e) {
+    console.error('[API Auth] Failed to initialize JWKS:', e);
+}
+
 
 export interface AuthRequest extends Request {
     userId?: string;
@@ -42,6 +50,7 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
         } catch (localErr: any) {
             // Try Neon Auth JWKS (standard Remote JWKS)
             try {
+                if (!JWKS) throw new Error('Neon JWKS not initialized');
                 const verified = await jose.jwtVerify(token, JWKS);
                 payload = verified.payload;
                 neonUserId = payload.sub;
@@ -190,6 +199,7 @@ export async function optionalAuth(req: AuthRequest, res: Response, next: NextFu
     if (authHeader?.startsWith('Bearer ')) {
         const token = authHeader.slice(7);
         try {
+            if (!JWKS) throw new Error('Neon JWKS not initialized');
             const { payload } = await jose.jwtVerify(token, JWKS);
             req.userId = payload.sub;
 
