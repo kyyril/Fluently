@@ -1,9 +1,8 @@
-// api/index.ts
-// Native Vercel Function Entry Point
-// Zero configuration required in vercel.json for this to work.
-
-const app = require('../src/server').default;
-
+// Minimal test - tidak import apapun yang kompleks
 module.exports = (req, res) => {
-    return app(req, res);
+    res.status(200).json({
+        message: 'Vercel Function is working!',
+        timestamp: new Date().toISOString(),
+        path: req.url
+    });
 };
