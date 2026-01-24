@@ -12,7 +12,6 @@ interface SpeakingSessionProps {
     taskId?: string;
 }
 
-const MAX_DURATION = 30 * 60;
 
 const TIPS = [
     "Speak naturally, don't worry about mistakes",
@@ -61,7 +60,6 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
         if (isConnected) {
             timerRef.current = setInterval(() => {
                 setElapsedTime(prev => {
-                    if (prev >= MAX_DURATION) { disconnect(); return prev; }
                     const newTime = prev + 1;
                     if (taskId) {
                         const today = new Date().toISOString().split('T')[0];
@@ -128,7 +126,6 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
     };
 
     const formatTime = (seconds: number) => `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padStart(2, '0')}`;
-    const getProgressPercent = () => Math.min(100, (elapsedTime / MAX_DURATION) * 100);
 
     const startAudioCapture = async (activeClient: GeminiLiveClient) => {
         try {
@@ -206,7 +203,6 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
                         <Clock className={`w-4 h-4 ${isConnected ? 'text-blue-400' : 'text-muted-foreground'}`} />
                         <span className="font-mono text-sm font-bold tracking-tight">
                             {formatTime(elapsedTime)}
-                            <span className="text-muted-foreground/50 ml-1">/ 30:00</span>
                         </span>
                     </div>
                 </div>
@@ -242,15 +238,6 @@ export function SpeakingSession({ taskId }: SpeakingSessionProps) {
 
             {/* Bottom Controls */}
             <div className="w-full max-w-xl flex flex-col items-center gap-8 pb-10 md:pb-16 z-10 px-6">
-                {/* Progress */}
-                {isConnected && (
-                    <div className="w-full h-1 bg-muted/20 rounded-full overflow-hidden mb-2">
-                        <div
-                            className="h-full bg-blue-500 transition-all duration-500 ease-out shadow-[0_0_10px_rgba(59,130,246,0.5)]"
-                            style={{ width: `${getProgressPercent()}%` }}
-                        />
-                    </div>
-                )}
 
                 <div className="flex items-center justify-center gap-4 w-full">
                     {!isConnected ? (

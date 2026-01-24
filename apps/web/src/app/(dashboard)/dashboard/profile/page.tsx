@@ -24,6 +24,7 @@ import {
     Sun,
     Globe,
     CheckCircle2,
+    History,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -293,14 +294,24 @@ export default function ProfilePage() {
             {/* Recent Activity */}
             <Card className="bg-surface/50 backdrop-blur-sm border-none">
                 <CardContent className="p-6">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                            <Calendar className="h-5 w-5 text-blue-500" />
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                <Calendar className="h-5 w-5 text-blue-500" />
+                            </div>
+                            <div>
+                                <h3 className="font-bold">Recent Activity</h3>
+                                <p className="text-xs text-muted-foreground">Last 7 days</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="font-bold">Recent Activity</h3>
-                            <p className="text-xs text-muted-foreground">Last 7 days</p>
-                        </div>
+                        {isMe && (
+                            <Link href="/dashboard/history">
+                                <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
+                                    <History className="w-4 h-4" />
+                                    View Full History
+                                </Button>
+                            </Link>
+                        )}
                     </div>
 
                     {historyLoading ? (

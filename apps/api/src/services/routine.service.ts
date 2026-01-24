@@ -5,13 +5,15 @@ export async function getTodayRoutine(userId: string, dateStr?: string) {
     let today: Date;
 
     if (dateStr) {
-        // format: YYYY-MM-DD
-        today = new Date(dateStr);
+        // Parse as UTC to avoid timezone issues
+        // Format: YYYY-MM-DD -> create date at midnight UTC
+        const [year, month, day] = dateStr.split('-').map(Number);
+        today = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
     } else {
-        today = new Date();
+        // Use current date in UTC
+        const now = new Date();
+        today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0));
     }
-
-    today.setHours(0, 0, 0, 0);
 
     let dailyLog = await routineRepository.findDailyLog(userId, today);
 

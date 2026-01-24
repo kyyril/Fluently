@@ -63,8 +63,9 @@ export function useTodayRoutine() {
             );
             return response.data.data;
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        gcTime: 1000 * 60 * 10,   // 10 minutes cache
+        staleTime: 1000 * 30, // 30 seconds - refresh frequently
+        gcTime: 1000 * 60 * 5, // 5 minutes cache
+        refetchOnWindowFocus: true, // Refetch when user returns to tab
     });
 }
 

@@ -6,6 +6,7 @@ import tasksRoutes from './tasks.routes';
 import leaderboardRoutes from './leaderboard.routes';
 import adminRoutes from './admin.routes';
 import articleRoutes from './article.routes';
+import historyRoutes from './history.routes';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use('/tasks', tasksRoutes);
 router.use('/leaderboard', leaderboardRoutes);
 router.use('/admin', adminRoutes);
 router.use('/articles', articleRoutes);
+router.use('/history', historyRoutes);
 
 // API info
 router.get('/', (req, res) => {
@@ -30,6 +32,7 @@ router.get('/', (req, res) => {
             tasks: '/api/tasks (complete, review, generate)',
             leaderboard: '/api/leaderboard (weekly, all-time)',
             admin: '/api/admin (users, content management)',
+            history: '/api/history (detailed learning history with filters)',
         },
     });
 });

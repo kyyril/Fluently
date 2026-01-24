@@ -18,3 +18,17 @@ export {
     useUpdateArticle,
     useDeleteArticle,
 } from './useArticles';
+export {
+    useDetailedHistory,
+    formatDuration,
+    getRelativeTime,
+    TASK_LABELS,
+    TASK_ICONS,
+    TASK_COLORS,
+    type HistoryPeriod,
+    type TaskTypeFilter,
+    type DetailedHistoryEntry,
+    type DetailedTask,
+    type HistorySummary,
+} from './useHistory';
+

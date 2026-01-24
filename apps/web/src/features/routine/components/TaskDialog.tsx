@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Modal, ModalFooter, Button, Input } from '@fluently/ui';
 import { useCompleteTask, getTaskName, getTaskXp } from '@/hooks';
-import { Loader2, CheckCircle2, AlertCircle, Headphones, PenLine, Languages, Mic, Send, BookOpen } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle, Headphones, PenLine, Languages, Mic, Send, BookOpen, Plus, Trash2 } from 'lucide-react';
 
 interface Task {
     id: string;
@@ -23,6 +23,7 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
     const [step, setStep] = useState<'intro' | 'active' | 'success'>('intro');
     const [input, setInput] = useState('');
     const [aiResult, setAiResult] = useState<any>(null);
+    const [sentences, setSentences] = useState(['', '', '']);
     const [podcastForm, setPodcastForm] = useState({
         title: '',
         description: '',
@@ -45,12 +46,15 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                         });
                     } else if (task.taskType === 'DAY_RECAP') {
                         setInput(task.metadata.content || '');
+                    } else if (task.taskType === 'CREATE_SENTENCES') {
+                        setSentences(task.metadata.sentences || ['', '', '']);
                     }
                 }
             } else {
                 setStep('intro');
                 setInput('');
                 setAiResult(null);
+                setSentences(['', '', '']);
                 setPodcastForm({ title: '', description: '', link: '', conclusion: '' });
             }
         }
@@ -212,16 +216,87 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                     </div>
                 );
 
-            case 'CREATE_SENTENCES':
+            case 'CREATE_SENTENCES': {
+                const canAdd = sentences.length < 10;
+                const canRemove = sentences.length > 3;
+                const allFilled = sentences.every(s => s.trim().length >= 5);
+
+                const addSentence = () => {
+                    if (canAdd) setSentences([...sentences, '']);
+                };
+
+                const removeSentence = (index: number) => {
+                    if (canRemove) {
+                        const newSentences = [...sentences];
+                        newSentences.splice(index, 1);
+                        setSentences(newSentences);
+                    }
+                };
+
                 return (
                     <div className="space-y-4">
-                        <p className="text-sm text-muted-foreground">Write 5 sentences using the verbs you studied:</p>
-                        {[1, 2, 3].map(i => (
-                            <Input key={i} placeholder={`Sentence ${i}...`} />
-                        ))}
-                        <Button className="w-full mt-4" onClick={() => handleComplete()}>Submit Sentences</Button>
+                        <p className="text-sm text-muted-foreground italic mb-2">
+                            Write at least 3 sentences (max 10). Each must have at least 5 characters.
+                        </p>
+
+                        <div className="max-h-[350px] overflow-y-auto pr-2 space-y-4 pt-1">
+                            {sentences.map((sentence, i) => (
+                                <div key={i} className="relative group animate-in fade-in slide-in-from-top-1">
+                                    <div className="flex items-center justify-between mb-1 px-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/70">
+                                            Sentence {i + 1}
+                                        </label>
+                                        {canRemove && (
+                                            <button
+                                                onClick={() => removeSentence(i)}
+                                                className="text-muted-foreground hover:text-red-500 transition-colors"
+                                            >
+                                                <Trash2 className="h-3 w-3" />
+                                            </button>
+                                        )}
+                                    </div>
+                                    <Input
+                                        placeholder={`Enter sentence ${i + 1}...`}
+                                        value={sentence}
+                                        onChange={(e) => {
+                                            const newSentences = [...sentences];
+                                            newSentences[i] = e.target.value;
+                                            setSentences(newSentences);
+                                        }}
+                                        className={sentence.trim().length > 0 && sentence.trim().length < 5 ? "border-red-500/50" : ""}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex gap-3 mt-4">
+                            {canAdd && (
+                                <Button
+                                    variant="outline"
+                                    className="flex-1 border-dashed border-2 hover:border-primary/50 hover:bg-primary/5 h-12"
+                                    onClick={addSentence}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Sentence
+                                </Button>
+                            )}
+
+                            <Button
+                                className="flex-[2] h-12 font-bold"
+                                onClick={() => handleComplete({ sentences: sentences.filter(s => s.trim()) })}
+                                disabled={!allFilled || isCompleting}
+                            >
+                                {isCompleting ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                    <Send className="h-4 w-4 mr-2" />
+                                )}
+                                Submit {sentences.length} Sentences
+                            </Button>
+                        </div>
                     </div>
                 );
+            }
             default:
                 return (
                     <div className="text-center space-y-6 py-8">
@@ -257,6 +332,21 @@ export function TaskDialog({ task, isOpen, onClose }: TaskDialogProps) {
                 <p className="text-muted-foreground">You've earned <span className="text-primary font-bold">+{getTaskXp(task.taskType)} XP</span></p>
             </div>
 
+
+            {task.taskType === 'CREATE_SENTENCES' && sentences.some(s => s.trim()) && (
+                <div className="bg-muted p-4 rounded-xl text-left space-y-3 text-sm">
+                    <p className="font-semibold flex items-center gap-2">
+                        <PenLine className="h-4 w-4 text-primary" /> Your Sentences
+                    </p>
+                    <div className="space-y-2">
+                        {sentences.filter(s => s.trim()).map((s, i) => (
+                            <p key={i} className="text-muted-foreground leading-relaxed">
+                                <span className="text-primary font-bold mr-2">{i + 1}.</span> {s}
+                            </p>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {task.taskType === 'PODCAST_LISTENING' && podcastForm.title && (
                 <div className="bg-muted p-4 rounded-xl text-left space-y-3 text-sm">
