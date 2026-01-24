@@ -147,10 +147,10 @@ export default function DashboardPage() {
                                 key={task.id}
                                 onClick={() => handleOpenTask(task)}
                                 className={`
-                                    group flex items-center justify-between p-4 rounded-2xl  cursor-pointer
+                                    group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all
                                     ${task.completed
-                                        ? 'bg-muted/10 opacity-60'
-                                        : 'bg-surface/50 border border-transparent hover:border-primary/20 hover:bg-surface'}
+                                        ? 'bg-surface/20 opacity-40'
+                                        : 'bg-surface/50 hover:bg-surface'}
                                 `}
                             >
                                 <div className="flex items-center gap-4">
