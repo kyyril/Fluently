@@ -1,33 +1,20 @@
 import { Request, Response } from 'express';
-import { execSync } from 'child_process';
+import app from '../src/server';
 
-// Wrapper to catch startup errors and print them to the browser
-export default async (req: Request, res: Response) => {
+// Wrapper to catch execution errors
+const handler = async (req: Request, res: Response) => {
     try {
-        console.log('Bootstrapping API...');
-
-        // 1. Force Prisma Generate (Fail-safe for missing client)
-        if (process.env.VERCEL) {
-            try {
-                console.log('Running prisma generate...');
-                execSync('npx prisma generate', { stdio: 'inherit' });
-                console.log('Prisma generated successfully.');
-            } catch (e) {
-                console.error('Prisma generate failed (ignoring, hoping it exists):', e);
-            }
-        }
-
-        // 2. Dynamic import to catch errors during module loading
-        const app = (await import('../src/server')).default;
-        console.log('App loaded successfully');
+        // App is already loaded via static import (ensures bundling)
         return app(req, res);
     } catch (error: any) {
-        console.error('CRITICAL BOOTSTRAP ERROR:', error);
+        console.error('CRITICAL RUNTIME ERROR:', error);
         res.status(500).json({
-            error: 'Server failed to start',
+            error: 'Server failed within handler',
             message: error.message,
-            stack: error.stack,
-            details: 'Check Vercel text logs for more info'
+            stack: error.stack
         });
     }
 };
+
+// CRITICAL: Force CommonJS export for Vercel
+module.exports = handler;
