@@ -2,7 +2,7 @@
     "name": "@fluently/api",
     "version": "0.0.0",
     "private": true,
-    "main": "./src/server.ts",
+    "main": "index.ts",
     "scripts": {
         "dev": "prisma generate && tsx watch src/server.ts",
         "build": "prisma generate && tsc",
