@@ -78,10 +78,8 @@ export default function ProfilePage() {
 
             {/* Hero Profile Card */}
             <Card padding="none" className="overflow-hidden bg-surface/50 backdrop-blur-sm border-none">
-                {/* Gradient Banner */}
-                <div className="h-32 sm:h-40 bg-gradient-to-br from-primary via-primary/80 to-secondary relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yLjIgMS44LTQgNC00czQgMS44IDQgNC0xLjggNC00IDQtNC0xLjgtNC00eiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
-                </div>
+                {/* Header Banner */}
+                <div className="h-32 sm:h-40 bg-muted/30" />
 
                 <CardContent className="relative px-6 pb-6">
                     {/* Avatar & Info Container */}
