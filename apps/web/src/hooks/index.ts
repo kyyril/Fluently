@@ -3,7 +3,6 @@ export {
     useTodayRoutine,
     useRoutineHistory,
     useCompleteTask,
-    useDayRecapReview,
     getTaskName,
     getTaskXp,
 } from './useRoutine';
