@@ -19,8 +19,16 @@ const envSchema = z.object({
 const parsedEnv = envSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
-    console.error('❌ Invalid environment variables:', parsedEnv.error.flatten().fieldErrors);
-    throw new Error('Invalid environment variables');
+    const errors = parsedEnv.error.flatten().fieldErrors;
+    console.error('❌ Invalid environment variables:', JSON.stringify(errors, null, 2));
+
+    // In Vercel, we want to see this in logs, but maybe not crash and die if it's just missing non-critical vars
+    // However, for the ones marked required, we must throw.
+    if (process.env.VERCEL) {
+        console.warn('⚠️ Running on Vercel with invalid configuration. Check your environment variables.');
+    }
+
+    throw new Error(`Invalid environment variables: ${Object.keys(errors).join(', ')}`);
 }
 
 export const env = parsedEnv.data;
