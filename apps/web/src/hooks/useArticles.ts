@@ -47,6 +47,8 @@ export function useArticles(params?: { search?: string; category?: string }) {
             );
             return response.data.data;
         },
+        staleTime: 1000 * 60,
+        gcTime: 1000 * 60 * 10,
     });
 }
 
@@ -60,6 +62,8 @@ export function useArticle(slug: string) {
             return response.data.data;
         },
         enabled: !!slug,
+        staleTime: 1000 * 60 * 10,
+        gcTime: 1000 * 60 * 30,
     });
 }
 
@@ -72,6 +76,8 @@ export function useDailyReadingProgress() {
             );
             return response.data.data;
         },
+        staleTime: 1000 * 60,
+        gcTime: 1000 * 60 * 10,
     });
 }
 

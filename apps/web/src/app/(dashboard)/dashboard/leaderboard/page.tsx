@@ -21,6 +21,8 @@ export default function LeaderboardPage() {
 
     const data = tab === 'weekly' ? weeklyData : allTimeData;
     const isLoading = tab === 'weekly' ? weeklyLoading : allTimeLoading;
+    const entries = data?.entries || [];
+    const hasEntries = entries.length > 0;
 
     return (
         <div className="container py-8 px-4 max-w-4xl mx-auto space-y-8">
@@ -57,85 +59,92 @@ export default function LeaderboardPage() {
                 </div>
             </div>
 
-            {/* Top 3 Podium - Revamped for Mobile Efficiency */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {isLoading ? (
-                    Array.from({ length: 3 }).map((_, i) => (
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
                         <div key={i} className="h-32 md:h-48 bg-surface/50 animate-shimmer rounded-3xl" />
-                    ))
-                ) : (
-                    <>
-                        {/* Desktop: Show Podium, Mobile: Show sleek cards */}
-                        {[1, 0, 2].map((idx) => {
-                            const entry = data?.entries[idx];
-                            if (!entry) return null;
-                            const isFirst = entry.rank === 1;
-                            return (
-                                <Link
-                                    key={entry.user.id}
-                                    href={`/dashboard/profile/${entry.user.id}`}
-                                    className={`
-                                        relative group flex md:flex-col items-center gap-4 md:gap-3 p-4 md:p-8 rounded-2xl md:rounded-3xl transition-all
-                                        ${isFirst ? 'bg-primary/5 md:bg-primary/10 md:scale-105 z-10' : 'bg-surface/50'}
-                                        hover:bg-surface border-none
-                                    `}
-                                >
-                                    <div className="relative shrink-0">
-                                        <div className={`
-                                            w-14 h-14 md:w-24 md:h-24 bg-background rounded-2xl overflow-hidden flex items-center justify-center
-                                            ${isFirst ? 'ring-2 ring-primary/20' : ''}
-                                        `}>
-                                            {entry.user.avatarUrl ? (
-                                                <Image src={entry.user.avatarUrl} alt={entry.user.displayName} fill className="object-cover" />
-                                            ) : (
-                                                <User className="w-8 h-8 text-muted-foreground/20" />
-                                            )}
-                                        </div>
-                                        <div className={`
-                                            absolute -bottom-1.5 -right-1.5 w-7 h-7 md:w-10 md:h-10 rounded-lg flex items-center justify-center shadow-lg
-                                            ${isFirst ? 'bg-yellow-500 text-black' : entry.rank === 2 ? 'bg-slate-400 text-white' : 'bg-amber-600 text-white'}
-                                        `}>
-                                            <span className="font-black text-xs md:text-base">{entry.rank}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex-1 md:text-center min-w-0">
-                                        <h3 className="font-black text-sm md:text-xl truncate group-hover:text-primary transition-colors">
-                                            {entry.user.displayName}
-                                        </h3>
-                                        <div className="flex items-center md:justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">
-                                            {levelIcon[entry.user.level]}
-                                            {entry.user.level}
-                                        </div>
-                                        <div className="mt-1 md:mt-3">
-                                            <span className="text-lg md:text-2xl font-black text-primary leading-none">
-                                                {entry.xp.toLocaleString()}
-                                            </span>
-                                            <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest text-muted-foreground ml-1.5">XP</span>
-                                        </div>
-                                    </div>
-
-                                    <ChevronRight className="md:hidden w-4 h-4 text-muted-foreground opacity-20" />
-                                </Link>
-                            );
-                        })}
-                    </>
-                )}
-            </div>
-
-            {/* Detailed Standings */}
-            <div className="space-y-3">
-                <div className="flex items-center justify-between px-2">
-                    <h2 className="text-[10px] font-black uppercase tracking-[3px] text-muted-foreground opacity-40">Leaderboard Standings</h2>
+                    ))}
                 </div>
+            ) : hasEntries ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {[1, 0, 2].map((idx) => {
+                        const entry = entries[idx];
+                        if (!entry) return null;
+                        const isFirst = entry.rank === 1;
+                        return (
+                            <Link
+                                key={entry.user.id}
+                                href={`/dashboard/profile/${entry.user.id}`}
+                                className={`
+                                    relative group flex md:flex-col items-center gap-4 md:gap-3 p-4 md:p-8 rounded-2xl md:rounded-3xl transition-all
+                                    ${isFirst ? 'bg-primary/5 md:bg-primary/10 md:scale-105 z-10' : 'bg-surface/50'}
+                                    hover:bg-surface border-none
+                                `}
+                            >
+                                <div className="relative shrink-0">
+                                    <div className={`
+                                        w-14 h-14 md:w-24 md:h-24 bg-background rounded-2xl overflow-hidden flex items-center justify-center
+                                        ${isFirst ? 'ring-2 ring-primary/20' : ''}
+                                    `}>
+                                        {entry.user.avatarUrl ? (
+                                            <Image src={entry.user.avatarUrl} alt={entry.user.displayName} fill className="object-cover" />
+                                        ) : (
+                                            <User className="w-8 h-8 text-muted-foreground/20" />
+                                        )}
+                                    </div>
+                                    <div className={`
+                                        absolute -bottom-1.5 -right-1.5 w-7 h-7 md:w-10 md:h-10 rounded-lg flex items-center justify-center shadow-lg
+                                        ${isFirst ? 'bg-yellow-500 text-black' : entry.rank === 2 ? 'bg-slate-400 text-white' : 'bg-amber-600 text-white'}
+                                    `}>
+                                        <span className="font-black text-xs md:text-base">{entry.rank}</span>
+                                    </div>
+                                </div>
 
-                <div className="grid gap-2">
-                    {isLoading ? (
-                        Array.from({ length: 5 }).map((_, i) => (
-                            <div key={i} className="h-16 bg-surface/30 animate-shimmer rounded-2xl" />
-                        ))
-                    ) : (
-                        data?.entries.slice(data.entries.length >= 3 ? 3 : 0).map((entry) => (
+                                <div className="flex-1 md:text-center min-w-0">
+                                    <h3 className="font-black text-sm md:text-xl truncate group-hover:text-primary transition-colors">
+                                        {entry.user.displayName}
+                                    </h3>
+                                    <div className="flex items-center md:justify-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">
+                                        {levelIcon[entry.user.level]}
+                                        {entry.user.level}
+                                    </div>
+                                    <div className="mt-1 md:mt-3">
+                                        <span className="text-lg md:text-2xl font-black text-primary leading-none">
+                                            {entry.xp.toLocaleString()}
+                                        </span>
+                                        <span className="text-[9px] md:text-[11px] font-black uppercase tracking-widest text-muted-foreground ml-1.5">XP</span>
+                                    </div>
+                                </div>
+
+                                <ChevronRight className="md:hidden w-4 h-4 text-muted-foreground opacity-20" />
+                            </Link>
+                        );
+                    })}
+                </div>
+            ) : (
+                <div className="rounded-3xl bg-surface/50 border border-border p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
+                        {tab === 'weekly' ? <TrendingUp className="h-8 w-8" /> : <Award className="h-8 w-8" />}
+                    </div>
+                    <h2 className="text-xl font-black mb-2">
+                        {tab === 'weekly' ? 'No top learners this week yet' : 'No leaderboard yet'}
+                    </h2>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                        {tab === 'weekly'
+                            ? 'Complete your daily routine to start climbing this week’s ranking.'
+                            : 'Leaderboard will appear once users start earning XP.'}
+                    </p>
+                </div>
+            )}
+
+            {hasEntries && (
+                <div className="space-y-3">
+                    <div className="flex items-center justify-between px-2">
+                        <h2 className="text-[10px] font-black uppercase tracking-[3px] text-muted-foreground opacity-40">Leaderboard Standings</h2>
+                    </div>
+
+                    <div className="grid gap-2">
+                        {entries.slice(entries.length >= 3 ? 3 : 0).map((entry) => (
                             <Link
                                 key={entry.user.id}
                                 href={`/dashboard/profile/${entry.user.id}`}
@@ -181,10 +190,10 @@ export default function LeaderboardPage() {
                                     <div className="text-[9px] font-black uppercase tracking-[1px] text-muted-foreground opacity-40">XP</div>
                                 </div>
                             </Link>
-                        ))
-                    )}
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
 
             {/* Your Rank - Floating Footer on Mobile? For now just a subtle card */}
             {!isLoading && data?.userRank && (

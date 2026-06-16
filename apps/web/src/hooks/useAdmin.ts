@@ -23,6 +23,8 @@ export function useAdminUsers() {
             );
             return response.data.data;
         },
+        staleTime: 1000 * 60 * 2,
+        gcTime: 1000 * 60 * 10,
     });
 }
 
@@ -36,6 +38,8 @@ export function useAdminUserDetail(userId: string) {
             return response.data.data;
         },
         enabled: !!userId,
+        staleTime: 1000 * 60 * 2,
+        gcTime: 1000 * 60 * 10,
     });
 }
 

@@ -4,8 +4,6 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useUser, useAuth } from '@/hooks';
-import { Loader2 } from 'lucide-react';
-
 import {
     Home,
     Trophy,
@@ -23,23 +21,18 @@ export default function DashboardLayout({
     const router = useRouter();
     const pathname = usePathname();
     const { session, isLoading: isSessionLoading } = useAuth();
-    const { data: user, isLoading: isUserLoading, isFetched } = useUser();
+    const { data: user, isFetched } = useUser();
 
-    // Auth redirect
     useEffect(() => {
-        // Wait for session to load
         if (isSessionLoading) return;
 
-        // No session = redirect to sign-in
         if (!session?.user) {
             router.replace('/auth/sign-in');
             return;
         }
 
-        // Session exists, wait for user data
         if (!isFetched) return;
 
-        // User loaded - check for redirects
         if (user) {
             if (!user.level && user.role !== 'ADMIN') {
                 router.replace('/onboarding');
@@ -48,26 +41,6 @@ export default function DashboardLayout({
             }
         }
     }, [isSessionLoading, session, isFetched, user, router, pathname]);
-
-    // Loading states
-    if (isSessionLoading || !session?.user) {
-        return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-        );
-    }
-
-    if (isUserLoading || !isFetched) {
-        return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-muted-foreground">Loading profile...</p>
-                </div>
-            </div>
-        );
-    }
 
     const navItems = [
         { href: '/dashboard', label: 'Home', icon: Home },

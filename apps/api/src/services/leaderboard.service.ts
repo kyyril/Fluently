@@ -3,18 +3,25 @@ import { redis } from '../config';
 
 const CACHE_TTL = 600; // 10 minutes in seconds
 
+async function getCachedLeaderboard(key: string, fetchFresh: () => Promise<any>) {
+    const cached = await redis.get(key);
+
+    if (cached) {
+        try {
+            return JSON.parse(cached);
+        } catch {
+            await redis.del(key);
+        }
+    }
+
+    const freshEntries = await fetchFresh();
+    await redis.set(key, JSON.stringify(freshEntries), 'EX', CACHE_TTL);
+    return freshEntries;
+}
+
 export async function getWeeklyLeaderboard(userId?: string) {
-    const fetchEntries = async () => {
-        const cached = await redis.get('leaderboard:weekly');
-        if (cached) return JSON.parse(cached);
-
-        const freshEntries = await leaderboardRepository.getWeeklyLeaderboard();
-        await redis.set('leaderboard:weekly', JSON.stringify(freshEntries), 'EX', CACHE_TTL);
-        return freshEntries;
-    };
-
     const [entries, userRank] = await Promise.all([
-        fetchEntries(),
+        getCachedLeaderboard('leaderboard:weekly', () => leaderboardRepository.getWeeklyLeaderboard()),
         userId ? leaderboardRepository.getWeeklyUserRank(userId) : Promise.resolve(null)
     ]);
 
@@ -26,17 +33,8 @@ export async function getWeeklyLeaderboard(userId?: string) {
 }
 
 export async function getAllTimeLeaderboard(userId?: string) {
-    const fetchEntries = async () => {
-        const cached = await redis.get('leaderboard:all-time');
-        if (cached) return JSON.parse(cached);
-
-        const freshEntries = await leaderboardRepository.getAllTimeLeaderboard();
-        await redis.set('leaderboard:all-time', JSON.stringify(freshEntries), 'EX', CACHE_TTL);
-        return freshEntries;
-    };
-
     const [entries, userRank] = await Promise.all([
-        fetchEntries(),
+        getCachedLeaderboard('leaderboard:all-time', () => leaderboardRepository.getAllTimeLeaderboard()),
         userId ? leaderboardRepository.getUserRank(userId) : Promise.resolve(null)
     ]);
 

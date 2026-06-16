@@ -33,8 +33,8 @@ export function useWeeklyLeaderboard() {
             );
             return response.data.data;
         },
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        gcTime: 1000 * 60 * 15,   // 15 minutes cache
+        staleTime: 1000 * 60 * 5,
+        gcTime: 1000 * 60 * 15,
     });
 }
 
@@ -48,7 +48,7 @@ export function useAllTimeLeaderboard() {
             return response.data.data;
         },
         staleTime: 1000 * 60 * 5,
-        gcTime: 1000 * 60 * 15,   // 15 minutes cache
+        gcTime: 1000 * 60 * 15,
     });
 }
 

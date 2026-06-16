@@ -1,16 +1,19 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useArticle, useCompleteArticle } from '@/hooks';
 import { Card, CardContent, Button } from '@fluently/ui';
-import { ArrowLeft, Clock, CheckCircle2, Award, Calendar, AlertCircle, Quote } from 'lucide-react';
+import {
+    ArrowLeft,
+    Clock,
+    CheckCircle2,
+    Award,
+    Calendar,
+    AlertCircle,
+} from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
-import ReactMarkdown from 'react-markdown';
-import { useState, useEffect, isValidElement, cloneElement, ReactNode } from 'react';
-import confetti from 'canvas-confetti';
+import { ArticleContent } from '@/features/articles/components/ArticleContent';
 import { DictionaryModal } from '@/components/DictionaryModal';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import remarkGfm from 'remark-gfm';
 import Image from 'next/image';
 
 export default function ArticleViewPage() {
@@ -21,12 +24,8 @@ export default function ArticleViewPage() {
     const { data: article, isLoading } = useArticle(slug);
     const completeArticle = useCompleteArticle();
     const [reward, setReward] = useState<{ xp: number; bonus: boolean } | null>(null);
-
-    // Dictionary State
     const [selectedWord, setSelectedWord] = useState<string | null>(null);
     const [isDictionaryOpen, setIsDictionaryOpen] = useState(false);
-
-    // Scroll progress
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
@@ -46,12 +45,11 @@ export default function ArticleViewPage() {
         try {
             const result = await completeArticle.mutateAsync(article.id);
             setReward({ xp: result.xpEarned, bonus: result.bonusEarned });
-
-            // Trigger confetti
-            confetti({
+            const confetti = await import('canvas-confetti');
+            confetti.default({
                 particleCount: 100,
                 spread: 70,
-                origin: { y: 0.6 }
+                origin: { y: 0.6 },
             });
         } catch (error) {
             console.error('Failed to complete article:', error);
@@ -59,58 +57,11 @@ export default function ArticleViewPage() {
     };
 
     const handleWordClick = (word: string) => {
-        // Clean punctuation: remove non-word chars from start/end
         const cleanWord = word.replace(/^[^\w]+|[^\w]+$/g, '');
         if (cleanWord) {
             setSelectedWord(cleanWord);
             setIsDictionaryOpen(true);
         }
-    };
-
-    // Helper to wrap words in clickable spans
-    const InteractiveText = ({ children }: { children: ReactNode }) => {
-        const wrapText = (node: ReactNode): ReactNode => {
-            if (typeof node === 'string') {
-                return node.split(/(\s+)/).map((part, index) => {
-                    // Return whitespace as is
-                    if (/^\s+$/.test(part) || part === '') return part;
-
-                    return (
-                        <span
-                            key={index}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleWordClick(part);
-                            }}
-                            className="cursor-pointer hover:bg-primary/20 hover:text-primary transition-colors rounded-sm px-0.5 -mx-0.5 py-0.5 select-text"
-                            title="Click for definition"
-                        >
-                            {part}
-                        </span>
-                    );
-                });
-            }
-
-            if (Array.isArray(node)) {
-                return node.map((child, i) => <span key={i}>{wrapText(child)}</span>);
-            }
-
-            if (isValidElement(node)) {
-                // Skip icons, code blocks, etc
-                if (node.type === 'code' || node.type === 'pre' || node.type === 'svg') return node;
-
-                const { children, ...props } = node.props;
-                // Use recursion on children if they exist
-                if (children) {
-                    return cloneElement(node, props, wrapText(children));
-                }
-                return node;
-            }
-
-            return node;
-        };
-
-        return <>{wrapText(children)}</>;
     };
 
     if (isLoading) {
@@ -146,7 +97,6 @@ export default function ArticleViewPage() {
 
     return (
         <div className="relative pb-24">
-            {/* Reading Progress Bar */}
             <div className="fixed top-0 left-0 w-full h-1 bg-muted z-50">
                 <div
                     className="h-full bg-primary transition-all duration-100 ease-out"
@@ -160,8 +110,7 @@ export default function ArticleViewPage() {
                 onClose={() => setIsDictionaryOpen(false)}
             />
 
-            <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8 ">
-                {/* Navigation & Meta */}
+            <div className="container py-8 px-4 max-w-3xl mx-auto space-y-8">
                 <div className="space-y-6">
                     <Button variant="ghost" size="sm" onClick={() => router.back()} className="gap-2 -ml-4">
                         <ArrowLeft className="h-4 w-4" />
@@ -197,7 +146,6 @@ export default function ArticleViewPage() {
                     </div>
                 </div>
 
-                {/* Cover Image */}
                 {article.coverImage && (
                     <div className="rounded-2xl overflow-hidden aspect-[21/9] shadow-2xl relative">
                         <Image
@@ -211,76 +159,19 @@ export default function ArticleViewPage() {
                     </div>
                 )}
 
-                {/* Content */}
                 <article className="
-                    prose prose-lg dark:prose-invert max-w-none 
+                    prose prose-lg dark:prose-invert max-w-none
                     prose-headings:font-black prose-headings:tracking-tight prose-headings:text-foreground
                     prose-p:leading-loose prose-p:text-muted-foreground
                     prose-a:text-primary prose-a:font-bold prose-a:no-underline hover:prose-a:underline
                     prose-strong:font-black prose-strong:text-foreground
-                    prose-strong:font-black prose-strong:text-foreground
                     prose-img:rounded-xl prose-img:shadow-lg prose-img:w-full prose-img:h-auto
-                    prose-li:text-muted-foreground
                     prose-li:text-muted-foreground
                     prose-hr:border-border
                 ">
-                    <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        components={{
-                            p: ({ children }) => <p className="mb-4 text-lg leading-relaxed"><InteractiveText>{children}</InteractiveText></p>,
-                            ul: ({ children }) => <ul className="list-disc pl-8 mb-6 space-y-2 text-lg">{children}</ul>,
-                            ol: ({ children }) => <ol className="list-decimal pl-8 mb-6 space-y-2 text-lg">{children}</ol>,
-                            li: ({ children }) => <li className="pl-2"><InteractiveText>{children}</InteractiveText></li>,
-                            blockquote: ({ children }) => (
-                                <blockquote className="relative my-10 pl-10 pr-6 py-6 border-l-4 border-primary bg-primary/5 rounded-r-2xl overflow-hidden group">
-                                    <Quote className="absolute -top-2 -left-2 h-16 w-16 text-primary/5 -rotate-12 transition-transform group-hover:rotate-0 duration-500" />
-                                    <div className="relative z-10 italic text-xl text-foreground font-medium leading-relaxed">
-                                        <InteractiveText>{children}</InteractiveText>
-                                    </div>
-                                </blockquote>
-                            ),
-                            h1: ({ children }) => <h1 className="text-3xl sm:text-4xl mt-12 mb-6"><InteractiveText>{children}</InteractiveText></h1>,
-                            h2: ({ children }) => <h2 className="text-2xl sm:text-3xl mt-10 mb-5 pb-2"><InteractiveText>{children}</InteractiveText></h2>,
-                            h3: ({ children }) => <h3 className="text-xl sm:text-2xl mt-8 mb-4 font-bold"><InteractiveText>{children}</InteractiveText></h3>,
-                            code: ({ node, className, children, ...props }: any) => {
-                                const match = /language-(\w+)/.exec(className || '')
-                                return match ? (
-                                    <div className="rounded-xl overflow-hidden my-6 shadow-xl">
-                                        <div className="bg-muted px-4 py-2 text-xs font-mono text-muted-foreground flex justify-between">
-                                            <span>{match[1]}</span>
-                                        </div>
-                                        <SyntaxHighlighter
-                                            {...props}
-                                            style={vscDarkPlus}
-                                            language={match[1]}
-                                            PreTag="div"
-                                            customStyle={{ margin: 0, borderRadius: 0 }}
-                                        >
-                                            {String(children).replace(/\n$/, '')}
-                                        </SyntaxHighlighter>
-                                    </div>
-                                ) : (
-                                    <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary font-bold" {...props}>
-                                        {children}
-                                    </code>
-                                )
-                            },
-                            // Custom Table Handling for professional look
-                            table: ({ children }) => (
-                                <div className="overflow-x-auto my-8 rounded-xl shadow-md bg-surface/30">
-                                    <table className="w-full text-sm text-left">{children}</table>
-                                </div>
-                            ),
-                            thead: ({ children }) => <thead className="text-xs uppercase bg-muted/50 text-muted-foreground">{children}</thead>,
-                            th: ({ children }) => <th className="px-6 py-4 font-bold">{children}</th>,
-                            td: ({ children }) => <td className="px-6 py-4"><InteractiveText>{children}</InteractiveText></td>,
-                        }}
-                    >
-                        {article.content || ''}
-                    </ReactMarkdown>
+                    <ArticleContent article={article} onWordClick={handleWordClick} />
                 </article>
 
-                {/* Completion Section */}
                 <div className="pt-12 mt-12 mb-12">
                     <Card className={`
                         overflow-hidden transition-all duration-500
