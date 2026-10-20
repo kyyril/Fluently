@@ -1,14 +1,16 @@
 # Fluently
 
-A structured daily routine language learning app with gamification elements.
+Fluently is a structured daily routine language learning application designed to help users master a new language efficiently through daily workflows, real-time AI conversation practice, and gamification elements.
 
 ## Key Features
 
-- **AI Speaking Coach**: Real-time voice conversations powered by **Google Gemini**.
-- **Daily Routine**: Structured 4-step daily workflow: Podcast Listening, Speaking Session, Sentence Creation, and Day Recap Journal.
-- **Gamification**: Earn XP, level up, and maintain streaks. Compete on the global leaderboard.
-- **Platform Sync**: Seamless data synchronization between Web and Mobile (Expo/React Native).
-- **Smart Articles**: Curated reading materials with built-in vocabulary learning, interactive translations, and high-quality audio pronunciation.
+* **AI Speaking Coach**: Engage in real-time voice conversations powered by Google Gemini to practice pronunciation, fluency, and conversational dynamics.
+* **Daily Routine**: Follow a structured four-step daily workflow consisting of Podcast Listening, Speaking Sessions, Sentence Creation, and Day Recap Journaling.
+* **Gamification**: Earn experience points (XP), level up your profile, maintain daily learning streaks, and compete with other learners on the global leaderboard.
+* **Platform Synchronization**: Enjoy seamless data synchronization between the web platform and the mobile application.
+* **Smart Articles**: Read curated articles equipped with built-in vocabulary learning tools, interactive translations, and high-quality audio pronunciation.
+
+---
 
 ## Preview
 
@@ -21,31 +23,34 @@ A structured daily routine language learning app with gamification elements.
 ### Leaderboard
 ![Leaderboard](https://res.cloudinary.com/da5ggxk01/image/upload/v1769253422/d66ac437-6c9e-481e-951b-e67f696fb13f.png)
 
-### Mobile App (React Native)
+### Mobile Application (React Native)
 ![Mobile App](https://res.cloudinary.com/da5ggxk01/image/upload/v1769257077/68e027a8-b029-4bcd-a833-2a7a48855a24.png)
+
+---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|------------|
-| Web | Next.js 14, TailwindCSS, TanStack Query |
-| Mobile | Expo, React Native, NativeWind |
-| Backend | Express.js, Prisma, PostgreSQL (Neon) |
-| AI | Google Gemini |
-| Cache | Redis (ioredis) |
+| :--- | :--- |
+| **Web Frontend** | Next.js 14, TailwindCSS, TanStack Query |
+| **Mobile Frontend** | Expo, React Native, NativeWind |
+| **Backend API** | Express.js, Prisma, PostgreSQL (Neon) |
+| **Artificial Intelligence** | Google Gemini |
+| **Caching & Realtime** | Redis (ioredis) |
 
-## Development
+---
 
-```bash
-# Install dependencies
-pnpm install
+## Getting Started
 
-# Start development
-pnpm dev
-```
+### Prerequisites
 
-## Test API
-```bash
-cd apps/api
-powershell -ExecutionPolicy Bypass -File .\test-api.ps1
-```
+Ensure you have the following installed on your machine:
+* Node.js (v18 or higher)
+* pnpm package manager
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/kyyril/Fluently.git](https://github.com/kyyril/Fluently.git)
+   cd Fluently
